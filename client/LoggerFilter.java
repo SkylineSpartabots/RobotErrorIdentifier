@@ -16,7 +16,7 @@ public class LoggerFilter {
     public static void main(final String[] args) {
         try {
             final byte[] buffer = new byte[1024];
-            final FileInputStream fis = new FileInputStream(folderPath + fileName + ".txt");
+            final FileInputStream fis = new FileInputStream(folderPath + fileName + ".dsevents");
             String allText = "";
             while (fis.read(buffer) != -1) {
                 String nextLine = null;
