@@ -9,14 +9,14 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class LoggerFilter {
+    //TODO: N/A for now
+    private static final String folderPath = "C:\\Users\\Public\\Documents\\FRC\\Log Files\\"; //Location of all .dsevents files
+    private static final String fileName = ""; //Paste the name of the file you want to parse here
 
-    private static final String folderPath = "C:\\Users\\Public\\Documents\\FRC\\Log Files\\";
-    private static final String fileName = "2019_09_10 20_42_12 Tue"; //Paste the name of the file you want to parse here
-
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         try {
-            byte[] buffer = new byte[1024];
-            FileInputStream fis = new FileInputStream(folderPath + fileName + ".dsevents");
+            final byte[] buffer = new byte[1024];
+            final FileInputStream fis = new FileInputStream(folderPath + fileName + ".txt");
             String allText = "";
             while (fis.read(buffer) != -1) {
                 String nextLine = null;
@@ -25,53 +25,44 @@ public class LoggerFilter {
             }
             parseData(allText);
             fis.close();
-        } catch (FileNotFoundException e) {
+        } catch (final FileNotFoundException e) {
             System.out.println("Failed to find file");
             e.printStackTrace();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             System.out.println("Failed to read file");
             e.printStackTrace();
         }
     }
 
     public static void parseData(String s) throws IOException {
-        String alertKeyUpperBound = "!!!!!!!! Error:";
-        String alertKeyLowerBound = "!!!!!!!!";
-        ArrayList<String> allMessages = new ArrayList<String>();
+        final String alertKeyUpperBound = "!!!!!!!! Error:";
+        final String alertKeyLowerBound = "!!!!!!!!";
+        final ArrayList<String> allMessages = new ArrayList<String>();
         s = s.replaceAll(alertKeyUpperBound, "<S>");
         s = s.replaceAll(alertKeyLowerBound, "<E>");
         while (s.contains("<S>") && s.contains("<E>")) {
-            int a = s.indexOf("<S>");
-            int b = s.indexOf("<E>") + 3;
-            String logLine = s.substring(a, b);
+            final int a = s.indexOf("<S>");
+            final int b = s.indexOf("<E>") + 3;
+            final String logLine = s.substring(a, b);
             s = s.replaceFirst(logLine, "");
             allMessages.add(logLine);
         }
         writeToFile(allMessages);
     }
 
-    public static void writeToFile(ArrayList<String> list) throws IOException{
-        Date currentDate = new Date();
-        Calendar currentCal = Calendar.getInstance();
+    public static void writeToFile(final ArrayList<String> list) throws IOException {
+        final Date currentDate = new Date();
+        final Calendar currentCal = Calendar.getInstance();
         currentCal.setTime(currentDate);
-        String fileName = "LOG_DATE_" + 
-        currentCal.get(Calendar.YEAR) + 
-        "_" + 
-        currentCal.get(Calendar.MONTH) + 
-        "_" + 
-        currentCal.get(Calendar.DAY_OF_MONTH) +
-        "_TIME_" +
-        currentCal.get(Calendar.HOUR_OF_DAY) +
-        "_" +
-        currentCal.get(Calendar.MINUTE) +
-        "_" +
-        currentCal.get(Calendar.SECOND);
+        final String fileName = "LOG_DATE_" + currentCal.get(Calendar.YEAR) + "_" + currentCal.get(Calendar.MONTH) + "_"
+                + currentCal.get(Calendar.DAY_OF_MONTH) + "_TIME_" + currentCal.get(Calendar.HOUR_OF_DAY) + "_"
+                + currentCal.get(Calendar.MINUTE) + "_" + currentCal.get(Calendar.SECOND);
 
-        String filePath = "output\\" + fileName;
-        FileWriter fw = new FileWriter(filePath, false);
-        PrintWriter printer = new PrintWriter(fw);
+        final String filePath = "output\\" + fileName;
+        final FileWriter fw = new FileWriter(filePath, false);
+        final PrintWriter printer = new PrintWriter(fw);
         printer.println("Robot Malfunction(s):");
-        for(String s : list) {
+        for (final String s : list) {
             printer.println(s);
         }
         printer.close();
