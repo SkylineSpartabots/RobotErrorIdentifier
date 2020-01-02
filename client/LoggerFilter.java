@@ -137,9 +137,9 @@ public class LoggerFilter {
         return values;
     }
     /**
-     * Writes an ArrayList<String> of parsed errors to an output file.
+     * Writes a HashMap of parsed errors to an output file in an elegant way.
      * For more information on the output file, check "README.txt" in the output folder.
-     * @param list -> The ArrayList<String> object that will be printed to the file.
+     * @param values -> The HashMap object that will be printed to the file.
      * @throws IOException
      */
     public static void writeToFile(HashMap<String, List<String>> values) throws IOException {
@@ -149,11 +149,10 @@ public class LoggerFilter {
         final FileWriter fw = new FileWriter(filePath, false);
         final PrintWriter printer = new PrintWriter(fw);
         printer.println("Robot Malfunction(s):");
-        values.forEach((key,value) -> printer.println("The error \"" + key + 
-        "\" occurred first at timestamp " + value.get(0) +
-        " and last at timestamp " + value.get(1) +
-        ".\nIt occurred a total of " + value.get(2) +
-        " times during this session. \n"));
+        values.forEach((key,value) -> printer.println("\"" + key + 
+        "\"\nStart: " + value.get(0) +
+        "   End: " + value.get(1) +
+        "   Frequency: " + value.get(2) + "\n"));
         printer.close();
     }
 }

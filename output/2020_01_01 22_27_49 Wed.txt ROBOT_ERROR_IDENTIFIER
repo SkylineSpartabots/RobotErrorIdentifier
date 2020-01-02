@@ -1,13 +1,13 @@
 Robot Malfunction(s):
-The error "Encoder Disconnected" occurred first at timestamp 1.01 and last at timestamp 7.69.
-It occurred a total of 6 times during this session. 
+"Encoder Disconnected"
+Start: 1.01   End: 7.69   Frequency: 6
 
-The error "Vision Disconnected" occurred first at timestamp 1.13 and last at timestamp 9.99.
-It occurred a total of 6 times during this session. 
+"Vision Disconnected"
+Start: 1.13   End: 9.99   Frequency: 6
 
-The error "Limit Switch Dead" occurred first at timestamp 1.49 and last at timestamp 3.75.
-It occurred a total of 2 times during this session. 
+"Limit Switch Dead"
+Start: 1.49   End: 3.75   Frequency: 2
 
-The error "Timing Overrun" occurred first at timestamp 1.05 and last at timestamp 3.97.
-It occurred a total of 3 times during this session. 
+"Timing Overrun"
+Start: 1.05   End: 3.97   Frequency: 3
 
