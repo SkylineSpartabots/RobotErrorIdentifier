@@ -1,11 +1,16 @@
 package client;
+
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * A client that can be run at the end of matches to parse through .dsevents files and output a ".txt" file that only contains important information about robot malfunctions.
@@ -28,11 +33,11 @@ public class LoggerFilter {
     /**
      * Upper bound to use when parsing for errors.
      */
-    private static final String ALERT_KEY_UPPER_BOUND = "!!!!!!!! Error:";
+    private static final String ALERT_KEY_UPPER_BOUND = "S_LOG";
     /**
      * Lower bound to use when parsing for errors.
      */
-    private static final String ALERT_KEY_LOWER_BOUND = "!!!!!!!!";
+    private static final String ALERT_KEY_LOWER_BOUND = "E_LOG";
 
     public static void main(final String[] args) {
         if(fileName.equals("")) {
@@ -58,20 +63,20 @@ public class LoggerFilter {
         }
     }
     /**
-     * Reads the file in as a stream of bytes and concatenates the String information from these bytes onto a String called "allText".
+     * Reads the file in through BufferedReader and concatenates each readLine() onto a String called "allText".
      */
     public static void readFile() {
         try {
-            final byte[] buffer = new byte[1024];
-            final FileInputStream fis = new FileInputStream(folderPath + fileName);
+            final FileReader fr = new FileReader(folderPath + fileName);
+            final BufferedReader br = new BufferedReader(fr);
             String allText = "";
-            while (fis.read(buffer) != -1) {
-                String nextLine = null;
-                nextLine = new String(buffer);
-                allText += nextLine;
+            String contentLine = br.readLine();
+	        while (contentLine != null) {
+                allText += contentLine;
+                contentLine = br.readLine();           
             }
-            parseData(allText);
-            fis.close();
+            parseData(allText.replaceAll("\\|", "<P>"));
+            br.close();
         } catch (final FileNotFoundException e) {
             System.out.println("Failed to find file.");
             e.printStackTrace();
@@ -89,16 +94,47 @@ public class LoggerFilter {
      */
     public static void parseData(String s) throws IOException {
         final ArrayList<String> allMessages = new ArrayList<String>();
-        s = s.replaceAll(ALERT_KEY_UPPER_BOUND, "<S>");
-        s = s.replaceAll(ALERT_KEY_LOWER_BOUND, "<E>");
-        while (s.contains("<S>") && s.contains("<E>")) {
-            final int a = s.indexOf("<S>");
-            final int b = s.indexOf("<E>") + 3;
-            final String logLine = s.substring(a, b);
+        s = "START " + s.trim() + " END";
+        while (s.contains(ALERT_KEY_UPPER_BOUND) && s.contains(ALERT_KEY_LOWER_BOUND)) {
+            final int a = s.indexOf(ALERT_KEY_UPPER_BOUND);
+            final int b = s.indexOf(ALERT_KEY_LOWER_BOUND) + 5;
+            String logLine = s.substring(a, b);
             s = s.replaceFirst(logLine, "");
-            allMessages.add(logLine);
+            logLine = logLine.replaceAll(ALERT_KEY_UPPER_BOUND, "");
+            logLine = logLine.replaceAll(ALERT_KEY_LOWER_BOUND, "");
+            logLine = logLine.replaceAll("########", "");
+            logLine = logLine.replaceAll("<<<<<<<< Warning:", "");
+            logLine = logLine.replaceAll(">>>>>>>>", "");
+            logLine = logLine.replaceAll("!!!!!!!! Error:", "");
+            logLine = logLine.replaceAll("!!!!!!!!", "");
+            logLine = logLine.replaceAll("<P><P><P> Sensor Reading:", "");
+            logLine = logLine.replaceAll("<P><P><P>", "");
+            allMessages.add(logLine.trim());
         }
-        writeToFile(allMessages);
+        ArrayList<String> timeStampArray = new ArrayList<>();
+        HashMap<String, List<String>> values = hashify(allMessages, timeStampArray);
+        writeToFile(values);
+    }
+    /**
+     * Creates an array of timestamps from the array of errors, a nd then puts them into a HashMap that contains initial timestamp, final timestamp, and frequency.
+     * @param errorArray -> ArrayList<String> of errors with timestamps included.
+     * @param timeStampArray -> Arraylist<String> that timestamps will be moved to by the end of the method.
+     * @return A Hashmap with the error as a key (String), and a List<String> of initial timestamps, final timestamps, and frequencies for each error.
+     */
+    public static HashMap<String, List<String>> hashify(ArrayList<String> errorArray , ArrayList<String> timeStampArray) {
+        for (int i = 0; i < errorArray.size(); i++) {
+            timeStampArray.add(errorArray.get(i).substring(errorArray.get(i).indexOf("<") + 1, errorArray.get(i).indexOf(">")));
+            errorArray.set(i, (errorArray.get(i).replace(errorArray.get(i).substring(errorArray.get(i).indexOf("<"), errorArray.get(i).indexOf(">") + 1), "")).trim());
+        }
+        HashMap<String, List<String>> values = new HashMap<>();
+        for(String s : errorArray) {
+            if(values.containsKey(s)) {
+                values.put(s, Arrays.asList(values.get(s).get(0), values.get(s).get(1), "" + ((Integer.parseInt(values.get(s).get(2))) + 1)));
+            } else {
+                values.put(s, Arrays.asList(timeStampArray.get(errorArray.indexOf(s)), timeStampArray.get(errorArray.lastIndexOf(s)),"1"));
+            }
+        }
+        return values;
     }
     /**
      * Writes an ArrayList<String> of parsed errors to an output file.
@@ -106,16 +142,18 @@ public class LoggerFilter {
      * @param list -> The ArrayList<String> object that will be printed to the file.
      * @throws IOException
      */
-    public static void writeToFile(final ArrayList<String> list) throws IOException {
+    public static void writeToFile(HashMap<String, List<String>> values) throws IOException {
         final String fileName = LoggerFilter.fileName + " ROBOT_ERROR_IDENTIFIER";
 
         final String filePath = "output\\" + fileName;
         final FileWriter fw = new FileWriter(filePath, false);
         final PrintWriter printer = new PrintWriter(fw);
         printer.println("Robot Malfunction(s):");
-        for (final String s : list) {
-            printer.println(s);
-        }
+        values.forEach((key,value) -> printer.println("The error \"" + key + 
+        "\" occurred first at timestamp " + value.get(0) +
+        " and last at timestamp " + value.get(1) +
+        ".\nIt occurred a total of " + value.get(2) +
+        " times during this session. \n"));
         printer.close();
     }
 }
