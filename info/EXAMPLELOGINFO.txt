@@ -1,19 +1,10 @@
-An example of what the client can parse through:
+Examples of what the client can parse through:
 
-S_LOG !!!!!!!! Error: <1.01> Encoder Disconnected !!!!!!!! E_LOG
-S_LOG <<<<<<<< Warning: <1.05> Timing Overrun >>>>>>>> E_LOG
-S_LOG !!!!!!!! Error: <1.13> Vision Disconnected !!!!!!!! E_LOG
-S_LOG !!!!!!!! Error: <1.24> Encoder Disconnected !!!!!!!! E_LOG
-S_LOG !!!!!!!! Error: <1.37> Vision Disconnected !!!!!!!! E_LOG
-S_LOG ||| Sensor Reading: <1.49> Limit Switch Dead ||| E_LOG
-S_LOG !!!!!!!! Error: <1.69> Encoder Disconnected !!!!!!!! E_LOG
-S_LOG <<<<<<<< Warning: <1.75> Timing Overrun >>>>>>>> E_LOG
-S_LOG !!!!!!!! Error: <1.99> Vision Disconnected !!!!!!!! E_LOG
-S_LOG !!!!!!!! Error: <2.01> Encoder Disconnected !!!!!!!! E_LOG
-S_LOG !!!!!!!! Error: <2.13> Vision Disconnected !!!!!!!! E_LOG
-S_LOG !!!!!!!! Error: <3.24> Encoder Disconnected !!!!!!!! E_LOG
-S_LOG ||| Sensor Reading: <3.75> Limit Switch Dead ||| E_LOG
-S_LOG <<<<<<<< Warning: <3.97> Timing Overrun >>>>>>>> E_LOG
-S_LOG !!!!!!!! Error: <4.37>  Vision Disconnected !!!!!!!! E_LOG
-S_LOG !!!!!!!! Error: <7.69> Encoder Disconnected !!!!!!!! E_LOG
-S_LOG !!!!!!!! Error: <9.99> Vision Disconnected !!!!!!!! E_LOG
+S_LOG ######## <1.00> Robot starting to beep loudly ######## E_LOG
+S_LOG <<<<<<<< Warning: <1.01> Timing Overrun >>>>>>>> E_LOG
+S_LOG !!!!!!!! Error: <2.75> Encoder Disconnected !!!!!!!! E_LOG
+S_LOG ||| Sensor Reading: <2.99> Limit Switch Dead ||| E_LOG
+S_LOG <<<<<<<< Warning: <4.01> Timing Overrun >>>>>>>> E_LOG
+S_LOG !!!!!!!! Error: <5.75> Encoder Disconnected !!!!!!!! E_LOG
+S_LOG ||| Sensor Reading: <5.99> Limit Switch Dead ||| E_LOG
+S_LOG ######## <6.00> Robot done beeping loudly ######## E_LOG
