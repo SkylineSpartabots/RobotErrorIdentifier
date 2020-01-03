@@ -18,7 +18,7 @@ import java.util.Scanner;
  * files and output a ".txt" file that only contains important information about
  * robot malfunctions. Helpful for post-match diagnostics.
  * 
- * @version 1.1
+ * @version 1.2
  * @author Team 2976!
  */
 public class LoggerFilter {
@@ -81,7 +81,7 @@ public class LoggerFilter {
      */
     public static void readFile() {
         try {
-            final FileReader fr = new FileReader(/* folderPath + fileName */ "info\\2019_12_03 20_02_03 Tue.dsevents"); //output\\testText.txt
+            final FileReader fr = new FileReader(/* folderPath + fileName */ "info\\2019_12_03 20_02_03 Tue.dsevents"); // output\\testText.txt
             final BufferedReader br = new BufferedReader(fr);
             allText = "";
             String contentLine = br.readLine();
@@ -144,8 +144,8 @@ public class LoggerFilter {
      * @return A Hashmap with the error as a key (String), and a List<String> of
      *         initial timestamps, final timestamps, and frequencies for each error.
      */
-    public static HashMap<String, List<String>> hashify(ArrayList<String> errorArray,
-            ArrayList<String> timeStampArray) {
+    public static HashMap<String, List<String>> hashify(final ArrayList<String> errorArray,
+            final ArrayList<String> timeStampArray) {
         for (int i = 0; i < errorArray.size(); i++) {
             timeStampArray.add(
                     errorArray.get(i).substring(errorArray.get(i).indexOf("<") + 1, errorArray.get(i).indexOf(">")));
@@ -153,8 +153,8 @@ public class LoggerFilter {
                     errorArray.get(i).substring(errorArray.get(i).indexOf("<"), errorArray.get(i).indexOf(">") + 1),
                     "")).trim());
         }
-        HashMap<String, List<String>> values = new HashMap<>();
-        for (String s : errorArray) {
+        final HashMap<String, List<String>> values = new HashMap<>();
+        for (final String s : errorArray) {
             if (values.containsKey(s)) {
                 values.put(s, Arrays.asList(values.get(s).get(0), values.get(s).get(1),
                         "" + ((Integer.parseInt(values.get(s).get(2))) + 1)));
@@ -173,7 +173,7 @@ public class LoggerFilter {
      * @param values -> The HashMap object that will be printed to the file.
      * @throws IOException
      */
-    public static void writeToFile(HashMap<String, List<String>> values) throws IOException {
+    public static void writeToFile(final HashMap<String, List<String>> values) throws IOException {
         final String fileName = LoggerFilter.fileName + " ROBOT_ERROR_IDENTIFIER";
 
         final String filePath = "output\\" + fileName;
@@ -195,13 +195,13 @@ public class LoggerFilter {
         System.out.println("Type \"quit\" to exit");
         System.out.println("Type \"help\" to see a list of options");
         System.out.println("----------");
-        boolean exit = false;
-        Scanner sc = new Scanner(System.in);
+        final boolean exit = false;
+        final Scanner sc = new Scanner(System.in);
         while (exit != true) {
             System.out.print("Command: \n> ");
-            String cmd = sc.nextLine();
+            final String cmd = sc.nextLine();
             if (cmd.equalsIgnoreCase("help")) {
-                for (Commands c : Commands.values()) {
+                for (final Commands c : Commands.values()) {
                     System.out.print(c.toString() + ": " + c.getDesc() + "\n");
                 }
             } else if (cmd.equalsIgnoreCase("quit")) {
@@ -209,7 +209,7 @@ public class LoggerFilter {
                 break;
             } else {
                 try {
-                    Commands c = Commands.valueOf(cmd);
+                    final Commands c = Commands.valueOf(cmd);
                     switch (c) {
                     case PREV_ERRORS:
                         prevErrors(sc);
@@ -231,22 +231,24 @@ public class LoggerFilter {
      * 
      * @param sc -> The Scanner to be used to scan for user input.
      */
-    public static void prevErrors(Scanner sc) {
+    public static void prevErrors(final Scanner sc) {
         System.out.print("Error to get additional information for:\n> ");
-        String error = sc.nextLine();
+        final String error = sc.nextLine();
         if (values.get(error) != null) {
             System.out.print("Amount of previous errors needed: \n> ");
             int prevNum;
             try {
                 prevNum = Integer.parseInt(sc.nextLine());
-            } catch (NumberFormatException e) {
+            } catch (final NumberFormatException e) {
                 System.out.println("NaI inputted, defaulting to 5 previous errors");
                 prevNum = 5;
             }
-            System.out.println(prevNum + " errors before and first occurence of \"" + error + "\"");
+            System.out.println("Up to " + prevNum + " errors before/the first occurence of \"" + error + "\"");
+            int counter = 0;
             for (int i = 0; i <= allMessages.indexOf(error); i++) {
                 if (allMessages.indexOf(error) - i <= prevNum) {
-                    System.out.println(allMessages.get(i) + " " + timeStampArray.get(i));
+                    counter++;
+                    System.out.println(counter + ": " + allMessages.get(i) + " @t = " + timeStampArray.get(i));
                 }
             }
         } else {
@@ -263,7 +265,7 @@ public class LoggerFilter {
 
         String desc;
 
-        private Commands(String desc) {
+        private Commands(final String desc) {
             this.desc = desc;
         }
 
