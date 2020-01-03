@@ -81,7 +81,7 @@ public class LoggerFilter {
      */
     public static void readFile() {
         try {
-            final FileReader fr = new FileReader(/* folderPath + fileName */ "info\\2019_12_03 20_02_03 Tue.dsevents");
+            final FileReader fr = new FileReader(/* folderPath + fileName */ "info\\2019_12_03 20_02_03 Tue.dsevents"); //output\\testText.txt
             final BufferedReader br = new BufferedReader(fr);
             allText = "";
             String contentLine = br.readLine();
