@@ -1,13 +1,16 @@
 Robot Malfunction(s):
-"Encoder Disconnected"
-Start: 1.01   End: 7.69   Frequency: 6
+"Robot done beeping loudly"
+Start: 9.00   End: 17.00   Frequency: 3
 
-"Vision Disconnected"
-Start: 1.13   End: 9.99   Frequency: 6
+"Encoder Disconnected"
+Start: 7.00   End: 15.00   Frequency: 3
+
+"Robot starting to beep loudly"
+Start: 1.00   End: 5.00   Frequency: 5
 
 "Limit Switch Dead"
-Start: 1.49   End: 3.75   Frequency: 2
+Start: 8.00   End: 16.00   Frequency: 3
 
 "Timing Overrun"
-Start: 1.05   End: 3.97   Frequency: 3
+Start: 6.00   End: 14.00   Frequency: 3
 

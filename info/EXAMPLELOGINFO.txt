@@ -1,10 +1,10 @@
 Examples of what the client can parse through:
 
-S_LOG ######## <1.00> Robot starting to beep loudly ######## E_LOG
-S_LOG <<<<<<<< Warning: <1.01> Timing Overrun >>>>>>>> E_LOG
-S_LOG !!!!!!!! Error: <2.75> Encoder Disconnected !!!!!!!! E_LOG
+S_LOG ### <1.00> Robot starting to beep loudly ### E_LOG
+S_LOG <<< Warning: <1.01> Timing Overrun >>> E_LOG
+S_LOG !!! Error: <2.75> Encoder Disconnected !!! E_LOG
 S_LOG ||| Sensor Reading: <2.99> Limit Switch Dead ||| E_LOG
-S_LOG <<<<<<<< Warning: <4.01> Timing Overrun >>>>>>>> E_LOG
-S_LOG !!!!!!!! Error: <5.75> Encoder Disconnected !!!!!!!! E_LOG
+S_LOG <<< Warning: <4.01> Timing Overrun >>> E_LOG
+S_LOG !!! Error: <5.75> Encoder Disconnected !!! E_LOG
 S_LOG ||| Sensor Reading: <5.99> Limit Switch Dead ||| E_LOG
-S_LOG ######## <6.00> Robot done beeping loudly ######## E_LOG
+S_LOG ### <6.00> Robot done beeping loudly ### E_LOG
