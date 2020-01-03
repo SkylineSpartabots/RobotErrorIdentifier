@@ -81,7 +81,7 @@ public class LoggerFilter {
      */
     public static void readFile() {
         try {
-            final FileReader fr = new FileReader(/* folderPath + fileName */ "info\\2019_12_03 20_02_03 Tue.dsevents"); // output\\testText.txt
+            final FileReader fr = new FileReader(/* folderPath + fileName */ "info\\exampleErrors.txt");
             final BufferedReader br = new BufferedReader(fr);
             allText = "";
             String contentLine = br.readLine();
@@ -156,8 +156,7 @@ public class LoggerFilter {
         final HashMap<String, List<String>> values = new HashMap<>();
         for (final String s : errorArray) {
             if (values.containsKey(s)) {
-                values.put(s, Arrays.asList(values.get(s).get(0), values.get(s).get(1),
-                        "" + ((Integer.parseInt(values.get(s).get(2))) + 1)));
+                values.get(s).set(2, ""+((Integer.parseInt(values.get(s).get(2))) + 1));
             } else {
                 values.put(s, Arrays.asList(timeStampArray.get(errorArray.indexOf(s)),
                         timeStampArray.get(errorArray.lastIndexOf(s)), "1"));
@@ -193,7 +192,7 @@ public class LoggerFilter {
      */
     public static void moreDebugging() {
         System.out.println("Type \"quit\" to exit");
-        System.out.println("Type \"help\" to see a list of options");
+        System.out.println("Type \"help\" to see a list of commands");
         System.out.println("----------");
         final boolean exit = false;
         final Scanner sc = new Scanner(System.in);
@@ -201,6 +200,7 @@ public class LoggerFilter {
             System.out.print("Command: \n> ");
             final String cmd = sc.nextLine();
             if (cmd.equalsIgnoreCase("help")) {
+                System.out.println("List of Commands:");
                 for (final Commands c : Commands.values()) {
                     System.out.print(c.toString() + ": " + c.getDesc() + "\n");
                 }
@@ -211,8 +211,12 @@ public class LoggerFilter {
                 try {
                     final Commands c = Commands.valueOf(cmd);
                     switch (c) {
-                    case PREV_ERRORS:
+                    case preverr:
                         prevErrors(sc);
+                        System.out.println("Command complete");
+                        break;
+                    case showseq:
+                        showSeq(sc);
                         System.out.println("Command complete");
                         break;
                     default:
@@ -243,12 +247,16 @@ public class LoggerFilter {
                 System.out.println("NaI inputted, defaulting to 5 previous errors");
                 prevNum = 5;
             }
-            System.out.println("Up to " + prevNum + " errors before/the first occurence of \"" + error + "\"");
+            System.out.println("Up to " + prevNum + " errors before/first occurence of \"" + error + "\"\n");
             int counter = 0;
             for (int i = 0; i <= allMessages.indexOf(error); i++) {
                 if (allMessages.indexOf(error) - i <= prevNum) {
                     counter++;
-                    System.out.println(counter + ": " + allMessages.get(i) + " @t = " + timeStampArray.get(i));
+                    if(allMessages.indexOf(error) - i != 0) {
+                        System.out.println(counter + ": " + allMessages.get(i) + " @t = " + timeStampArray.get(i));
+                    } else {
+                        System.out.println("\nError of Interest: " + allMessages.get(i) + " @t = " + timeStampArray.get(i));
+                    }
                 }
             }
         } else {
@@ -257,11 +265,33 @@ public class LoggerFilter {
     }
 
     /**
+     * Allows you to view a .txt file with all errors logged sequentially.
+     * 
+     * @param sc -> The Scanner to be used to scan for user input.
+     */
+    public static void showSeq(Scanner sc) {
+        try {
+            final String filePath = "output\\commandoutputs\\" + fileName + "ALLEVENTS";
+            final FileWriter fw = new FileWriter(filePath, false);
+            final PrintWriter printer = new PrintWriter(fw);
+            printer.println("All Errors:");
+            for (int i = 0; i < allMessages.size(); i++) {
+                printer.println(allMessages.get(i) + " @t = " + timeStampArray.get(i));
+            }
+            printer.close();
+        } catch (Exception e) {
+            System.out.println("Failed to print all errors to file.");
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * An Enum that contains command names (these must be typed EXACTLY AS THEY ARE
      * into the console when prompted) and descriptions.
      */
-    public enum Commands {
-        PREV_ERRORS("Allows you to view errors preceeding one of your choice."), BLANK_COMMAND("N/A");
+    public enum Commands { 
+        preverr("Allows you to view errors preceeding one of your choice."), 
+        showseq("Outputs a list of all errors in order into a .txt file.");
 
         String desc;
 

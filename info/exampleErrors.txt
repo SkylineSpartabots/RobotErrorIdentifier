@@ -1,7 +1,6 @@
-input testing text here if needed:
-
 Examples of what the client can parse through:
 
+Input:
 S_LOG ### <1.00> Robot starting to beep loudly ### E_LOG
 S_LOG <<< Warning: <1.01> Timing Overrun >>> E_LOG
 S_LOG !!! Error: <2.75> Encoder Disconnected !!! E_LOG
@@ -10,3 +9,21 @@ S_LOG <<< Warning: <4.01> Timing Overrun >>> E_LOG
 S_LOG !!! Error: <5.75> Encoder Disconnected !!! E_LOG
 S_LOG ||| Sensor Reading: <5.99> Limit Switch Dead ||| E_LOG
 S_LOG ### <6.00> Robot done beeping loudly ### E_LOG
+
+Output:
+Robot Malfunction(s):
+"Robot done beeping loudly"
+Start: 6.00   End: 6.00   Frequency: 1
+
+"Encoder Disconnected"
+Start: 2.75   End: 5.75   Frequency: 2
+
+"Robot starting to beep loudly"
+Start: 1.00   End: 1.00   Frequency: 1
+
+"Limit Switch Dead"
+Start: 2.99   End: 5.99   Frequency: 2
+
+"Timing Overrun"
+Start: 1.01   End: 4.01   Frequency: 2
+
