@@ -146,7 +146,7 @@ public class LoggerFilter {
      */
     private static void parseData(String s) throws IOException
     {
-        s = "START " + s.trim() + " END";
+        s = s.trim();
         while (s.contains(ALERT_KEY_UPPER_BOUND) && s.contains(ALERT_KEY_LOWER_BOUND))
         {
             final int a = s.indexOf(ALERT_KEY_UPPER_BOUND);
@@ -155,7 +155,9 @@ public class LoggerFilter {
             String logLine = s.substring(a, b);
             logLine = logLine.trim();
             s = s.replaceFirst(logLine, "");
-            System.out.println(s);
+
+            logLine = logLine.replaceAll(ALERT_KEY_UPPER_BOUND, "");
+            logLine = logLine.replaceAll(ALERT_KEY_LOWER_BOUND, "");
 
             for(int i = 0; i < MESSAGE_HEADS.length; i++)
             {
