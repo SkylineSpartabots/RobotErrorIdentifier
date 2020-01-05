@@ -18,7 +18,7 @@ import java.util.Scanner;
  * files and output a ".txt" file that only contains important information about
  * robot malfunctions. Helpful for post-match diagnostics.
  * 
- * @version 1.3
+ * @version 1.3.0
  * @author Team 2976!
  */
 public class LoggerFilter {
