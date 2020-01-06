@@ -2,13 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="222d7e4c-749a-48fb-be30-cc733b4dad0b" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/2019_12_14 05_20_39 Sat.dslog ROBOT_ERROR_IDENTIFIER" beforeDir="false" afterPath="$PROJECT_DIR$/2019_12_14 05_20_39 Sat.dslog ROBOT_ERROR_IDENTIFIER" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerFilter$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerFilter$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerFilter$Commands.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerFilter$Commands.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerFilter.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerFilter.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/zachl/errorlogger/LoggerFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/zachl/errorlogger/LoggerFilter.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -32,11 +26,24 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/zachl/errorlogger/LoggerFilter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="208">
-              <caret line="167" column="25" selection-start-line="167" selection-start-column="25" selection-end-line="167" selection-end-column="25" />
+            <state relative-caret-position="395">
+              <caret line="43" column="7" lean-forward="true" selection-start-line="43" selection-start-column="7" selection-end-line="43" selection-end-column="7" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/com/zachl/errorlogger/Button.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="306">
+              <caret line="18" lean-forward="true" selection-start-line="18" selection-end-line="18" />
+              <folding>
+                <element signature="e#249#250#0" expanded="true" />
+                <element signature="e#272#273#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -52,6 +59,13 @@
       </file>
     </leaf>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -61,6 +75,7 @@
         <option value="$PROJECT_DIR$/src/com/zachl/errorlogger/LoggerGUI.java" />
         <option value="$PROJECT_DIR$/exampleErrors.txt" />
         <option value="$PROJECT_DIR$/src/com/zachl/errorlogger/LoggerFilter.java" />
+        <option value="$PROJECT_DIR$/src/com/zachl/errorlogger/Button.java" />
       </list>
     </option>
   </component>
@@ -150,7 +165,7 @@
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25302014" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25302014" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -160,7 +175,7 @@
       <window_info anchor="bottom" id="Messages" weight="0.3286119" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3286119" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.3286119" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -196,8 +211,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/zachl/errorlogger/LoggerFilter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="208">
-          <caret line="167" column="25" selection-start-line="167" selection-start-column="25" selection-end-line="167" selection-end-column="25" />
+        <state relative-caret-position="395">
+          <caret line="43" column="7" lean-forward="true" selection-start-line="43" selection-start-column="7" selection-end-line="43" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/zachl/errorlogger/Button.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="18" lean-forward="true" selection-start-line="18" selection-end-line="18" />
+          <folding>
+            <element signature="e#249#250#0" expanded="true" />
+            <element signature="e#272#273#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
