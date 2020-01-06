@@ -18,7 +18,7 @@ import java.util.Scanner;
  * files and output a ".txt" file that only contains important information about
  * robot malfunctions. Helpful for post-match diagnostics.
  * 
- * @version 1.3.0
+ * @version 1.5.2
  * @author Team 2976!
  */
 public class LoggerFilter {
@@ -206,7 +206,7 @@ public class LoggerFilter {
     private static void writeToFile(final HashMap<String, List<String>> values) throws IOException {
         final String fileName = LoggerFilter.fileName + " ROBOT_ERROR_IDENTIFIER";
 
-        final String filePath = "output\\mainoutput " + fileName;
+        final String filePath = "output\\mainoutput\\" + fileName;
         final FileWriter fw = new FileWriter(filePath, false);
         final PrintWriter printer = new PrintWriter(fw);
         printer.println("Robot Malfunction(s):");
