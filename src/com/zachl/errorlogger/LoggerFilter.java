@@ -18,7 +18,7 @@ import java.util.Scanner;
  * files and output a ".txt" file that only contains important information about
  * robot malfunctions. Helpful for post-match diagnostics.
  * 
- * @version 1.3
+ * @version 1.5.2
  * @author Team 2976!
  */
 public class LoggerFilter {
@@ -42,16 +42,17 @@ public class LoggerFilter {
      */
     private static final String ALERT_KEY_LOWER_BOUND = "E_LOG";
     /**
-     *
+     * HashMap to store errors, firt and last occurence timestamps, and frequency.
      */
-    private static final String[] MESSAGE_HEADS = {"###", "<<< Warning:", "!!! Error:", "<P><P><P> Sensor Reading:"};
+    private static final String[] MESSAGE_HEADS = { "###", "<<< Warning:", "!!! Error:", "<P><P><P> Sensor Reading:" };
     /**
      *
      */
-    private static final String[] MESSAGE_ENDS = {"###", ">>>", "!!!", "<P><P><P>"};
+    private static final String[] MESSAGE_ENDS = { "###", ">>>", "!!!", "<P><P><P>" };
     /**
      * HashMap to store errors, first and last occurence timestamps, and frequency.
      */
+    private static final String[] TYPE_KEYS = {"Message", "Warning", "Error", "Sensor Data"};
 
     private static String allText;
     private static ArrayList<String> allMessages = new ArrayList<>();
@@ -62,27 +63,8 @@ public class LoggerFilter {
     private static HashMap<String, List<String>> values = new HashMap<>();
     private static ArrayList<HashMap<String, List<String>>> typeValues = new ArrayList<>();
 
-
-    public static void main(final String[] args)
-    {
-        if (fileName.equals(""))
-        {
-            getMostRecentFile();
-        }
-        for(int i = 0; i < MESSAGE_ENDS.length; i++)
-        {
-            typeMessageLists.add(new ArrayList<>());
-            typeTimestampLists.add(new ArrayList<>());
-            typeValues.add(new HashMap<String, List<String>>());
-        }
-        readFile();
-    }
-
-
-    public static void executeLogger()
-    {
-        if (fileName.equals(""))
-        {
+    public static void executeLogger() {
+        if (fileName.equals("")) {
             getMostRecentFile();
         }
         readFile();
@@ -112,24 +94,22 @@ public class LoggerFilter {
      * onto a String called "allText".
      */
     private static void readFile() {
-        try
-        {
-            final FileReader fr = new FileReader(/* folderPath + fileName */ "exampleErrors.txt");
+        try {
+            final FileReader fr = new FileReader(/* folderPath + fileName */"info\\exampleEvents.dsevents");
             final BufferedReader br = new BufferedReader(fr);
             allText = "";
-            String contentLine = null/*br.readLine()*/;
-            while ((contentLine = br.readLine()) != null) {
+            String contentLine = br.readLine();
+            while (contentLine != null) {
                 allText += contentLine;
-                //contentLine = br.readLine();
+                contentLine = br.readLine();
             }
             parseData(allText.replaceAll("\\|", "<P>"));
-            //Unnecessary bc the try catch closes it anyway
-            //br.close();
+            br.close();
         } catch (final FileNotFoundException e) {
-            System.out.println("Failed to find file.");
+            LoggerGUI.printToFrame("Failed to find file.");
             e.printStackTrace();
         } catch (final IOException e) {
-            System.out.println("Failed to read file.");
+            LoggerGUI.printToFrame("Failed to read file.");
             e.printStackTrace();
         }
     }
@@ -139,18 +119,21 @@ public class LoggerFilter {
      * messages bounded by "ALERT_KEY_UPPER_BOUND" and "ALERT_KEY_LOWER_BOUND"
      * (These variables can be found at the top of the class as class constants). It
      * then adds these parsed and filtered error messages to an ArrayList<String>
-     * object.
+     * object. Added more!
      * 
      * @param s -> The .dsevents file as a String.
      * @throws IOException
      */
-    private static void parseData(String s) throws IOException
-    {
+    private static void parseData(String s) throws IOException {
+        for (int i = 0; i < MESSAGE_ENDS.length; i++) {
+            typeMessageLists.add(new ArrayList<>());
+            typeTimestampLists.add(new ArrayList<>());
+            typeValues.add(new HashMap<String, List<String>>());
+        }
         s = s.trim();
-        while (s.contains(ALERT_KEY_UPPER_BOUND) && s.contains(ALERT_KEY_LOWER_BOUND))
-        {
+        while (s.contains(ALERT_KEY_UPPER_BOUND) && s.contains(ALERT_KEY_LOWER_BOUND)) {
             final int a = s.indexOf(ALERT_KEY_UPPER_BOUND);
-            //Removed "+ 5" after alert key lower bound and replaced it w string length
+            // Removed "+ 5" after alert key lower bound and replaced it w string length
             final int b = s.indexOf(ALERT_KEY_LOWER_BOUND) + ALERT_KEY_LOWER_BOUND.length();
             String logLine = s.substring(a, b);
             logLine = logLine.trim();
@@ -159,10 +142,8 @@ public class LoggerFilter {
             logLine = logLine.replaceAll(ALERT_KEY_UPPER_BOUND, "");
             logLine = logLine.replaceAll(ALERT_KEY_LOWER_BOUND, "");
 
-            for(int i = 0; i < MESSAGE_HEADS.length; i++)
-            {
-                if(logLine.contains(MESSAGE_HEADS[i]))
-                {
+            for (int i = 0; i < MESSAGE_HEADS.length; i++) {
+                if (logLine.contains(MESSAGE_HEADS[i])) {
                     logLine = logLine.replaceFirst(MESSAGE_HEADS[i], "");
                     logLine = logLine.replaceFirst(MESSAGE_ENDS[i], "");
                     logLine = logLine.trim();
@@ -172,8 +153,7 @@ public class LoggerFilter {
             allMessages.add(logLine.trim());
         }
 
-        for(int j = 0; j < 4; j++)
-        {
+        for (int j = 0; j < 4; j++) {
             typeValues.set(j, hashify(typeMessageLists.get(j), typeTimestampLists.get(j)));
         }
 
@@ -209,7 +189,9 @@ public class LoggerFilter {
             } else {
                 values.put(s, Arrays.asList(timeStampArray.get(errorArray.indexOf(s)),
                         timeStampArray.get(errorArray.lastIndexOf(s)), "1"));
-                keysInOrder.add(s);
+                if(allMessages.equals(errorArray)) {
+                    keysInOrder.add(s);
+                }
             }
         }
         return values;
@@ -222,12 +204,11 @@ public class LoggerFilter {
      * @param values -> The HashMap object that will be printed to the file.
      * @throws IOException
      */
-    private static void writeToFile(final HashMap<String, List<String>> values) throws IOException
-    {
+    private static void writeToFile(final HashMap<String, List<String>> values) throws IOException {
         final String fileName = LoggerFilter.fileName + " ROBOT_ERROR_IDENTIFIER";
 
-        //final String filePath = "output\\" + fileName;
-        final FileWriter fw = new FileWriter(fileName, false);
+        final String filePath = "output\\mainoutput\\" + fileName;
+        final FileWriter fw = new FileWriter(filePath, false);
         final PrintWriter printer = new PrintWriter(fw);
         printer.println("Robot Malfunction(s):");
         for (String s : keysInOrder) {
@@ -235,15 +216,14 @@ public class LoggerFilter {
                     + "   Frequency: " + values.get(s).get(2) + "\n");
         }
         printer.close();
-        System.out.println("Printed succesfully to file at " + new File("output\\" + fileName).getAbsolutePath());
-        //moreDebugging();
+        LoggerGUI.printToFrame("Printed succesfully to file at " + new File("output\\mainoutput\\" + fileName).getAbsolutePath());
+        // moreDebugging();
     }
 
     /**
-     * A method that allows for further debugging through the use of commands.
-     * (Not needed because of GUI)
-     * Called after the inital output file is created. Output will be printed to the
-     * console OR to "output\commandoutputs".
+     * A method that allows for further debugging through the use of commands. (Not
+     * needed because of GUI) Called after the inital output file is created. Output
+     * will be printed to the console OR to "output\commandoutputs".
      */
     private static void moreDebugging() {
         System.out.println("Type \"quit\" to exit");
@@ -389,31 +369,29 @@ public class LoggerFilter {
      * errors to view can be selected.
      */
     public static void prevErrors(String error, String s_prevNum) {
-        System.out.print("Error to get additional information for:\n> ");
         if (values.get(error) != null) {
-            System.out.print("Amount of previous errors needed: \n> ");
             int prevNum;
             try {
                 prevNum = Integer.parseInt(s_prevNum);
             } catch (final NumberFormatException e) {
-                System.out.println("NaI inputted, defaulting to 5 previous errors");
+                LoggerGUI.printToFrame("NaI inputted, defaulting to 5 previous errors");
                 prevNum = 5;
             }
-            System.out.println("Up to " + prevNum + " errors before/first occurence of \"" + error + "\"\n");
+            LoggerGUI.printToFrame("Up to " + prevNum + " errors before/first occurence of \"" + error + "\"\n");
             int counter = 0;
             for (int i = 0; i <= allMessages.indexOf(error); i++) {
                 if (allMessages.indexOf(error) - i <= prevNum) {
                     counter++;
                     if (allMessages.indexOf(error) - i != 0) {
-                        System.out.println(counter + ": " + allMessages.get(i) + " @t = " + timeStampArray.get(i));
+                        LoggerGUI.printToFrame(counter + ": " + allMessages.get(i) + " @t = " + timeStampArray.get(i));
                     } else {
-                        System.out.println(
+                        LoggerGUI.printToFrame(
                                 "\nError of Interest: " + allMessages.get(i) + " @t = " + timeStampArray.get(i));
                     }
                 }
             }
         } else {
-            System.out.println("Error does not exist, check spelling.");
+            LoggerGUI.printToFrame("Error does not exist, check spelling.");
         }
     }
 
@@ -431,7 +409,7 @@ public class LoggerFilter {
             }
             printer.close();
         } catch (Exception e) {
-            System.out.println("Failed to print all errors to file.");
+            LoggerGUI.printToFrame("Failed to print all errors to file.");
             e.printStackTrace();
         }
     }
@@ -440,36 +418,56 @@ public class LoggerFilter {
      * Displays a list of errors based on a start bound double and an end bound
      * double.
      */
-    public static void logsInRange(String s_sb, String s_eb) {
-        System.out.print("First timestamp bound (inclusive): \n> ");
+    public static void logsInRange(String s_sb, String s_eb)
+    {
         double sb;
         try {
             String line = s_sb;
             sb = Double.parseDouble(line);
         } catch (NumberFormatException e) {
-            System.out.println("Not a valid double, defaulting to 0");
+            LoggerGUI.printToFrame("Not a valid double, defaulting to 0");
             sb = 0;
         }
-        System.out.print("Last timestamp bound (inclusive): \n> ");
         double eb;
         try {
             String line = s_eb;
             eb = Double.parseDouble(line);
         } catch (NumberFormatException e) {
-            System.out.println("Not a valid double, defaulting to 100");
+            LoggerGUI.printToFrame("Not a valid double, defaulting to 100");
             eb = 100;
         }
         try {
-            System.out.println("Logs between timestamps " + sb + " and " + eb + "\n");
+            LoggerGUI.printToFrame("Logs between timestamps " + sb + " and " + eb + "\n");
             for (int i = 0; i < timeStampArray.size(); i++) {
                 if ((Double.parseDouble(timeStampArray.get(i))) >= sb
                         && (Double.parseDouble(timeStampArray.get(i)) <= eb)) {
-                    System.out.println(allMessages.get(i) + " @t = " + timeStampArray.get(i));
+                    LoggerGUI.printToFrame(allMessages.get(i) + " @t = " + timeStampArray.get(i));
                 }
             }
-            System.out.println();
+            LoggerGUI.printToFrame("");
         } catch (NumberFormatException e) {
-            System.out.println("Error with number formatting.");
+            LoggerGUI.printToFrame("Error with number formatting.");
+        }
+    }
+
+    public static void logsByType(String type)
+    {
+        ArrayList<String> toPrint = null;
+
+        try {
+            for (int i = 0; i < TYPE_KEYS.length; i++) {
+                if (type.equalsIgnoreCase(TYPE_KEYS[i])) {
+                    toPrint = typeMessageLists.get(i);
+                }
+            }
+        }
+        catch(NullPointerException e) {
+            LoggerGUI.printToFrame("Invalid log type, defaulting to error");
+            toPrint = typeMessageLists.get(2);
+        }
+
+        for (int i = 0; i < toPrint.size(); i++) {
+            LoggerGUI.printToFrame(toPrint.get(i));
         }
     }
 
@@ -477,15 +475,23 @@ public class LoggerFilter {
      * An Enum that contains command names (these must be typed EXACTLY AS THEY ARE
      * into the console when prompted) and descriptions.
      */
-    public enum Commands {
-        preverr("Allows you to view errors preceeding one of your choice."),
-        showseq("Outputs a list of all errors in order into a .txt file."),
-        logsinrange("Allows you to view all errors within two timestamps.");
+    public enum Commands
+    {
+        preverr("Allows you to view errors preceeding one of your choice.", 2),
+        showseq("Outputs a list of all errors in order into a .txt file.", 0),
+        logsinrange("Allows you to view all errors within two timestamps.", 2),
+        logsbytype("Outputs a list of all logs of a given type", 1);
 
         String desc;
+        int paramNum;
 
-        private Commands(final String desc) {
+        private Commands(final String desc, final int params) {
             this.desc = desc;
+            this.paramNum = params;
+        }
+
+        public int getParamNum() {
+            return paramNum;
         }
 
         public String getDesc() {
