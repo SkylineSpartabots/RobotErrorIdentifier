@@ -44,20 +44,23 @@ public class LoggerFilter {
     /**
      * HashMap to store errors, firt and last occurence timestamps, and frequency.
      */
+    private static final String[] MESSAGE_HEADS = { "###", "<<< Warning:", "!!! Error:", "<P><P><P> Sensor Reading:" };
+    /**
+     *
+     */
+    private static final String[] MESSAGE_ENDS = { "###", ">>>", "!!!", "<P><P><P>" };
+    /**
+     * HashMap to store errors, first and last occurence timestamps, and frequency.
+     */
+
     private static String allText;
     private static ArrayList<String> allMessages = new ArrayList<>();
+    private static ArrayList<ArrayList<String>> typeMessageLists = new ArrayList<>();
+    private static ArrayList<ArrayList<String>> typeTimestampLists = new ArrayList<>();
     private static ArrayList<String> timeStampArray = new ArrayList<>();
     private static ArrayList<String> keysInOrder = new ArrayList<>();
     private static HashMap<String, List<String>> values = new HashMap<>();
-
-    /*
-    public static void main(final String[] args) {
-        if (fileName.equals("")) {
-            getMostRecentFile();
-        }
-        readFile();
-    }
-    */
+    private static ArrayList<HashMap<String, List<String>>> typeValues = new ArrayList<>();
 
     public static void executeLogger() {
         if (fileName.equals("")) {
@@ -91,7 +94,7 @@ public class LoggerFilter {
      */
     private static void readFile() {
         try {
-            final FileReader fr = new FileReader(/* folderPath + fileName */ "info\\exampleEvents.dsevents");
+            final FileReader fr = new FileReader(/* folderPath + fileName */"info\\exampleEvents.dsevents");
             final BufferedReader br = new BufferedReader(fr);
             allText = "";
             String contentLine = br.readLine();
@@ -102,10 +105,10 @@ public class LoggerFilter {
             parseData(allText.replaceAll("\\|", "<P>"));
             br.close();
         } catch (final FileNotFoundException e) {
-            System.out.println("Failed to find file.");
+            LoggerGUI.printToFrame("Failed to find file.");
             e.printStackTrace();
         } catch (final IOException e) {
-            System.out.println("Failed to read file.");
+            LoggerGUI.printToFrame("Failed to read file.");
             e.printStackTrace();
         }
     }
@@ -115,29 +118,44 @@ public class LoggerFilter {
      * messages bounded by "ALERT_KEY_UPPER_BOUND" and "ALERT_KEY_LOWER_BOUND"
      * (These variables can be found at the top of the class as class constants). It
      * then adds these parsed and filtered error messages to an ArrayList<String>
-     * object.
+     * object. Added more!
      * 
      * @param s -> The .dsevents file as a String.
      * @throws IOException
      */
     private static void parseData(String s) throws IOException {
-        s = "START " + s.trim() + " END";
+        for (int i = 0; i < MESSAGE_ENDS.length; i++) {
+            typeMessageLists.add(new ArrayList<>());
+            typeTimestampLists.add(new ArrayList<>());
+            typeValues.add(new HashMap<String, List<String>>());
+        }
+        s = s.trim();
         while (s.contains(ALERT_KEY_UPPER_BOUND) && s.contains(ALERT_KEY_LOWER_BOUND)) {
             final int a = s.indexOf(ALERT_KEY_UPPER_BOUND);
-            final int b = s.indexOf(ALERT_KEY_LOWER_BOUND) + 5;
+            // Removed "+ 5" after alert key lower bound and replaced it w string length
+            final int b = s.indexOf(ALERT_KEY_LOWER_BOUND) + ALERT_KEY_LOWER_BOUND.length();
             String logLine = s.substring(a, b);
+            logLine = logLine.trim();
             s = s.replaceFirst(logLine, "");
+
             logLine = logLine.replaceAll(ALERT_KEY_UPPER_BOUND, "");
             logLine = logLine.replaceAll(ALERT_KEY_LOWER_BOUND, "");
-            logLine = logLine.replaceAll("###", "");
-            logLine = logLine.replaceAll("<<< Warning:", "");
-            logLine = logLine.replaceAll(">>>", "");
-            logLine = logLine.replaceAll("!!! Error:", "");
-            logLine = logLine.replaceAll("!!!", "");
-            logLine = logLine.replaceAll("<P><P><P> Sensor Reading:", "");
-            logLine = logLine.replaceAll("<P><P><P>", "");
+
+            for (int i = 0; i < MESSAGE_HEADS.length; i++) {
+                if (logLine.contains(MESSAGE_HEADS[i])) {
+                    logLine = logLine.replaceFirst(MESSAGE_HEADS[i], "");
+                    logLine = logLine.replaceFirst(MESSAGE_ENDS[i], "");
+                    logLine = logLine.trim();
+                    typeMessageLists.get(i).add(logLine);
+                }
+            }
             allMessages.add(logLine.trim());
         }
+
+        for (int j = 0; j < 4; j++) {
+            typeValues.set(j, hashify(typeMessageLists.get(j), typeTimestampLists.get(j)));
+        }
+
         values = hashify(allMessages, timeStampArray);
         writeToFile(values);
     }
@@ -170,7 +188,9 @@ public class LoggerFilter {
             } else {
                 values.put(s, Arrays.asList(timeStampArray.get(errorArray.indexOf(s)),
                         timeStampArray.get(errorArray.lastIndexOf(s)), "1"));
-                keysInOrder.add(s);
+                if(allMessages.equals(errorArray)) {
+                    keysInOrder.add(s);
+                }
             }
         }
         return values;
@@ -186,7 +206,7 @@ public class LoggerFilter {
     private static void writeToFile(final HashMap<String, List<String>> values) throws IOException {
         final String fileName = LoggerFilter.fileName + " ROBOT_ERROR_IDENTIFIER";
 
-        final String filePath = "output\\" + fileName;
+        final String filePath = "output\\mainoutput " + fileName;
         final FileWriter fw = new FileWriter(filePath, false);
         final PrintWriter printer = new PrintWriter(fw);
         printer.println("Robot Malfunction(s):");
@@ -195,15 +215,14 @@ public class LoggerFilter {
                     + "   Frequency: " + values.get(s).get(2) + "\n");
         }
         printer.close();
-        System.out.println("Printed succesfully to file at " + new File("output\\" + fileName).getAbsolutePath());
-        //moreDebugging();
+        LoggerGUI.printToFrame("Printed succesfully to file at " + new File("output\\mainoutput\\" + fileName).getAbsolutePath());
+        // moreDebugging();
     }
 
     /**
-     * A method that allows for further debugging through the use of commands.
-     * (Not needed because of GUI)
-     * Called after the inital output file is created. Output will be printed to the
-     * console OR to "output\commandoutputs".
+     * A method that allows for further debugging through the use of commands. (Not
+     * needed because of GUI) Called after the inital output file is created. Output
+     * will be printed to the console OR to "output\commandoutputs".
      */
     private static void moreDebugging() {
         System.out.println("Type \"quit\" to exit");
@@ -349,31 +368,29 @@ public class LoggerFilter {
      * errors to view can be selected.
      */
     public static void prevErrors(String error, String s_prevNum) {
-        System.out.print("Error to get additional information for:\n> ");
         if (values.get(error) != null) {
-            System.out.print("Amount of previous errors needed: \n> ");
             int prevNum;
             try {
                 prevNum = Integer.parseInt(s_prevNum);
             } catch (final NumberFormatException e) {
-                System.out.println("NaI inputted, defaulting to 5 previous errors");
+                LoggerGUI.printToFrame("NaI inputted, defaulting to 5 previous errors");
                 prevNum = 5;
             }
-            System.out.println("Up to " + prevNum + " errors before/first occurence of \"" + error + "\"\n");
+            LoggerGUI.printToFrame("Up to " + prevNum + " errors before/first occurence of \"" + error + "\"\n");
             int counter = 0;
             for (int i = 0; i <= allMessages.indexOf(error); i++) {
                 if (allMessages.indexOf(error) - i <= prevNum) {
                     counter++;
                     if (allMessages.indexOf(error) - i != 0) {
-                        System.out.println(counter + ": " + allMessages.get(i) + " @t = " + timeStampArray.get(i));
+                        LoggerGUI.printToFrame(counter + ": " + allMessages.get(i) + " @t = " + timeStampArray.get(i));
                     } else {
-                        System.out.println(
+                        LoggerGUI.printToFrame(
                                 "\nError of Interest: " + allMessages.get(i) + " @t = " + timeStampArray.get(i));
                     }
                 }
             }
         } else {
-            System.out.println("Error does not exist, check spelling.");
+            LoggerGUI.printToFrame("Error does not exist, check spelling.");
         }
     }
 
@@ -391,7 +408,7 @@ public class LoggerFilter {
             }
             printer.close();
         } catch (Exception e) {
-            System.out.println("Failed to print all errors to file.");
+            LoggerGUI.printToFrame("Failed to print all errors to file.");
             e.printStackTrace();
         }
     }
@@ -401,35 +418,33 @@ public class LoggerFilter {
      * double.
      */
     public static void logsInRange(String s_sb, String s_eb) {
-        System.out.print("First timestamp bound (inclusive): \n> ");
         double sb;
         try {
             String line = s_sb;
             sb = Double.parseDouble(line);
         } catch (NumberFormatException e) {
-            System.out.println("Not a valid double, defaulting to 0");
+            LoggerGUI.printToFrame("Not a valid double, defaulting to 0");
             sb = 0;
         }
-        System.out.print("Last timestamp bound (inclusive): \n> ");
         double eb;
         try {
             String line = s_eb;
             eb = Double.parseDouble(line);
         } catch (NumberFormatException e) {
-            System.out.println("Not a valid double, defaulting to 100");
+            LoggerGUI.printToFrame("Not a valid double, defaulting to 100");
             eb = 100;
         }
         try {
-            System.out.println("Logs between timestamps " + sb + " and " + eb + "\n");
+            LoggerGUI.printToFrame("Logs between timestamps " + sb + " and " + eb + "\n");
             for (int i = 0; i < timeStampArray.size(); i++) {
                 if ((Double.parseDouble(timeStampArray.get(i))) >= sb
                         && (Double.parseDouble(timeStampArray.get(i)) <= eb)) {
-                    System.out.println(allMessages.get(i) + " @t = " + timeStampArray.get(i));
+                    LoggerGUI.printToFrame(allMessages.get(i) + " @t = " + timeStampArray.get(i));
                 }
             }
-            System.out.println();
+            LoggerGUI.printToFrame("");
         } catch (NumberFormatException e) {
-            System.out.println("Error with number formatting.");
+            LoggerGUI.printToFrame("Error with number formatting.");
         }
     }
 
@@ -438,14 +453,20 @@ public class LoggerFilter {
      * into the console when prompted) and descriptions.
      */
     public enum Commands {
-        preverr("Allows you to view errors preceeding one of your choice."),
-        showseq("Outputs a list of all errors in order into a .txt file."),
-        logsinrange("Allows you to view all errors within two timestamps.");
+        preverr("Allows you to view errors preceeding one of your choice.", 2),
+        showseq("Outputs a list of all errors in order into a .txt file.", 0),
+        logsinrange("Allows you to view all errors within two timestamps.", 2);
 
         String desc;
+        int paramNum;
 
-        private Commands(final String desc) {
+        private Commands(final String desc, final int params) {
             this.desc = desc;
+            this.paramNum = params;
+        }
+
+        public int getParamNum() {
+            return paramNum;
         }
 
         public String getDesc() {
