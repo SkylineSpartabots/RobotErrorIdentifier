@@ -62,7 +62,7 @@ public class LoggerFilter {
     private static HashMap<String, List<String>> values = new HashMap<>();
     private static ArrayList<HashMap<String, List<String>>> typeValues = new ArrayList<>();
 
-
+/*
     public static void main(final String[] args)
     {
         if (fileName.equals(""))
@@ -77,7 +77,7 @@ public class LoggerFilter {
         }
         readFile();
     }
-
+*/
 
     public static void executeLogger()
     {
