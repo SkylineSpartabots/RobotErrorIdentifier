@@ -18,7 +18,7 @@ import java.util.Scanner;
  * files and output a ".txt" file that only contains important information about
  * robot malfunctions. Helpful for post-match diagnostics.
  * 
- * @version 1.5.3
+ * @version 1.6.0
  * @author Team 2976!
  */
 public class LoggerFilter {
@@ -408,7 +408,7 @@ public class LoggerFilter {
      */
     public static void showSeq() {
         try {
-            final String filePath = "output\\commandoutputs\\" + fileName + " ALLEVENTS";
+            final String filePath = "output\\commandoutput\\" + fileName + " ALLEVENTS";
             final FileWriter fw = new FileWriter(filePath, false);
             final PrintWriter printer = new PrintWriter(fw);
             printer.println("All Errors:");
@@ -416,6 +416,7 @@ public class LoggerFilter {
                 printer.println(allMessages.get(i) + " @t = " + timeStampArray.get(i));
             }
             printer.close();
+            LoggerGUI.printToFrame("Printed all errors to file.");
         } catch (final Exception e) {
             LoggerGUI.printToFrame("Failed to print all errors to file.");
             e.printStackTrace();
@@ -462,16 +463,18 @@ public class LoggerFilter {
      * into the console when prompted) and descriptions.
      */
     public enum Commands {
-        preverr("Allows you to view errors preceeding one of your choice.", 2),
-        showseq("Outputs a list of all errors in order into a .txt file.", 0),
-        logsinrange("Allows you to view all errors within two timestamps.", 2);
+        preverr("Allows you to view errors preceeding one of your choice.", 2, "[Error to parse for (String)] [Numbers of previous errors to display (int)]"),
+        showseq("Outputs a list of all errors in order into a .txt file.", 0, "[No parameters needed, press submit]"),
+        logsinrange("Allows you to view all errors within two timestamps.", 2, "[Start timestamp (int)] [End timestamp (int)]");
 
         String desc;
         int paramNum;
+        String paramDesc;
 
-        private Commands(final String desc, final int params) {
+        private Commands(final String desc, final int params, final String paramDesc) {
             this.desc = desc;
             this.paramNum = params;
+            this.paramDesc = paramDesc;
         }
 
         public int getParamNum() {
@@ -480,6 +483,10 @@ public class LoggerFilter {
 
         public String getDesc() {
             return desc;
+        }
+
+        public String getParamDesc() {
+            return paramDesc;
         }
     }
 }
