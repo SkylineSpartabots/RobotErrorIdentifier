@@ -131,28 +131,21 @@ public class LoggerGUI {
     }
 
     public static void openInput(final LoggerFilter.Commands c) {
+        ArrayList<String> parsedDesc = parseDesc(c);
         inputf = new JFrame();
         inputf.setSize(new Dimension(600, 400));
         inputf.setLocationRelativeTo(null);
         inputf.setResizable(false);
         inputf.setTitle("Input Panel");
         inputf.setLayout(new BorderLayout());
-
         final NamedJButton sub = new NamedJButton("Submit Button", "SUBMIT");
         sub.setBounds(225, 300, 150, 50);
-
-        inputta = new JTextArea(1, 25);
-        final JScrollPane inputLine = new JScrollPane(inputta);
-
-        final JPanel p = new JPanel();
-        p.add(inputLine);
-
-        titleText = new JLabel("<html><div style='text-align: center;'>" + "Input parameters: \n" + c.getParamDesc()
-                + "</div></html>");
-        titleText.setBounds(150, 50, 300, 100);
-
+        Object[] s1 = LoggerFilter.keysInOrder.toArray(); 
+        JComboBox<Object> c1 = new JComboBox<Object>(s1);
+        c1.setBounds(100,0,50,50);
+        final JPanel p = new JPanel(); 
+        p.add(c1);
         inputf.add(sub);
-        inputf.add(titleText);
         inputf.add(p);
         inputf.setVisible(true);
 
@@ -164,6 +157,21 @@ public class LoggerGUI {
                 inputf.dispose();
             }
         });
+
+        switch(c) {
+            case preverr:
+                break;
+            case showseq:
+                break;
+            case logsinrange:
+                break;
+        }
+    }
+
+    public static ArrayList<String> parseDesc(final LoggerFilter.Commands c) {
+        ArrayList<String> myList = new ArrayList<>();
+        
+        return myList;
     }
 
     public static String[] getInput() {

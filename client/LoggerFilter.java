@@ -58,7 +58,7 @@ public class LoggerFilter {
     private static ArrayList<ArrayList<String>> typeMessageLists;
     private static ArrayList<ArrayList<String>> typeTimestampLists;
     private static ArrayList<String> timeStampArray;
-    private static ArrayList<String> keysInOrder;
+    public static ArrayList<String> keysInOrder;
     private static HashMap<String, List<String>> values;
     private static ArrayList<HashMap<String, List<String>>> typeValues;
 
@@ -463,8 +463,9 @@ public class LoggerFilter {
      * into the console when prompted) and descriptions.
      */
     public enum Commands {
+        
         preverr("Allows you to view errors preceeding one of your choice.", 2, "[Error to parse for (String)] [Numbers of previous errors to display (int)]"),
-        showseq("Outputs a list of all errors in order into a .txt file.", 0, "[No parameters needed, press submit]"),
+        showseq("Outputs a list of all errors in order into a .txt file.", 0, "[NONE]"),
         logsinrange("Allows you to view all errors within two timestamps.", 2, "[Start timestamp (int)] [End timestamp (int)]");
 
         String desc;
