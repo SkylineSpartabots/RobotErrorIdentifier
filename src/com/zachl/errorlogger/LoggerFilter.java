@@ -53,11 +53,13 @@ public class LoggerFilter {
      * HashMap to store errors, first and last occurence timestamps, and frequency.
      */
     private static final String[] TYPE_KEYS = {"Message", "Warning", "Error", "Sensor Data"};
+    private static final String[] SUBSYSTEM_KEYS = {"Drive", "Hopper", "Climb", "Intake", "Limelight"};
 
     private static String allText;
+
     private static LogList allLogs = new LogList();
-    //private static LogListArray typeLogs = new LogListArray();
     private static ArrayList<LogList> typeLogs = new ArrayList<>();
+    private static ArrayList<LogList> subsystemLogs = new ArrayList<>();
     private static LogList toParse = new LogList();
     
     private static ArrayList<String> keysInOrder = new ArrayList<>();
@@ -92,6 +94,10 @@ public class LoggerFilter {
         for(int i = 0; i < MESSAGE_ENDS.length; i++)
         {
             typeLogs.add(new LogList());
+        }
+        for(int i = 0; i < SUBSYSTEM_KEYS.length; i++)
+        {
+            subsystemLogs.add(new LogList());
         }
         readFile();
         testCompound();
@@ -151,13 +157,8 @@ public class LoggerFilter {
      * @param s -> The .dsevents file as a String.
      * @throws IOException
      */
-    private static void parseData(String s) throws IOException {
-        for (int i = 0; i < MESSAGE_ENDS.length; i++)
-        {
-            /*typeLogs.messageList.add(new ArrayList<String>());
-            typeLogs.timeStampList.add(new ArrayList<String>());
-            typeLogs.valueList.add(new HashMap<String, List<String>>());*/
-        }
+    private static void parseData(String s) throws IOException
+    {
         s = s.trim();
         while (s.contains(ALERT_KEY_UPPER_BOUND) && s.contains(ALERT_KEY_LOWER_BOUND)) {
             final int a = s.indexOf(ALERT_KEY_UPPER_BOUND);
@@ -170,20 +171,33 @@ public class LoggerFilter {
             logLine = logLine.replaceAll(ALERT_KEY_UPPER_BOUND, "");
             logLine = logLine.replaceAll(ALERT_KEY_LOWER_BOUND, "");
 
-            for (int i = 0; i < MESSAGE_HEADS.length; i++) {
-                if (logLine.contains(MESSAGE_HEADS[i])) {
+            for (int i = 0; i < MESSAGE_HEADS.length; i++)
+            {
+                if (logLine.contains(MESSAGE_HEADS[i]))
+                {
                     logLine = logLine.replaceFirst(MESSAGE_HEADS[i], "");
                     logLine = logLine.replaceFirst(MESSAGE_ENDS[i], "");
                     logLine = logLine.trim();
                     typeLogs.get(i).messages.add(logLine);
                 }
             }
+            for(int i = 0; i < SUBSYSTEM_KEYS.length; i++)
+            {
+                if(logLine.contains(SUBSYSTEM_KEYS[i]))
+                {
+                    subsystemLogs.get(i).messages.add(logLine);
+                }
+            }
             allLogs.messages.add(logLine.trim());
         }
 
-        for (int j = 0; j < 4; j++)
+        for (int j = 0; j < MESSAGE_HEADS.length; j++)
         {
             typeLogs.get(j).values = (hashify(typeLogs.get(j).messages, typeLogs.get(j).timeStamps));
+        }
+        for(int i = 0; i < SUBSYSTEM_KEYS.length; i++)
+        {
+            subsystemLogs.get(i).values = hashify(subsystemLogs.get(i).messages, subsystemLogs.get(i).timeStamps);
         }
 
         allLogs.values = hashify(allLogs.messages, allLogs.timeStamps);
@@ -497,15 +511,19 @@ public class LoggerFilter {
     {
         LogList finalParsed = new LogList();
 
-        ArrayList<String> toPrint = null;
-
         try {
             for (int i = 0; i < TYPE_KEYS.length; i++)
             {
                 if (!compounding && type.equalsIgnoreCase(TYPE_KEYS[i]))
                 {
                     LoggerGUI.printToFrame("Parsing from full type log");
-                    toParse = typeLogs.get(i);
+                    if(typeLogs.get(i) != null)
+                        finalParsed = typeLogs.get(i);
+                    else
+                        {
+                            LoggerGUI.printToFrame("Type log: " + type + " is null, defaulting to all logs");
+                            finalParsed = allLogs;
+                        }
                 }
                 else if(type.equalsIgnoreCase(TYPE_KEYS[i]))
                     {
@@ -527,28 +545,25 @@ public class LoggerFilter {
 
             //finalParsed.values = hashify(finalParsed.messages, finalParsed.timeStamps);
             toParse = finalParsed;
-
-            toPrint = toParse.messages;
         }
         catch(NullPointerException e) {
             LoggerGUI.printToFrame("Invalid log type, defaulting to error");
             type = "Error";
-            toPrint = typeLogs.get(2).messages;
             toParse = typeLogs.get(2);
         }
 
         LoggerGUI.printToFrame("All messages of type: " + type);
-        for (int i = 0; i < toPrint.size(); i++)
+        for (int i = 0; i < toParse.messages.size(); i++)
         {
-            LoggerGUI.printToFrame(toPrint.get(i) + " @t = " + toParse.timeStamps.get(i));
+            LoggerGUI.printToFrame(toParse.messages.get(i) + " @t = " + toParse.timeStamps.get(i));
         }
     }
 
     public static void testCompound()
     {
-        logsInRange("1.00", "20.00");
-        compounding = true;
         logsByType("Warning");
+        compounding = true;
+        logsInRange("1.00", "12.00");
     }
 
     /**
