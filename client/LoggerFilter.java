@@ -44,9 +44,9 @@ public class LoggerFilter {
     /**
      * HashMap to store errors, firt and last occurence timestamps, and frequency.
      */
-    private static final String[] MESSAGE_HEADS = { "###", "<<< Warning:", "!!! Error:", "<P><P><P> Sensor Reading:" };
-    private static final String[] MESSAGE_ENDS = { "###", ">>>", "!!!", "<P><P><P>" };
-    
+    public static final String[] MESSAGE_HEADS = { "###", "<<< Warning:", "!!! Error:", "<P><P><P> Sensor Reading:" };
+    public static final String[] MESSAGE_ENDS = { "###", ">>>", "!!!", "<P><P><P>" };
+
     public static final String[] TYPE_KEYS = { "Message", "Warning", "Error", "Sensor Data" };
     public static final String[] SUBSYSTEM_KEYS = { "Drive", "Hopper", "Climb", "Intake", "Limelight" };
 
@@ -59,7 +59,6 @@ public class LoggerFilter {
     private static ArrayList<LogList> subsystemLogs = new ArrayList<>();
     private static LogList toParse = new LogList();
 
-    
     private static boolean compounding = false;
 
     public static void executeLogger() {
@@ -173,10 +172,10 @@ public class LoggerFilter {
      * into a HashMap that contains initial timestamp, final timestamp, and
      * frequency.
      * 
-     * @param errorArray           -> ArrayList<String> of errors with timestamps
-     *                             included.
-     * @param allLogs.timeStamps -> Arraylist<String> that timestamps will be
-     *                             moved to by the end of the method.
+     * @param errorArray         -> ArrayList<String> of errors with timestamps
+     *                           included.
+     * @param allLogs.timeStamps -> Arraylist<String> that timestamps will be moved
+     *                           to by the end of the method.
      * @return A Hashmap with the error as a key (String), and a List<String> of
      *         initial timestamps, final timestamps, and frequencies for each error.
      */
@@ -202,6 +201,19 @@ public class LoggerFilter {
             }
         }
         return values;
+    }
+
+    /**
+     * Creates a String[] from KEYS_IN_ORDER.
+     * 
+     * @return A String array that has the same elements of KEYS_IN_ORDER
+     */
+    public static String[] getErrors() {
+        String[] errorArr = new String[KEYS_IN_ORDER.size()];
+        for (int i = 0; i < KEYS_IN_ORDER.size(); i++) {
+            errorArr[i] = KEYS_IN_ORDER.get(i);
+        }
+        return errorArr;
     }
 
     /**
@@ -264,13 +276,15 @@ public class LoggerFilter {
      */
     public static void showSeq() {
         try {
-            final String filePath = "output\\commandoutputs\\" + fileName + " ALLEVENTS";
+            final String filePath = "output\\commandoutput\\" + fileName + " ALLEVENTS";
             final FileWriter fw = new FileWriter(filePath, false);
             final PrintWriter printer = new PrintWriter(fw);
             printer.println("All Errors:");
             for (int i = 0; i < allLogs.messages.size(); i++) {
                 printer.println(allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i));
             }
+            LoggerGUI.printToFrame(
+                    "Succesfully printed to file at " + "output\\commandoutput\\" + fileName + " ALLEVENTS.txt");
             printer.close();
         } catch (Exception e) {
             LoggerGUI.printToFrame("Failed to print all errors to file.");
@@ -355,7 +369,6 @@ public class LoggerFilter {
             s_type = "Error";
             toParse = typeLogs.get(2);
         }
-
         LoggerGUI.printToFrame("All messages of type: " + s_type);
         for (int i = 0; i < toParse.messages.size(); i++) {
             LoggerGUI.printToFrame(toParse.messages.get(i) + " @t = " + toParse.timeStamps.get(i));
@@ -368,10 +381,12 @@ public class LoggerFilter {
      */
     public enum Commands {
 
-        preverr("Allows you to view errors preceeding one of your choice.", 2, "[Error to parse for (String)] [Numbers of previous errors to display (int)]"),
-        showseq("Outputs a list of all errors in order into a .txt file.", 0, "[NONE]"),
-        logsinrange("Allows you to view all errors within two timestamps.", 2, "[Start timestamp (int)] [End timestamp (int)]"),
-        logsbytype("Allows you to view errors of a certain PrintStyle", 1, "[PrintStyle (String)]");
+        preverr("Allows you to view errors preceeding one of your choice.", 2,
+                "[Error to parse for <Error Name>], [Numbers of previous errors to display <int>]"),
+        showseq("Outputs a list of all errors in order into a .txt file.", 0, "[No parameters <N/A>]"),
+        logsinrange("Allows you to view all errors within two timestamps.", 2,
+                "[Start timestamp <int>], [End timestamp <int>]"),
+        logsbytype("Allows you to view errors of a certain PrintStyle", 1, "[PrintStyle tolook for <Print Style>]");
 
         String desc;
         int paramNum;

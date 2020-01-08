@@ -131,7 +131,6 @@ public class LoggerGUI {
     }
 
     public static void openInput(final LoggerFilter.Commands c) {
-        ArrayList<String> parsedDesc = parseDesc(c);
         inputf = new JFrame();
         inputf.setSize(new Dimension(600, 400));
         inputf.setLocationRelativeTo(null);
@@ -140,69 +139,130 @@ public class LoggerGUI {
         inputf.setLayout(new BorderLayout());
         final NamedJButton sub = new NamedJButton("Submit Button", "SUBMIT");
         sub.setBounds(225, 300, 150, 50);
-        Object[] s1 = LoggerFilter.KEYS_IN_ORDER.toArray(); 
-        JComboBox<Object> c1 = new JComboBox<Object>(s1);
-        c1.setBounds(100,0,50,50);
-        final JPanel p = new JPanel(); 
-        p.add(c1);
+        ArrayList<String> parsedDesc = parseDesc(c.getParamDesc());
+        final JPanel p = new JPanel(new FlowLayout());
+        ArrayList<JComboBox<Object>> allDrops = new ArrayList<>();
+        ArrayList<JTextArea> allInputField = new ArrayList<>();
+        int counter = 0;
+        for (String s : parsedDesc) {
+            switch (s) {
+            case "Error Name":
+                JComboBox<Object> jcbe = createDropdown(counter, LoggerFilter.getErrors());
+                allDrops.add(jcbe);
+                inputf.add(jcbe);
+                inputf.add(createLabel(counter, c.getParamDesc()));
+                break;
+            case "Print Style":
+                JComboBox<Object> jcbp = createDropdown(counter, LoggerFilter.TYPE_KEYS);
+                allDrops.add(jcbp);
+                inputf.add(jcbp);
+                inputf.add(createLabel(counter, c.getParamDesc()));
+                break;
+            case "int":
+                JTextArea jta = createtField(counter);
+                JScrollPane jsp = new JScrollPane(jta, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
+                        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                jsp.setBounds(275, 50 + (counter * 70), 50, 20);
+                allInputField.add(jta);
+                inputf.add(jsp);
+                inputf.add(createLabel(counter, c.getParamDesc()));
+                break;
+            case "N/A":
+                inputf.add(createLabel(counter, c.getParamDesc()));
+                break;
+            default:
+                printToFrame("Error with input panel generation");
+            }
+            counter++;
+        }
         inputf.add(sub);
         inputf.add(p);
         inputf.setVisible(true);
 
         sub.addActionListener(new ActionListener() {
+            ArrayList<String> input = new ArrayList<>();
+
             @Override
             public void actionPerformed(final ActionEvent e) {
-                final String[] input = getInput();
+                for (JComboBox<Object> j : allDrops) {
+                    input.add(getInput(j));
+                }
+                for (JTextArea j : allInputField) {
+                    input.add(getInput(j));
+                }
                 inputSwitch(input, c);
                 inputf.dispose();
             }
         });
-
-        switch(c) {
-            case preverr:
-                break;
-            case showseq:
-                break;
-            case logsinrange:
-                break;
-        }
     }
 
-    public static ArrayList<String> parseDesc(final LoggerFilter.Commands c) {
-        ArrayList<String> myList = new ArrayList<>();
+    public static JComboBox<Object> createDropdown(int orderNum, String[] options) {
+        JComboBox<Object> jcb = new JComboBox<>(options);
+        jcb.setBounds(100, 50 + (orderNum * 70), 400, 20);
+        return jcb;
+    }
 
+    public static JTextArea createtField(int orderNum) {
+        JTextArea jta = new JTextArea();
+        jta.setSize(5, 5);
+        return jta;
+    }
+
+    public static JLabel createLabel(int orderNum, String desc) {
+        String[] labelToAdd = desc.split("\\,");
+        JLabel addLabel = new JLabel(labelToAdd[orderNum], SwingConstants.CENTER);
+        addLabel.setBounds(0, 30 + (orderNum * 70), 600, 20);
+        return addLabel;
+    }
+
+    public static ArrayList<String> parseDesc(final String s) {
+        ArrayList<String> myList = new ArrayList<>();
+        String description = s;
+        while (description.contains("<") && description.contains(">")) {
+            String inputType = description.substring(description.indexOf("<"), description.indexOf(">") + 1);
+            description = description.replaceFirst(inputType, "");
+            inputType = inputType.replaceAll("\\<", "");
+            inputType = inputType.replaceAll("\\>", "");
+            myList.add(inputType);
+        }
         return myList;
     }
 
-    public static String[] getInput() {
-        if (!inputta.getText().equals("")) {
-            final Scanner sc = new Scanner(inputta.getText());
-            final String text = sc.nextLine();
-            text.replaceAll("\\[", "");
-            text.replaceAll("\\]", "");
-            final String[] strings = text.split(",");
-            for (int i = 0; i < strings.length; i++) {
-                strings[i] = strings[i].trim();
-            }
-            sc.close();
-            return strings;
+    public static String getInput(JTextArea textArea) {
+        if (!textArea.getText().equals("")) {
+            Scanner myScanner = new Scanner(textArea.getText());
+            String reply = myScanner.nextLine();
+            reply.trim();
+            myScanner.close();
+            return reply;
         } else {
-            return new String[0];
+            return "";
         }
     }
 
-    public static void inputSwitch(final String[] input, final LoggerFilter.Commands c) {
+    public static String getInput(JComboBox<Object> dropDown) {
+        String input = dropDown.getSelectedItem().toString();
+        input.trim();
+        return input;
+    }
+
+    public static void inputSwitch(final ArrayList<String> input, final LoggerFilter.Commands c) {
         switch (c) {
         case preverr:
-            LoggerFilter.prevErrors(input[0], input[1]);
+            LoggerFilter.prevErrors(input.get(0), input.get(1));
             break;
         case showseq:
             LoggerFilter.showSeq();
             break;
         case logsinrange:
-            LoggerFilter.logsInRange(input[0], input[1]);
+            LoggerFilter.logsInRange(input.get(0), input.get(1));
+            break;
+        case logsbytype:
+            LoggerFilter.logsByType(input.get(0));
             break;
         }
+        printToFrame("Command Complete.");
+        printToFrame("--------------------------------------------------");
     }
 
     public static void makeButtons() {
