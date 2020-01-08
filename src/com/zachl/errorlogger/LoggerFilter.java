@@ -32,7 +32,7 @@ public class LoggerFilter {
      * want to read that specific file. Be sure to add ".dsevents" to the end of the
      * filename.
      */
-    private static String fileName = "";
+    protected static String fileName = "";
     /**
      * Upper bound to use when parsing for errors.
      */
@@ -55,19 +55,46 @@ public class LoggerFilter {
     private static final String[] TYPE_KEYS = {"Message", "Warning", "Error", "Sensor Data"};
 
     private static String allText;
-    private static ArrayList<String> allMessages = new ArrayList<>();
-    private static ArrayList<ArrayList<String>> typeMessageLists = new ArrayList<>();
-    private static ArrayList<ArrayList<String>> typeTimestampLists = new ArrayList<>();
-    private static ArrayList<String> timeStampArray = new ArrayList<>();
+    private static LogList allLogs = new LogList();
+    //private static LogListArray typeLogs = new LogListArray();
+    private static ArrayList<LogList> typeLogs = new ArrayList<>();
+    private static LogList toParse = new LogList();
+    
     private static ArrayList<String> keysInOrder = new ArrayList<>();
-    private static HashMap<String, List<String>> values = new HashMap<>();
-    private static ArrayList<HashMap<String, List<String>>> typeValues = new ArrayList<>();
+    private static boolean compounding = false;
+    
+    //private static ArrayList<String> allMessages = new ArrayList<>();
+    //private static ArrayList<ArrayList<String>> typeMessageLists = new ArrayList<>();
+    //private static ArrayList<ArrayList<String>> typeLogs.timeStampList = new ArrayList<>();
+    //private static ArrayList<String> timeStampArray = new ArrayList<>();
+    //private static HashMap<String, List<String>> values = new HashMap<>();
+    //private static ArrayList<HashMap<String, List<String>>> typeValues = new ArrayList<>();
 
-    public static void executeLogger() {
-        if (fileName.equals("")) {
+    /*public static void main(final String[] args)
+    {
+        if (fileName.equals(""))
+        {
             getMostRecentFile();
         }
+        for(int i = 0; i < MESSAGE_ENDS.length; i++)
+        {
+            typeLogs.add(new LogList());
+        }
         readFile();
+    }*/
+
+    public static void executeLogger()
+    {
+        if (fileName.equals(""))
+        {
+            getMostRecentFile();
+        }
+        for(int i = 0; i < MESSAGE_ENDS.length; i++)
+        {
+            typeLogs.add(new LogList());
+        }
+        readFile();
+        testCompound();
     }
 
     /**
@@ -95,7 +122,7 @@ public class LoggerFilter {
      */
     private static void readFile() {
         try {
-            final FileReader fr = new FileReader(/* folderPath + fileName */"info\\exampleEvents.dsevents");
+            final FileReader fr = new FileReader(/* folderPath + fileName */"info/exampleEvents.dsevents");
             final BufferedReader br = new BufferedReader(fr);
             allText = "";
             String contentLine = br.readLine();
@@ -125,10 +152,11 @@ public class LoggerFilter {
      * @throws IOException
      */
     private static void parseData(String s) throws IOException {
-        for (int i = 0; i < MESSAGE_ENDS.length; i++) {
-            typeMessageLists.add(new ArrayList<>());
-            typeTimestampLists.add(new ArrayList<>());
-            typeValues.add(new HashMap<String, List<String>>());
+        for (int i = 0; i < MESSAGE_ENDS.length; i++)
+        {
+            /*typeLogs.messageList.add(new ArrayList<String>());
+            typeLogs.timeStampList.add(new ArrayList<String>());
+            typeLogs.valueList.add(new HashMap<String, List<String>>());*/
         }
         s = s.trim();
         while (s.contains(ALERT_KEY_UPPER_BOUND) && s.contains(ALERT_KEY_LOWER_BOUND)) {
@@ -147,18 +175,19 @@ public class LoggerFilter {
                     logLine = logLine.replaceFirst(MESSAGE_HEADS[i], "");
                     logLine = logLine.replaceFirst(MESSAGE_ENDS[i], "");
                     logLine = logLine.trim();
-                    typeMessageLists.get(i).add(logLine);
+                    typeLogs.get(i).messages.add(logLine);
                 }
             }
-            allMessages.add(logLine.trim());
+            allLogs.messages.add(logLine.trim());
         }
 
-        for (int j = 0; j < 4; j++) {
-            typeValues.set(j, hashify(typeMessageLists.get(j), typeTimestampLists.get(j)));
+        for (int j = 0; j < 4; j++)
+        {
+            typeLogs.get(j).values = (hashify(typeLogs.get(j).messages, typeLogs.get(j).timeStamps));
         }
 
-        values = hashify(allMessages, timeStampArray);
-        writeToFile(values);
+        allLogs.values = hashify(allLogs.messages, allLogs.timeStamps);
+        writeToFile(allLogs.values);
     }
 
     /**
@@ -168,15 +197,15 @@ public class LoggerFilter {
      * 
      * @param errorArray     -> ArrayList<String> of errors with timestamps
      *                       included.
-     * @param timeStampArray -> Arraylist<String> that timestamps will be moved to
+     * @param //allLogs.timeStamps -> Arraylist<String> that timestamps will be moved to
      *                       by the end of the method.
      * @return A Hashmap with the error as a key (String), and a List<String> of
      *         initial timestamps, final timestamps, and frequencies for each error.
      */
     private static HashMap<String, List<String>> hashify(final ArrayList<String> errorArray,
-            final ArrayList<String> timeStampArray) {
+            final ArrayList<String> timeStamps) {
         for (int i = 0; i < errorArray.size(); i++) {
-            timeStampArray.add(
+            timeStamps.add(
                     errorArray.get(i).substring(errorArray.get(i).indexOf("<") + 1, errorArray.get(i).indexOf(">")));
             errorArray.set(i, (errorArray.get(i).replace(
                     errorArray.get(i).substring(errorArray.get(i).indexOf("<"), errorArray.get(i).indexOf(">") + 1),
@@ -187,9 +216,9 @@ public class LoggerFilter {
             if (values.containsKey(s)) {
                 values.get(s).set(2, "" + ((Integer.parseInt(values.get(s).get(2))) + 1));
             } else {
-                values.put(s, Arrays.asList(timeStampArray.get(errorArray.indexOf(s)),
-                        timeStampArray.get(errorArray.lastIndexOf(s)), "1"));
-                if(allMessages.equals(errorArray)) {
+                values.put(s, Arrays.asList(timeStamps.get(errorArray.indexOf(s)),
+                        timeStamps.get(errorArray.lastIndexOf(s)), "1"));
+                if(allLogs.messages.equals(errorArray)) {
                     keysInOrder.add(s);
                 }
             }
@@ -207,7 +236,7 @@ public class LoggerFilter {
     private static void writeToFile(final HashMap<String, List<String>> values) throws IOException {
         final String fileName = LoggerFilter.fileName + " ROBOT_ERROR_IDENTIFIER";
 
-        final String filePath = "output\\mainoutput\\" + fileName;
+        final String filePath = "output/mainoutput/" + fileName;
         final FileWriter fw = new FileWriter(filePath, false);
         final PrintWriter printer = new PrintWriter(fw);
         printer.println("Robot Malfunction(s):");
@@ -277,7 +306,7 @@ public class LoggerFilter {
     public static void prevErrors(final Scanner sc) {
         System.out.print("Error to get additional information for:\n> ");
         final String error = sc.nextLine();
-        if (values.get(error) != null) {
+        if (allLogs.values.get(error) != null) {
             System.out.print("Amount of previous errors needed: \n> ");
             int prevNum;
             try {
@@ -288,14 +317,14 @@ public class LoggerFilter {
             }
             System.out.println("Up to " + prevNum + " errors before/first occurence of \"" + error + "\"\n");
             int counter = 0;
-            for (int i = 0; i <= allMessages.indexOf(error); i++) {
-                if (allMessages.indexOf(error) - i <= prevNum) {
+            for (int i = 0; i <= allLogs.messages.indexOf(error); i++) {
+                if (allLogs.messages.indexOf(error) - i <= prevNum) {
                     counter++;
-                    if (allMessages.indexOf(error) - i != 0) {
-                        System.out.println(counter + ": " + allMessages.get(i) + " @t = " + timeStampArray.get(i));
+                    if (allLogs.messages.indexOf(error) - i != 0) {
+                        System.out.println(counter + ": " + allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i));
                     } else {
                         System.out.println(
-                                "\nError of Interest: " + allMessages.get(i) + " @t = " + timeStampArray.get(i));
+                                "\nError of Interest: " + allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i));
                     }
                 }
             }
@@ -315,8 +344,8 @@ public class LoggerFilter {
             final FileWriter fw = new FileWriter(filePath, false);
             final PrintWriter printer = new PrintWriter(fw);
             printer.println("All Errors:");
-            for (int i = 0; i < allMessages.size(); i++) {
-                printer.println(allMessages.get(i) + " @t = " + timeStampArray.get(i));
+            for (int i = 0; i < allLogs.messages.size(); i++) {
+                printer.println(allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i));
             }
             printer.close();
         } catch (Exception e) {
@@ -352,10 +381,10 @@ public class LoggerFilter {
         }
         try {
             System.out.println("Logs between timestamps " + sb + " and " + eb + "\n");
-            for (int i = 0; i < timeStampArray.size(); i++) {
-                if ((Double.parseDouble(timeStampArray.get(i))) >= sb
-                        && (Double.parseDouble(timeStampArray.get(i)) <= eb)) {
-                    System.out.println(allMessages.get(i) + " @t = " + timeStampArray.get(i));
+            for (int i = 0; i < allLogs.timeStamps.size(); i++) {
+                if ((Double.parseDouble(allLogs.timeStamps.get(i))) >= sb
+                        && (Double.parseDouble(allLogs.timeStamps.get(i)) <= eb)) {
+                    System.out.println(allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i));
                 }
             }
             System.out.println();
@@ -369,7 +398,7 @@ public class LoggerFilter {
      * errors to view can be selected.
      */
     public static void prevErrors(String error, String s_prevNum) {
-        if (values.get(error) != null) {
+        if (allLogs.values.get(error) != null) {
             int prevNum;
             try {
                 prevNum = Integer.parseInt(s_prevNum);
@@ -379,14 +408,14 @@ public class LoggerFilter {
             }
             LoggerGUI.printToFrame("Up to " + prevNum + " errors before/first occurence of \"" + error + "\"\n");
             int counter = 0;
-            for (int i = 0; i <= allMessages.indexOf(error); i++) {
-                if (allMessages.indexOf(error) - i <= prevNum) {
+            for (int i = 0; i <= allLogs.messages.indexOf(error); i++) {
+                if (allLogs.messages.indexOf(error) - i <= prevNum) {
                     counter++;
-                    if (allMessages.indexOf(error) - i != 0) {
-                        LoggerGUI.printToFrame(counter + ": " + allMessages.get(i) + " @t = " + timeStampArray.get(i));
+                    if (allLogs.messages.indexOf(error) - i != 0) {
+                        LoggerGUI.printToFrame(counter + ": " + allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i));
                     } else {
                         LoggerGUI.printToFrame(
-                                "\nError of Interest: " + allMessages.get(i) + " @t = " + timeStampArray.get(i));
+                                "\nError of Interest: " + allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i));
                     }
                 }
             }
@@ -404,8 +433,8 @@ public class LoggerFilter {
             final FileWriter fw = new FileWriter(filePath, false);
             final PrintWriter printer = new PrintWriter(fw);
             printer.println("All Errors:");
-            for (int i = 0; i < allMessages.size(); i++) {
-                printer.println(allMessages.get(i) + " @t = " + timeStampArray.get(i));
+            for (int i = 0; i < allLogs.messages.size(); i++) {
+                printer.println(allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i));
             }
             printer.close();
         } catch (Exception e) {
@@ -420,6 +449,14 @@ public class LoggerFilter {
      */
     public static void logsInRange(String s_sb, String s_eb)
     {
+        LogList finalParsed = new LogList();
+
+        if(!compounding)
+        {
+            LoggerGUI.printToFrame("Parsing from all logs");
+            toParse = allLogs;
+        }
+
         double sb;
         try {
             String line = s_sb;
@@ -438,12 +475,18 @@ public class LoggerFilter {
         }
         try {
             LoggerGUI.printToFrame("Logs between timestamps " + sb + " and " + eb + "\n");
-            for (int i = 0; i < timeStampArray.size(); i++) {
-                if ((Double.parseDouble(timeStampArray.get(i))) >= sb
-                        && (Double.parseDouble(timeStampArray.get(i)) <= eb)) {
-                    LoggerGUI.printToFrame(allMessages.get(i) + " @t = " + timeStampArray.get(i));
+            for (int i = 0; i < toParse.timeStamps.size(); i++) {
+                if ((Double.parseDouble(toParse.timeStamps.get(i))) >= sb
+                        && (Double.parseDouble(toParse.timeStamps.get(i)) <= eb))
+                {
+                    LoggerGUI.printToFrame(toParse.messages.get(i) + " @t = " + toParse.timeStamps.get(i));
+                    finalParsed.messages.add(toParse.messages.get(i));
+                    finalParsed.timeStamps.add(toParse.timeStamps.get(i));
                 }
             }
+
+            //finalParsed.values = hashify(finalParsed.messages, finalParsed.timeStamps);
+            toParse = finalParsed;
             LoggerGUI.printToFrame("");
         } catch (NumberFormatException e) {
             LoggerGUI.printToFrame("Error with number formatting.");
@@ -452,23 +495,60 @@ public class LoggerFilter {
 
     public static void logsByType(String type)
     {
+        LogList finalParsed = new LogList();
+
         ArrayList<String> toPrint = null;
 
         try {
-            for (int i = 0; i < TYPE_KEYS.length; i++) {
-                if (type.equalsIgnoreCase(TYPE_KEYS[i])) {
-                    toPrint = typeMessageLists.get(i);
+            for (int i = 0; i < TYPE_KEYS.length; i++)
+            {
+                if (!compounding && type.equalsIgnoreCase(TYPE_KEYS[i]))
+                {
+                    LoggerGUI.printToFrame("Parsing from full type log");
+                    toParse = typeLogs.get(i);
                 }
+                else if(type.equalsIgnoreCase(TYPE_KEYS[i]))
+                    {
+                        LoggerGUI.printToFrame("Parsing c o m p o u n d e d");
+                        for(int j = 0; j < typeLogs.get(i).messages.size(); j++)
+                        {
+                            for(int k = 0; k < toParse.messages.size(); k++)
+                            {
+                                if(toParse.messages.get(k).equalsIgnoreCase(typeLogs.get(i).messages.get(j)) && toParse.timeStamps.get(k).equalsIgnoreCase(typeLogs.get(i).timeStamps.get(j)))
+                                {
+                                    finalParsed.messages.add(toParse.messages.get(k));
+                                    finalParsed.timeStamps.add(toParse.timeStamps.get(k));
+                                    break;
+                                }
+                            }
+                        }
+                    }
             }
+
+            //finalParsed.values = hashify(finalParsed.messages, finalParsed.timeStamps);
+            toParse = finalParsed;
+
+            toPrint = toParse.messages;
         }
         catch(NullPointerException e) {
             LoggerGUI.printToFrame("Invalid log type, defaulting to error");
-            toPrint = typeMessageLists.get(2);
+            type = "Error";
+            toPrint = typeLogs.get(2).messages;
+            toParse = typeLogs.get(2);
         }
 
-        for (int i = 0; i < toPrint.size(); i++) {
-            LoggerGUI.printToFrame(toPrint.get(i));
+        LoggerGUI.printToFrame("All messages of type: " + type);
+        for (int i = 0; i < toPrint.size(); i++)
+        {
+            LoggerGUI.printToFrame(toPrint.get(i) + " @t = " + toParse.timeStamps.get(i));
         }
+    }
+
+    public static void testCompound()
+    {
+        logsInRange("1.00", "20.00");
+        compounding = true;
+        logsByType("Warning");
     }
 
     /**
