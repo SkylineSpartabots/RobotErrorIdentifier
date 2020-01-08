@@ -140,7 +140,7 @@ public class LoggerGUI {
         inputf.setLayout(new BorderLayout());
         final NamedJButton sub = new NamedJButton("Submit Button", "SUBMIT");
         sub.setBounds(225, 300, 150, 50);
-        Object[] s1 = LoggerFilter.keysInOrder.toArray(); 
+        Object[] s1 = LoggerFilter.KEYS_IN_ORDER.toArray(); 
         JComboBox<Object> c1 = new JComboBox<Object>(s1);
         c1.setBounds(100,0,50,50);
         final JPanel p = new JPanel(); 
@@ -170,7 +170,7 @@ public class LoggerGUI {
 
     public static ArrayList<String> parseDesc(final LoggerFilter.Commands c) {
         ArrayList<String> myList = new ArrayList<>();
-        
+
         return myList;
     }
 
