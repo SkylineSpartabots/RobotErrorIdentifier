@@ -11,14 +11,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * A client that can be run at the end of matches to parse through .dsevents
  * files and output a ".txt" file that only contains important information about
  * robot malfunctions. Helpful for post-match diagnostics.
  * 
- * @version 2.0.0
+ * @version 2.1.0
  * @author Team 2976!
  */
 public class LoggerFilter {
@@ -32,7 +31,11 @@ public class LoggerFilter {
      * want to read that specific file. Be sure to add ".dsevents" to the end of the
      * filename.
      */
-    protected static String fileName = "";
+    public static String fileName = "";
+    /**
+     * Whole path to file.
+     */
+    private static String wholePath = folderPath + fileName;
     /**
      * Upper bound to use when parsing for errors.
      */
@@ -41,9 +44,7 @@ public class LoggerFilter {
      * Lower bound to use when parsing for errors.
      */
     private static final String ALERT_KEY_LOWER_BOUND = "E_LOG";
-    /**
-     * HashMap to store errors, firt and last occurence timestamps, and frequency.
-     */
+
     public static final String[] MESSAGE_HEADS = { "###", "<<< Warning:", "!!! Error:", "<P><P><P> Sensor Reading:" };
     public static final String[] MESSAGE_ENDS = { "###", ">>>", "!!!", "<P><P><P>" };
 
@@ -62,9 +63,6 @@ public class LoggerFilter {
     private static boolean compounding = false;
 
     public static void executeLogger() {
-        if (fileName.equals("")) {
-            getMostRecentFile();
-        }
         readFile();
     }
 
@@ -73,7 +71,7 @@ public class LoggerFilter {
      * .dsevents file. Only does this if the class variable "fileName" is blank
      * ("").
      */
-    private static void getMostRecentFile() {
+    public static void getMostRecentFile() {
         final File directory = new File(folderPath);
         final File[] allFiles = directory.listFiles();
         long lastModTime = allFiles[0].lastModified();
@@ -84,6 +82,7 @@ public class LoggerFilter {
                 mostRecentFile = f;
             }
             fileName = mostRecentFile.getName();
+            wholePath = folderPath + fileName;
         }
     }
 
@@ -93,7 +92,7 @@ public class LoggerFilter {
      */
     private static void readFile() {
         try {
-            final FileReader fr = new FileReader(/* folderPath + fileName */"info/exampleEvents.dsevents");
+            final FileReader fr = new FileReader(wholePath);
             final BufferedReader br = new BufferedReader(fr);
             allText = "";
             String contentLine = br.readLine();
@@ -236,7 +235,7 @@ public class LoggerFilter {
         }
         printer.close();
         LoggerGUI.printToFrame(
-                "Printed succesfully to file at " + new File("output\\mainoutput\\" + fileName).getAbsolutePath());
+                "Base output printed succesfully to file at " + new File("output\\mainoutput\\" + fileName).getAbsolutePath());
     }
 
     /**
@@ -375,6 +374,23 @@ public class LoggerFilter {
         }
     }
 
+    public static void setCompunding(boolean c) {
+        compounding = c;
+        LoggerGUI.printToFrame("Compounding set to " + c);
+    }
+
+    public static void setFilePath(String path) {
+        if(path.trim().equals("")) {
+            getMostRecentFile();
+        } else {
+            wholePath = path;
+        }   
+    }
+    
+    public static String getWholePath() {
+        return wholePath;
+    }
+
     /**
      * An Enum that contains command names (these must be typed EXACTLY AS THEY ARE
      * into the console when prompted) and descriptions.
@@ -384,9 +400,9 @@ public class LoggerFilter {
         preverr("Allows you to view errors preceeding one of your choice.", 2,
                 "[Error to parse for <Error Name>], [Numbers of previous errors to display <int>]"),
         showseq("Outputs a list of all errors in order into a .txt file.", 0, "[No parameters <N/A>]"),
-        logsinrange("Allows you to view all errors within two timestamps.", 2,
+        logsinrange("Allows you to view all errors within two timestamps. COMPOUNDABLE.", 2,
                 "[Start timestamp <int>], [End timestamp <int>]"),
-        logsbytype("Allows you to view errors of a certain PrintStyle", 1, "[PrintStyle tolook for <Print Style>]");
+        logsbytype("Allows you to view errors of a certain PrintStyle. COMPOUNDABLE.", 1, "[PrintStyle tolook for <Print Style>]");
 
         String desc;
         int paramNum;

@@ -2,6 +2,7 @@ package client;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -34,6 +35,10 @@ public class LoggerGUI {
         setupFrame();
         f.setVisible(true);
         printToFrame("Robot Error Identifier Status: Ready");
+        if (LoggerFilter.fileName.equals("")) {
+            LoggerFilter.getMostRecentFile();
+        }
+        printToFrame("File to scan: " + LoggerFilter.getWholePath());
         setupListeners();
     }
 
@@ -79,7 +84,45 @@ public class LoggerGUI {
                     printToFrame("Failed to save file.");
                     e1.printStackTrace();
                 }
-                printToFrame("Saved current console text.");
+                printToFrame("Saved current console text to: " + new File(filePath + fileName).getAbsolutePath() + ".txt");
+            }
+        });
+        dir.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                JFrame tempJ = new JFrame();
+                tempJ.setSize(new Dimension(300, 300));
+                tempJ.setLocationRelativeTo(null);
+                tempJ.setTitle("Directory Panel");
+                tempJ.setLayout(new BorderLayout());
+                tempJ.setResizable(false);
+                final NamedJButton chg = new NamedJButton("Submit Button", "CHANGE");
+                chg.setBounds(75, 150, 150, 50);
+                JLabel jlb = new JLabel("File to parse (full filepath):", SwingConstants.CENTER);
+                jlb.setBounds(0,0,300,50);
+                JTextArea jta = new JTextArea(1,5);
+                JScrollPane jsp = new JScrollPane(jta, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+                jsp.setBounds(50,40,200,35);
+                tempJ.add(chg);
+                tempJ.add(jsp);
+                tempJ.add(jlb);
+                JPanel p = new JPanel();
+                tempJ.add(p);
+                tempJ.setVisible(true);
+                if(chg.getActionListeners().length < 1) {
+                    chg.addActionListener(new ActionListener () {
+                        @Override
+                        public void actionPerformed(final ActionEvent e) {
+                            LoggerFilter.setFilePath(jta.getText().trim().replaceAll("\\\\", "\\\\\\\\"));
+                            if(jta.getText().trim().equals("")) {
+                                printToFrame("Got the most recent file.");
+                                printToFrame("Set file to parse to: " + LoggerFilter.getWholePath());
+                            } else {
+                                printToFrame("Set file to parse to: " + jta.getText().trim());
+                            }
+                        }
+                    });
+                }
             }
         });
     }
@@ -110,7 +153,7 @@ public class LoggerGUI {
         gen.setToolTipText("Parses file and generates basic output. Must be pressed first before COMMANDS or SAVE.");
         dir = new NamedJButton("Directory Button", "DIRECTORY");
         dir.setBounds(835, 600, 150, 50);
-        dir.setToolTipText("N/A yet.");
+        dir.setToolTipText("Allows you to pick the file you want to parse.");
         txt = new NamedJButton("Save Button", "SAVE");
         txt.setBounds(1105, 600, 150, 50);
         txt.setEnabled(false);
@@ -299,15 +342,36 @@ public class LoggerGUI {
         homeButton.setBounds(40, 150 + (75 * (numOfCmnds / 5)), 150, 50);
         homeButton.setToolTipText("Takes you back to the home screen.");
         homeButton.setEnabled(true);
+        final JButton compoundButton = new JButton("COMPOUNDING: OFF");
+        compoundButton.setBounds(215, 150 + (75 * (numOfCmnds / 5)), 150, 50);
+        compoundButton.setToolTipText("Enables and disables compounding.");
+        compoundButton.setEnabled(true);
         tempJ.add(homeButton);
+        tempJ.add(compoundButton);
         final JPanel jp = new JPanel();
         tempJ.add(jp);
         tempJ.setVisible(true);
-        homeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                tempJ.dispose();
-            }
-        });
+        if (homeButton.getActionListeners().length < 1) {
+            homeButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    tempJ.dispose();
+                }
+            });
+        }
+        if (compoundButton.getActionListeners().length < 1) {
+            compoundButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    if(compoundButton.getText().equals("COMPOUNDING: OFF")) {
+                        LoggerFilter.setCompunding(true);
+                        compoundButton.setText("COMPOUNDING: ON");
+                    } else if(compoundButton.getText().equals("COMPOUNDING: ON")) {
+                        LoggerFilter.setCompunding(false);
+                        compoundButton.setText("COMPOUNDING: OFF");
+                    }
+                }
+            });
+        }
     }
 }
