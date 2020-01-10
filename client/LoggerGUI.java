@@ -11,6 +11,9 @@ import java.util.Calendar;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.plaf.metal.OceanTheme;
+
 import java.awt.event.*;
 import java.awt.*;
 import client.gui.*;
@@ -31,15 +34,27 @@ public class LoggerGUI {
     private static ArrayList<JButton> buttons = new ArrayList<>();
 
     public static void main(final String[] args) {
+        setLookAndFeel();
         f = new JFrame();
         setupFrame();
         f.setVisible(true);
-        printToFrame("Robot Error Identifier Status: Ready");
+        printToFrame("Robot Error Identifier made with love by Team 2976, The Spartabots!");
+        printToFrame("Status: Ready");
         if (LoggerFilter.fileName.equals("")) {
             LoggerFilter.getMostRecentFile();
         }
         printToFrame("File to scan: " + LoggerFilter.getWholePath());
         setupListeners();
+    }
+
+    public static void setLookAndFeel() {
+        try {
+            MetalLookAndFeel.setCurrentTheme(new OceanTheme());
+            UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+                | UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void setupListeners() {
@@ -90,7 +105,7 @@ public class LoggerGUI {
         dir.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                JFrame tempJ = new JFrame();
+                final JFrame tempJ = new JFrame();
                 tempJ.setSize(new Dimension(300, 300));
                 tempJ.setLocationRelativeTo(null);
                 tempJ.setTitle("Directory Panel");
@@ -98,23 +113,24 @@ public class LoggerGUI {
                 tempJ.setResizable(false);
                 final NamedJButton chg = new NamedJButton("Submit Button", "CHANGE");
                 chg.setBounds(75, 150, 150, 50);
-                JLabel jlb = new JLabel("File to parse (full filepath):", SwingConstants.CENTER);
-                jlb.setBounds(0,0,300,50);
-                JTextArea jta = new JTextArea(1,5);
-                JScrollPane jsp = new JScrollPane(jta, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-                jsp.setBounds(50,40,200,35);
+                final JLabel jlb = new JLabel("File to parse (full filepath):", SwingConstants.CENTER);
+                jlb.setBounds(0, 0, 300, 50);
+                final JTextArea jta = new JTextArea(1, 5);
+                final JScrollPane jsp = new JScrollPane(jta, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                        JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+                jsp.setBounds(50, 40, 200, 35);
                 tempJ.add(chg);
                 tempJ.add(jsp);
                 tempJ.add(jlb);
-                JPanel p = new JPanel();
+                final JPanel p = new JPanel();
                 tempJ.add(p);
                 tempJ.setVisible(true);
-                if(chg.getActionListeners().length < 1) {
-                    chg.addActionListener(new ActionListener () {
+                if (chg.getActionListeners().length < 1) {
+                    chg.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(final ActionEvent e) {
                             LoggerFilter.setFilePath(jta.getText().trim().replaceAll("\\\\", "\\\\\\\\"));
-                            if(jta.getText().trim().equals("")) {
+                            if (jta.getText().trim().equals("")) {
                                 printToFrame("Got the most recent file.");
                                 printToFrame("Set file to parse to: " + LoggerFilter.getWholePath());
                             } else {
@@ -137,6 +153,7 @@ public class LoggerGUI {
         f.setResizable(false);
         f.setTitle("Robot Error Identifier");
         f.setLayout(new BorderLayout());
+        f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         titleText = new JLabel();
         titleText.setBounds(25, 10, 50, 50);
@@ -182,28 +199,28 @@ public class LoggerGUI {
         inputf.setLayout(new BorderLayout());
         final NamedJButton sub = new NamedJButton("Submit Button", "SUBMIT");
         sub.setBounds(225, 300, 150, 50);
-        ArrayList<String> parsedDesc = parseDesc(c.getParamDesc());
+        final ArrayList<String> parsedDesc = parseDesc(c.getParamDesc());
         final JPanel p = new JPanel(new FlowLayout());
-        ArrayList<JComboBox<Object>> allDrops = new ArrayList<>();
-        ArrayList<JTextArea> allInputField = new ArrayList<>();
+        final ArrayList<JComboBox<Object>> allDrops = new ArrayList<>();
+        final ArrayList<JTextArea> allInputField = new ArrayList<>();
         int counter = 0;
-        for (String s : parsedDesc) {
+        for (final String s : parsedDesc) {
             switch (s) {
             case "Error Name":
-                JComboBox<Object> jcbe = createDropdown(counter, LoggerFilter.getErrors());
+                final JComboBox<Object> jcbe = createDropdown(counter, LoggerFilter.getErrors());
                 allDrops.add(jcbe);
                 inputf.add(jcbe);
                 inputf.add(createLabel(counter, c.getParamDesc()));
                 break;
             case "Print Style":
-                JComboBox<Object> jcbp = createDropdown(counter, LoggerFilter.TYPE_KEYS);
+                final JComboBox<Object> jcbp = createDropdown(counter, LoggerFilter.TYPE_KEYS);
                 allDrops.add(jcbp);
                 inputf.add(jcbp);
                 inputf.add(createLabel(counter, c.getParamDesc()));
                 break;
             case "int":
-                JTextArea jta = createtField(counter);
-                JScrollPane jsp = new JScrollPane(jta, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
+                final JTextArea jta = createtField(counter);
+                final JScrollPane jsp = new JScrollPane(jta, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                         JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
                 jsp.setBounds(275, 50 + (counter * 70), 50, 20);
                 allInputField.add(jta);
@@ -227,10 +244,10 @@ public class LoggerGUI {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
-                for (JComboBox<Object> j : allDrops) {
+                for (final JComboBox<Object> j : allDrops) {
                     input.add(getInput(j));
                 }
-                for (JTextArea j : allInputField) {
+                for (final JTextArea j : allInputField) {
                     input.add(getInput(j));
                 }
                 inputSwitch(input, c);
@@ -239,27 +256,27 @@ public class LoggerGUI {
         });
     }
 
-    public static JComboBox<Object> createDropdown(int orderNum, String[] options) {
-        JComboBox<Object> jcb = new JComboBox<>(options);
+    public static JComboBox<Object> createDropdown(final int orderNum, final String[] options) {
+        final JComboBox<Object> jcb = new JComboBox<>(options);
         jcb.setBounds(100, 50 + (orderNum * 70), 400, 20);
         return jcb;
     }
 
-    public static JTextArea createtField(int orderNum) {
-        JTextArea jta = new JTextArea();
+    public static JTextArea createtField(final int orderNum) {
+        final JTextArea jta = new JTextArea();
         jta.setSize(5, 5);
         return jta;
     }
 
-    public static JLabel createLabel(int orderNum, String desc) {
-        String[] labelToAdd = desc.split("\\,");
-        JLabel addLabel = new JLabel(labelToAdd[orderNum], SwingConstants.CENTER);
+    public static JLabel createLabel(final int orderNum, final String desc) {
+        final String[] labelToAdd = desc.split("\\,");
+        final JLabel addLabel = new JLabel(labelToAdd[orderNum], SwingConstants.CENTER);
         addLabel.setBounds(0, 30 + (orderNum * 70), 600, 20);
         return addLabel;
     }
 
     public static ArrayList<String> parseDesc(final String s) {
-        ArrayList<String> myList = new ArrayList<>();
+        final ArrayList<String> myList = new ArrayList<>();
         String description = s;
         while (description.contains("<") && description.contains(">")) {
             String inputType = description.substring(description.indexOf("<"), description.indexOf(">") + 1);
@@ -271,10 +288,10 @@ public class LoggerGUI {
         return myList;
     }
 
-    public static String getInput(JTextArea textArea) {
+    public static String getInput(final JTextArea textArea) {
         if (!textArea.getText().equals("")) {
-            Scanner myScanner = new Scanner(textArea.getText());
-            String reply = myScanner.nextLine();
+            final Scanner myScanner = new Scanner(textArea.getText());
+            final String reply = myScanner.nextLine();
             reply.trim();
             myScanner.close();
             return reply;
@@ -283,8 +300,8 @@ public class LoggerGUI {
         }
     }
 
-    public static String getInput(JComboBox<Object> dropDown) {
-        String input = dropDown.getSelectedItem().toString();
+    public static String getInput(final JComboBox<Object> dropDown) {
+        final String input = dropDown.getSelectedItem().toString();
         input.trim();
         return input;
     }

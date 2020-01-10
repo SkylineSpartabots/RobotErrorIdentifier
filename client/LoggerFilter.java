@@ -338,7 +338,6 @@ public class LoggerFilter {
 
     public static void logsByType(String s_type) {
         LogList finalParsed = new LogList();
-
         try {
             for (int i = 0; i < TYPE_KEYS.length; i++) {
                 if (!compounding && s_type.equalsIgnoreCase(TYPE_KEYS[i])) {
