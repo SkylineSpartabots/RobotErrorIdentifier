@@ -1,12 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="ArtifactsWorkspaceSettings">
+    <artifacts-to-build>
+      <artifact name="ErrorLogger:jar" />
+    </artifacts-to-build>
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="222d7e4c-749a-48fb-be30-cc733b4dad0b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/artifacts/ErrorLogger_jar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/jcommon_1_0_24.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/jfreechart_1_5_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/info/README.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/info/exampleEvents.dsevents" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerFilter$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerFilter$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ErrorLogger.iml" beforeDir="false" afterPath="$PROJECT_DIR$/ErrorLogger.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.txt" beforeDir="false" afterPath="$PROJECT_DIR$/README.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerFilter$1.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerFilter$Commands.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerFilter$Commands.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerFilter.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerFilter.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerGUI$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerGUI$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerGUI$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerGUI$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerGUI$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerGUI$3.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerGUI.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ErrorLogger/com/zachl/errorlogger/LoggerGUI.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/zachl/errorlogger/LoggerFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/zachl/errorlogger/LoggerFilter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/zachl/errorlogger/LoggerGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/zachl/errorlogger/LoggerGUI.java" afterDir="false" />
@@ -23,6 +38,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="FxmlFile" />
         <option value="Class" />
       </list>
     </option>
@@ -40,6 +56,14 @@
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Anand Puri\Documents\Robotics\ErrorLogger" />
+    </key>
   </component>
   <component name="RunManager" selected="Application.LoggerGUI">
     <configuration name="LoggerGUI" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
@@ -101,30 +125,70 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="223" y="68" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824@0.0.1536.824" timestamp="1578264264457" />
+    <state x="489" y="216" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1578714829675">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="489" y="216" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1536.824@0.0.1536.824" timestamp="1578714829675" />
+    <state x="574" y="122" key="#com.intellij.ide.util.MemberChooser" timestamp="1578710294464">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="574" y="122" key="#com.intellij.ide.util.MemberChooser/0.0.1536.824@0.0.1536.824" timestamp="1578710294464" />
+    <state x="499" y="197" key="#com.intellij.ide.util.TreeClassChooserDialog" timestamp="1578701641063">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="499" y="197" key="#com.intellij.ide.util.TreeClassChooserDialog/0.0.1536.824@0.0.1536.824" timestamp="1578701641063" />
     <state x="618" y="302" key="#com.intellij.ide.util.projectWizard.JdkChooserPanel.MyDialog" timestamp="1578264079382">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="618" y="302" key="#com.intellij.ide.util.projectWizard.JdkChooserPanel.MyDialog/0.0.1536.824@0.0.1536.824" timestamp="1578264079382" />
-    <state width="1493" height="140" key="GridCell.Tab.0.bottom" timestamp="1578283281133">
+    <state x="549" y="168" key="FileChooserDialogImpl" timestamp="1578711603930">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="140" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1578283281133" />
-    <state width="1493" height="140" key="GridCell.Tab.0.center" timestamp="1578283281133">
+    <state x="549" y="168" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1578711603930" />
+    <state width="1493" height="140" key="GridCell.Tab.0.bottom" timestamp="1578714997171">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="140" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1578283281133" />
-    <state width="1493" height="140" key="GridCell.Tab.0.left" timestamp="1578283281133">
+    <state width="1493" height="140" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1578714997171" />
+    <state width="1493" height="140" key="GridCell.Tab.0.center" timestamp="1578714997171">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="140" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1578283281133" />
-    <state width="1493" height="140" key="GridCell.Tab.0.right" timestamp="1578283281133">
+    <state width="1493" height="140" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1578714997171" />
+    <state width="1493" height="140" key="GridCell.Tab.0.left" timestamp="1578714997171">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="140" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1578283281133" />
-    <state x="465" y="237" key="com.intellij.ide.util.TipDialog" timestamp="1578362898249">
+    <state width="1493" height="140" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1578714997171" />
+    <state width="1493" height="140" key="GridCell.Tab.0.right" timestamp="1578714997171">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="465" y="237" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1578362898249" />
+    <state width="1493" height="140" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1578714997171" />
+    <state width="1493" height="261" key="GridCell.Tab.1.bottom" timestamp="1578714819552">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="261" key="GridCell.Tab.1.bottom/0.0.1536.824@0.0.1536.824" timestamp="1578714819552" />
+    <state width="1493" height="261" key="GridCell.Tab.1.center" timestamp="1578714819552">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="261" key="GridCell.Tab.1.center/0.0.1536.824@0.0.1536.824" timestamp="1578714819552" />
+    <state width="1493" height="261" key="GridCell.Tab.1.left" timestamp="1578714819552">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="261" key="GridCell.Tab.1.left/0.0.1536.824@0.0.1536.824" timestamp="1578714819552" />
+    <state width="1493" height="261" key="GridCell.Tab.1.right" timestamp="1578714819552">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="261" key="GridCell.Tab.1.right/0.0.1536.824@0.0.1536.824" timestamp="1578714819552" />
+    <state x="249" y="0" key="SettingsEditor" timestamp="1578711609262">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="249" y="0" key="SettingsEditor/0.0.1536.824@0.0.1536.824" timestamp="1578711609262" />
+    <state x="465" y="237" key="com.intellij.ide.util.TipDialog" timestamp="1578699747503">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="465" y="237" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1578699747503" />
+    <state x="417" y="42" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1578711505721">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="417" y="42" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.0.1536.824@0.0.1536.824" timestamp="1578711505721" />
     <state x="418" y="36" key="new project wizard" timestamp="1578274448928">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -133,5 +197,20 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="475" y="41" key="refactoring.ChangeSignatureDialog/0.0.1536.824@0.0.1536.824" timestamp="1578340805748" />
+    <state x="431" y="145" width="672" height="678" key="search.everywhere.popup" timestamp="1578701957576">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="431" y="145" width="672" height="678" key="search.everywhere.popup/0.0.1536.824@0.0.1536.824" timestamp="1578701957576" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/zachl/errorlogger/LoggerFilter.java</url>
+          <line>386</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

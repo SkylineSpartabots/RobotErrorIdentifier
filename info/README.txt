@@ -39,19 +39,6 @@ and a tooltip will show up describing the command.
 COMPOUNDING: A very useful tool. If a command can be compounded, then you can string it together with another compoundable command.
 How this works:
 Execute your initial command
-Set COMPOUNDING to true by clicking the button on the control panel
+Set COMPOUNDING to true by clicking the button on the cuntrol panel
 Execute your second compoundable command and it will only return values that fall within the parameters you set for both commands.
 Ex: Logs within t = 5.00 and t = 7.00 that are also Errors.
-
-To be able to detect the messages it needs to, the following keywords need to be added:
-    Messages: ### ###
-        Example: S_LOG <timestamp> ### message ### E_LOG
-        Note: decimal point in timestamp should be two decimal places;
-    Warnings: <<< >>>
-        Example: S_LOG Warning: <timestamp> <<<  >>> E_LOG
-    Errors: !!! !!!
-        Example: S_LOG Error: <timestamp> !!! error !!! E_LOG
-    Sensor Readings: ||| |||
-        Example: S_LOG Sensor Reading: <timestamp> ||| sensor reading ||| E_LOG
-        Note: format sensor reading to a reasonable number
-    Note: These should all be printed to the system terminal and will automatically be sent to the dsevents file

@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ErrorLogger:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/ErrorLogger_jar</output-path>
+    <root id="archive" name="ErrorLogger.jar">
+      <element id="module-output" name="ErrorLogger" />
+    </root>
+  </artifact>
+</component>
