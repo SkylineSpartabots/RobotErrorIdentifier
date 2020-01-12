@@ -1,0 +1,2 @@
+.dsevents folder path: C:\Users\shrav\Documents\GitHub\RobotErrorIdentifier\info
+All subsystem keyword names (comma separated): {Drive, Hopper, Climb, Intake, Limelight}

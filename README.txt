@@ -1,7 +1,13 @@
+SETUP:
+Please set the "folderpath" config variable in the "config.txt" to the location where all of your .dslogs
+and .dsevents are stored. This filepath can be located through the use of Driver Station Log File Viewer (Which can be opened through Driver Station).
+Subsystem keywords should be typed out in the config file within the "{}". Example: {Drive, Hopper, Climb, Intake, Limelight}
+
 Filtered files will appear in the "output" folder.
 They include: The name of the error, when it first appeared, when it last appeared, and how many times it appeared.
 They will share the same name as the .dsevents file that was parsed, with "ROBOT_ERROR_IDENTIFIER" concatenated onto the end of the filename.
-Further parsing can be done through the use of the console and the commands available in the "Commands" Enum within LoggerFilter.java.
+Further parsing can be done through the use of commands which you can acces within the GUI.
+To see what each command does, hover over the buttons in the command paneland a tooltip will show up describing the command.
 Files outputted through the use of Commands can be found in "output\commandoutputs".
 
 Examples of what the client can parse through:
@@ -33,12 +39,18 @@ Start: 2.99   End: 5.99   Frequency: 2
 "Timing Overrun"
 Start: 1.01   End: 4.01   Frequency: 2
 
-This can then be filtered through the use of commands. To see what each command does, hover over the buttons in the command panel
-and a tooltip will show up describing the command.
-
+ADVANCED:
 COMPOUNDING: A very useful tool. If a command can be compounded, then you can string it together with another compoundable command.
 How this works:
 Execute your initial command
-Set COMPOUNDING to true by clicking the button on the cuntrol panel
+Set COMPOUNDING to true by clicking the button on the control panel
 Execute your second compoundable command and it will only return values that fall within the parameters you set for both commands.
 Ex: Logs within t = 5.00 and t = 7.00 that are also Errors.
+Because these results should be nice and small, they are printed to the viewing window.
+
+How to make our logger happy:
+Messages: ### ###
+Warnings: <<< >>>
+Errors: !!! !!!
+Sensor Readings: ||| |||
+//things here about how to make telemetryutil

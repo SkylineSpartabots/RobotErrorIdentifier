@@ -1,4 +1,4 @@
-package client.gui;
+package client.extras;
 
 import javax.swing.*;
 

@@ -14,9 +14,10 @@ import javax.swing.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
 
+import client.extras.NamedJButton;
+
 import java.awt.event.*;
 import java.awt.*;
-import client.gui.*;
 
 /**
  * GUI for LoggerFilter.java. (RUN THIS FILE).
@@ -34,17 +35,29 @@ public class LoggerGUI {
     private static ArrayList<JButton> buttons = new ArrayList<>();
 
     public static void main(final String[] args) {
+        makeDirs();
+        LoggerFilter.getFolderPath();
         setLookAndFeel();
         f = new JFrame();
         setupFrame();
         f.setVisible(true);
-        printToFrame("Robot Error Identifier made with love by Team 2976, The Spartabots!");
+        printToFrame("Robot Error Identifier (and other fun cheerios made with love by Team 2976, The Spartabots!");
         printToFrame("Status: Ready");
         if (LoggerFilter.fileName.equals("")) {
             LoggerFilter.getMostRecentFile();
         }
         printToFrame("File to scan: " + LoggerFilter.getWholePath());
         setupListeners();
+    }
+
+    private static void makeDirs() {
+        final File[] outputFolder = { new File("output"), new File("output\\commandoutput"),
+                new File("output\\mainoutput"), new File("output\\savedfiles") };
+        for (final File f : outputFolder) {
+            if (!f.exists()) {
+                f.mkdir();
+            }
+        }
     }
 
     public static void setLookAndFeel() {
@@ -99,7 +112,8 @@ public class LoggerGUI {
                     printToFrame("Failed to save file.");
                     e1.printStackTrace();
                 }
-                printToFrame("Saved current console text to: " + new File(filePath + fileName).getAbsolutePath() + ".txt");
+                printToFrame(
+                        "Saved current console text to: " + new File(filePath + fileName).getAbsolutePath() + ".txt");
             }
         });
         dir.addActionListener(new ActionListener() {
@@ -203,6 +217,21 @@ public class LoggerGUI {
         final JPanel p = new JPanel(new FlowLayout());
         final ArrayList<JComboBox<Object>> allDrops = new ArrayList<>();
         final ArrayList<JTextArea> allInputField = new ArrayList<>();
+        final Action submit = new AbstractAction("SUBMIT") {
+            private static final long serialVersionUID = 1L;
+
+            public void actionPerformed(ActionEvent e) {
+                ArrayList<String> input = new ArrayList<>();
+                for (final JComboBox<Object> j : allDrops) {
+                    input.add(getInput(j));
+                }
+                for (final JTextArea j : allInputField) {
+                    input.add(getInput(j));
+                }
+                inputSwitch(input, c);
+                inputf.dispose();
+            }
+        };
         int counter = 0;
         for (final String s : parsedDesc) {
             switch (s) {
@@ -218,13 +247,30 @@ public class LoggerGUI {
                 inputf.add(jcbp);
                 inputf.add(createLabel(counter, c.getParamDesc()));
                 break;
-            case "int":
-                final JTextArea jta = createtField(counter);
-                final JScrollPane jsp = new JScrollPane(jta, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
+            case "Subsystem Name":
+                final JComboBox<Object> jcbs = createDropdown(counter, LoggerFilter.SUBSYSTEM_KEYS);
+                allDrops.add(jcbs);
+                inputf.add(jcbs);
+                inputf.add(createLabel(counter, c.getParamDesc()));
+                break;
+            case "String":
+                final JTextArea jtas = createtField(counter);
+                final JScrollPane jsps = new JScrollPane(jtas, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                         JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-                jsp.setBounds(275, 50 + (counter * 70), 50, 20);
-                allInputField.add(jta);
-                inputf.add(jsp);
+                jsps.setBounds(225, 50 + (counter * 70), 150, 20);
+                jtas.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), submit);
+                allInputField.add(jtas);
+                inputf.add(jsps);
+                inputf.add(createLabel(counter, c.getParamDesc()));
+                break;
+            case "int":
+                final JTextArea jtai = createtField(counter);
+                final JScrollPane jspi = new JScrollPane(jtai, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
+                        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                jspi.setBounds(275, 50 + (counter * 70), 50, 20);
+                jtai.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), submit);
+                allInputField.add(jtai);
+                inputf.add(jspi);
                 inputf.add(createLabel(counter, c.getParamDesc()));
                 break;
             case "N/A":
@@ -235,6 +281,7 @@ public class LoggerGUI {
             }
             counter++;
         }
+
         inputf.add(sub);
         inputf.add(p);
         inputf.setVisible(true);
@@ -254,6 +301,7 @@ public class LoggerGUI {
                 inputf.dispose();
             }
         });
+        
     }
 
     public static JComboBox<Object> createDropdown(final int orderNum, final String[] options) {
@@ -320,6 +368,12 @@ public class LoggerGUI {
         case logsbytype:
             LoggerFilter.logsByType(input.get(0));
             break;
+        case logsbysubsystem:
+            LoggerFilter.logsBySubsystem(input.get(0));
+            break;
+        case logsbykeyword:
+            LoggerFilter.logsByKeyword(input.get(0));
+            break;
         }
         printToFrame("Command Complete.");
         printToFrame("--------------------------------------------------");
@@ -380,10 +434,10 @@ public class LoggerGUI {
             compoundButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(final ActionEvent e) {
-                    if(compoundButton.getText().equals("COMPOUNDING: OFF")) {
+                    if (compoundButton.getText().equals("COMPOUNDING: OFF")) {
                         LoggerFilter.setCompunding(true);
                         compoundButton.setText("COMPOUNDING: ON");
-                    } else if(compoundButton.getText().equals("COMPOUNDING: ON")) {
+                    } else if (compoundButton.getText().equals("COMPOUNDING: ON")) {
                         LoggerFilter.setCompunding(false);
                         compoundButton.setText("COMPOUNDING: OFF");
                     }

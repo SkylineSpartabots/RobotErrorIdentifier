@@ -11,25 +11,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
+
+import client.extras.LogList;
 
 /**
  * A client that can be run at the end of matches to parse through .dsevents
  * files and output a ".txt" file that only contains important information about
  * robot malfunctions. Helpful for post-match diagnostics.
  * 
- * @version 2.1.0
+ * @version 2.1.1
  * @author Team 2976!
  */
 public class LoggerFilter {
     /**
      * Location of all .dsevents files, filepath can be found through Driver Station
-     * Log File Viewer.
+     * Log File Viewer. READ THROUGH "config.txt". Do not paste here.
      */
-    private static final String folderPath = "C:\\Users\\Public\\Documents\\FRC\\Log Files\\";
+    private static String folderPath = "";
     /**
-     * Set to "" if you want to get the most recent file, set to a filename if you
-     * want to read that specific file. Be sure to add ".dsevents" to the end of the
-     * filename.
+     * Filename to parse. Do not edit!
      */
     public static String fileName = "";
     /**
@@ -49,7 +50,7 @@ public class LoggerFilter {
     public static final String[] MESSAGE_ENDS = { "###", ">>>", "!!!", "<P><P><P>" };
 
     public static final String[] TYPE_KEYS = { "Message", "Warning", "Error", "Sensor Data" };
-    public static final String[] SUBSYSTEM_KEYS = { "Drive", "Hopper", "Climb", "Intake", "Limelight" };
+    public static String[] SUBSYSTEM_KEYS;
 
     public static ArrayList<String> KEYS_IN_ORDER = new ArrayList<>();
 
@@ -64,6 +65,36 @@ public class LoggerFilter {
 
     public static void executeLogger() {
         readFile();
+    }
+
+    public static void getFolderPath() {
+        try {
+            final Scanner sc = new Scanner(new File("config.txt"));
+            String[] allLines = new String[2];
+            int counter = 0;
+            while(sc.hasNextLine()) {
+                allLines[counter] = sc.nextLine();
+                counter++;
+            }
+            if(!allLines[0].endsWith("\\")) {
+                allLines[0] = allLines[0].trim();
+                allLines[0] += "\\";
+            }
+            allLines[0] = allLines[0].replace(".dsevents folder path: ", "");
+            folderPath = allLines[0].trim();
+
+            allLines[1] = allLines[1].substring(allLines[1].indexOf("{") + 1, allLines[1].indexOf("}"));
+            String[] keywordNames = allLines[1].split(",");
+            SUBSYSTEM_KEYS = new String[keywordNames.length];
+            for (int i = 0; i < keywordNames.length; i++) {
+                SUBSYSTEM_KEYS[i] = keywordNames[i].trim(); 
+            }
+
+            sc.close();
+        } catch (final FileNotFoundException e) {
+            LoggerGUI.printToFrame("Failed to find file.");
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -92,7 +123,7 @@ public class LoggerFilter {
      */
     private static void readFile() {
         try {
-            final FileReader fr = new FileReader(wholePath);
+            final FileReader fr = new FileReader("info\\exampleEvents.dsevents");
             final BufferedReader br = new BufferedReader(fr);
             allText = "";
             String contentLine = br.readLine();
@@ -316,8 +347,8 @@ public class LoggerFilter {
             String line = s_eb;
             eb = Double.parseDouble(line);
         } catch (NumberFormatException e) {
-            LoggerGUI.printToFrame("Not a valid double, defaulting to 100");
-            eb = 100;
+            LoggerGUI.printToFrame("Not a valid double, defaulting to 1");
+            eb = 1;
         }
         try {
             LoggerGUI.printToFrame("Logs between timestamps " + sb + " and " + eb + "\n");
@@ -373,6 +404,72 @@ public class LoggerFilter {
         }
     }
 
+    public static void logsBySubsystem(String s_type) 
+    {
+        LogList finalParsed = new LogList();
+
+        try {
+            for (int i = 0; i < SUBSYSTEM_KEYS.length; i++) {
+                if (!compounding && s_type.equalsIgnoreCase(SUBSYSTEM_KEYS[i])) {
+                    LoggerGUI.printToFrame("Parsing from full subsystem log");
+                    if (subsystemLogs.get(i) != null)
+                        finalParsed = subsystemLogs.get(i);
+                    else {
+                        LoggerGUI.printToFrame( s_type + " log is null, defaulting to all logs");
+                        finalParsed = allLogs;
+                    }
+                } else if (s_type.equalsIgnoreCase(SUBSYSTEM_KEYS[i])) {
+                    for (int j = 0; j < subsystemLogs.get(i).messages.size(); j++) {
+                        for (int k = 0; k < toParse.messages.size(); k++) {
+                            if (toParse.messages.get(k).equalsIgnoreCase(subsystemLogs.get(i).messages.get(j))
+                                    && toParse.timeStamps.get(k).equalsIgnoreCase(subsystemLogs.get(i).timeStamps.get(j))) {
+                                finalParsed.messages.add(toParse.messages.get(k));
+                                finalParsed.timeStamps.add(toParse.timeStamps.get(k));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            toParse = finalParsed;
+        } catch (NullPointerException e) {
+            LoggerGUI.printToFrame("Invalid subsystem type, defaulting to " + SUBSYSTEM_KEYS[0]);
+            s_type = SUBSYSTEM_KEYS[0];
+            toParse = subsystemLogs.get(0);
+        }
+
+        LoggerGUI.printToFrame("All messages of subsyste type: " + s_type);
+        for (int i = 0; i < toParse.messages.size(); i++) {
+            LoggerGUI.printToFrame(toParse.messages.get(i) + " @t = " + toParse.timeStamps.get(i));
+        }
+    }
+
+    public static void logsByKeyword(String s_key)
+    {
+        LogList finalParsed = new LogList();
+        LogList toParseTemp = allLogs;
+        if(compounding)
+        {
+            toParseTemp = toParse;
+        }
+        for(int i = 0; i < toParseTemp.messages.size(); i++)
+        {
+            if(toParseTemp.messages.get(i).toLowerCase().contains(s_key.toLowerCase()))
+            {
+                finalParsed.messages.add(toParseTemp.messages.get(i));
+                finalParsed.timeStamps.add(toParseTemp.timeStamps.get(i));
+            }
+        }
+        LoggerGUI.printToFrame("All messages containing keyword: " + s_key);
+        LoggerGUI.printToFrame("");
+        for (int i = 0; i < finalParsed.messages.size(); i++)
+        {
+            LoggerGUI.printToFrame(finalParsed.messages.get(i) + " @t = " + finalParsed.timeStamps.get(i));
+        }
+        LoggerGUI.printToFrame("");
+        toParse = finalParsed;
+    }
+
     public static void setCompunding(boolean c) {
         compounding = c;
         LoggerGUI.printToFrame("Compounding set to " + c);
@@ -401,7 +498,9 @@ public class LoggerFilter {
         showseq("Outputs a list of all errors in order into a .txt file.", 0, "[No parameters <N/A>]"),
         logsinrange("Allows you to view all errors within two timestamps. COMPOUNDABLE.", 2,
                 "[Start timestamp <int>], [End timestamp <int>]"),
-        logsbytype("Allows you to view errors of a certain PrintStyle. COMPOUNDABLE.", 1, "[PrintStyle tolook for <Print Style>]");
+        logsbytype("Allows you to view errors of a certain PrintStyle. COMPOUNDABLE.", 1, "[PrintStyle to look for <Print Style>]"),
+        logsbysubsystem("Allows you to view errors of a certain subsystem. COMPOUNDABLE.", 1, "[Subsystem to look for <Subsystem Name>]"),
+        logsbykeyword("Allows you to view errors containing a specific word (not case sensitive). COMPOUNDABLE.", 1, "[Keyword to look for <String>]");
 
         String desc;
         int paramNum;
