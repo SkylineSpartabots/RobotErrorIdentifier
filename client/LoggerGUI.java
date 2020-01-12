@@ -14,34 +14,51 @@ import javax.swing.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
 
-import client.extras.NamedJButton;
-
 import java.awt.event.*;
 import java.awt.*;
 
 /**
- * GUI for LoggerFilter.java. (RUN THIS FILE).
+ * GUI for LoggerFilter.java. Creates a java swing JFrame that contaisn
+ * everything you will ever need for robot error parsing!
  */
 public class LoggerGUI {
+    /**
+     * JFrames that will be displayed for the homescreen and for input.
+     */
     public static JFrame f, inputf = new JFrame();
+    /**
+     * NamedJButtons to navigate around the GUI that will be on the homescreen.
+     */
     public static NamedJButton qui, cmd, gen, dir, txt;
-    public static NamedJButton b, b2;
-    public static JTextArea ta, inputta;
-    public static JLabel titleText;
+    /**
+     * JTextArea for the main output console.
+     */
+    public static JTextArea ta;
+    /**
+     * JScrollPane for the main output console JTextArea.
+     */
     public static JScrollPane scrollingta;
-    public static JPanel commandPanel;
-    public static JInternalFrame input;
+    /**
+     * JLabel that is reused for titles.
+     */
+    public static JLabel titleText;
+    /**
+     * An array of commands generated from the "Commands" enum in LoggerFilter.
+     */
     private static LoggerFilter.Commands[] arrayOfCmds;
+    /**
+     * An array of command buttons. Can be expanded to fit more buttons.
+     */
     private static ArrayList<JButton> buttons = new ArrayList<>();
 
     public static void main(final String[] args) {
         makeDirs();
-        LoggerFilter.getFolderPath();
+        LoggerFilter.getConfig();
         setLookAndFeel();
         f = new JFrame();
         setupFrame();
         f.setVisible(true);
-        printToFrame("Robot Error Identifier (and other fun cheerios made with love by Team 2976, The Spartabots!");
+        printToFrame("Robot Error Identifier (and other fun cheerios) made with love by Team 2976, The Spartabots!");
         printToFrame("Status: Ready");
         if (LoggerFilter.fileName.equals("")) {
             LoggerFilter.getMostRecentFile();
@@ -50,6 +67,9 @@ public class LoggerGUI {
         setupListeners();
     }
 
+    /**
+     * Makes output directories if they don't exist.
+     */
     private static void makeDirs() {
         final File[] outputFolder = { new File("output"), new File("output\\commandoutput"),
                 new File("output\\mainoutput"), new File("output\\savedfiles") };
@@ -60,6 +80,10 @@ public class LoggerGUI {
         }
     }
 
+    /**
+     * Sets the look and feel of the java swing panel. This changes all buttons and
+     * UI elements and may mess up proportions. Edit with caution.
+     */
     public static void setLookAndFeel() {
         try {
             MetalLookAndFeel.setCurrentTheme(new OceanTheme());
@@ -70,6 +94,9 @@ public class LoggerGUI {
         }
     }
 
+    /**
+     * Sets up button listeners on the homescreen.
+     */
     private static void setupListeners() {
         gen.addActionListener(new ActionListener() {
             @Override
@@ -157,10 +184,19 @@ public class LoggerGUI {
         });
     }
 
+    /**
+     * Strings passed into this command are printed into the GUI output screen.
+     * Great for debugging and for user-viewable output.
+     * 
+     * @param s -> The string to print to the GUI screen.
+     */
     public static void printToFrame(final String s) {
         ta.append(s + "\n");
     }
 
+    /**
+     * Sets up the main frame and all of its buttons.
+     */
     private static void setupFrame() {
         f.setSize(new Dimension(1280, 720));
         f.setLocationRelativeTo(null);
@@ -204,125 +240,15 @@ public class LoggerGUI {
         f.setVisible(true);
     }
 
-    public static void openInput(final LoggerFilter.Commands c) {
-        inputf = new JFrame();
-        inputf.setSize(new Dimension(600, 400));
-        inputf.setLocationRelativeTo(null);
-        inputf.setResizable(false);
-        inputf.setTitle("Input Panel");
-        inputf.setLayout(new BorderLayout());
-        final NamedJButton sub = new NamedJButton("Submit Button", "SUBMIT");
-        sub.setBounds(225, 300, 150, 50);
-        final ArrayList<String> parsedDesc = parseDesc(c.getParamDesc());
-        final JPanel p = new JPanel(new FlowLayout());
-        final ArrayList<JComboBox<Object>> allDrops = new ArrayList<>();
-        final ArrayList<JTextArea> allInputField = new ArrayList<>();
-        final Action submit = new AbstractAction("SUBMIT") {
-            private static final long serialVersionUID = 1L;
-
-            public void actionPerformed(ActionEvent e) {
-                ArrayList<String> input = new ArrayList<>();
-                for (final JComboBox<Object> j : allDrops) {
-                    input.add(getInput(j));
-                }
-                for (final JTextArea j : allInputField) {
-                    input.add(getInput(j));
-                }
-                inputSwitch(input, c);
-                inputf.dispose();
-            }
-        };
-        int counter = 0;
-        for (final String s : parsedDesc) {
-            switch (s) {
-            case "Error Name":
-                final JComboBox<Object> jcbe = createDropdown(counter, LoggerFilter.getErrors());
-                allDrops.add(jcbe);
-                inputf.add(jcbe);
-                inputf.add(createLabel(counter, c.getParamDesc()));
-                break;
-            case "Print Style":
-                final JComboBox<Object> jcbp = createDropdown(counter, LoggerFilter.TYPE_KEYS);
-                allDrops.add(jcbp);
-                inputf.add(jcbp);
-                inputf.add(createLabel(counter, c.getParamDesc()));
-                break;
-            case "Subsystem Name":
-                final JComboBox<Object> jcbs = createDropdown(counter, LoggerFilter.SUBSYSTEM_KEYS);
-                allDrops.add(jcbs);
-                inputf.add(jcbs);
-                inputf.add(createLabel(counter, c.getParamDesc()));
-                break;
-            case "String":
-                final JTextArea jtas = createtField(counter);
-                final JScrollPane jsps = new JScrollPane(jtas, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
-                        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-                jsps.setBounds(225, 50 + (counter * 70), 150, 20);
-                jtas.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), submit);
-                allInputField.add(jtas);
-                inputf.add(jsps);
-                inputf.add(createLabel(counter, c.getParamDesc()));
-                break;
-            case "int":
-                final JTextArea jtai = createtField(counter);
-                final JScrollPane jspi = new JScrollPane(jtai, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
-                        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-                jspi.setBounds(275, 50 + (counter * 70), 50, 20);
-                jtai.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), submit);
-                allInputField.add(jtai);
-                inputf.add(jspi);
-                inputf.add(createLabel(counter, c.getParamDesc()));
-                break;
-            case "N/A":
-                inputf.add(createLabel(counter, c.getParamDesc()));
-                break;
-            default:
-                printToFrame("Error with input panel generation");
-            }
-            counter++;
-        }
-
-        inputf.add(sub);
-        inputf.add(p);
-        inputf.setVisible(true);
-
-        sub.addActionListener(new ActionListener() {
-            ArrayList<String> input = new ArrayList<>();
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                for (final JComboBox<Object> j : allDrops) {
-                    input.add(getInput(j));
-                }
-                for (final JTextArea j : allInputField) {
-                    input.add(getInput(j));
-                }
-                inputSwitch(input, c);
-                inputf.dispose();
-            }
-        });
-        
-    }
-
-    public static JComboBox<Object> createDropdown(final int orderNum, final String[] options) {
-        final JComboBox<Object> jcb = new JComboBox<>(options);
-        jcb.setBounds(100, 50 + (orderNum * 70), 400, 20);
-        return jcb;
-    }
-
-    public static JTextArea createtField(final int orderNum) {
-        final JTextArea jta = new JTextArea();
-        jta.setSize(5, 5);
-        return jta;
-    }
-
-    public static JLabel createLabel(final int orderNum, final String desc) {
-        final String[] labelToAdd = desc.split("\\,");
-        final JLabel addLabel = new JLabel(labelToAdd[orderNum], SwingConstants.CENTER);
-        addLabel.setBounds(0, 30 + (orderNum * 70), 600, 20);
-        return addLabel;
-    }
-
+    /**
+     * Parses the description of the input parameters of a certain command (which
+     * can be found as the third parameter in the "Commands" enum, and puts the
+     * important elements from that String into an array. This array is later used
+     * to create specific inputboxes for unique commands.
+     * 
+     * @param s -> The String parameter from the specific value from the "Commands"
+     *          enum.
+     */
     public static ArrayList<String> parseDesc(final String s) {
         final ArrayList<String> myList = new ArrayList<>();
         String description = s;
@@ -336,49 +262,11 @@ public class LoggerGUI {
         return myList;
     }
 
-    public static String getInput(final JTextArea textArea) {
-        if (!textArea.getText().equals("")) {
-            final Scanner myScanner = new Scanner(textArea.getText());
-            final String reply = myScanner.nextLine();
-            reply.trim();
-            myScanner.close();
-            return reply;
-        } else {
-            return "";
-        }
-    }
-
-    public static String getInput(final JComboBox<Object> dropDown) {
-        final String input = dropDown.getSelectedItem().toString();
-        input.trim();
-        return input;
-    }
-
-    public static void inputSwitch(final ArrayList<String> input, final LoggerFilter.Commands c) {
-        switch (c) {
-        case preverr:
-            LoggerFilter.prevErrors(input.get(0), input.get(1));
-            break;
-        case showseq:
-            LoggerFilter.showSeq();
-            break;
-        case logsinrange:
-            LoggerFilter.logsInRange(input.get(0), input.get(1));
-            break;
-        case logsbytype:
-            LoggerFilter.logsByType(input.get(0));
-            break;
-        case logsbysubsystem:
-            LoggerFilter.logsBySubsystem(input.get(0));
-            break;
-        case logsbykeyword:
-            LoggerFilter.logsByKeyword(input.get(0));
-            break;
-        }
-        printToFrame("Command Complete.");
-        printToFrame("--------------------------------------------------");
-    }
-
+    /**
+     * If the "COMMANDS" button is pressed, this method generates an
+     * infinitely-expanding programatically generated sequences of command buttons
+     * that are based off of the "Commands" enum in LoggerFilter.
+     */
     public static void makeButtons() {
         final JFrame tempJ = new JFrame();
         final int numOfCmnds = LoggerFilter.Commands.values().length;
@@ -443,6 +331,235 @@ public class LoggerGUI {
                     }
                 }
             });
+        }
+    }
+
+    /**
+     * If a command button is pressed, this method is called. It will parse through
+     * certain variables stored wihin Strings in the "Commands" enum and generates
+     * input boxes accordingly. If the "submit" button is pressed, then the input is
+     * passed into the "inputSwitch" method.
+     * 
+     * @param c -> Element of the "Commands" enum that relates to the button
+     *          pressed.
+     */
+    public static void openInput(final LoggerFilter.Commands c) {
+        inputf = new JFrame();
+        inputf.setSize(new Dimension(600, 400));
+        inputf.setLocationRelativeTo(null);
+        inputf.setResizable(false);
+        inputf.setTitle("Input Panel");
+        inputf.setLayout(new BorderLayout());
+        final NamedJButton sub = new NamedJButton("Submit Button", "SUBMIT");
+        sub.setBounds(225, 300, 150, 50);
+        final ArrayList<String> parsedDesc = parseDesc(c.getParamDesc());
+        final JPanel p = new JPanel(new FlowLayout());
+        final ArrayList<JComboBox<Object>> allDrops = new ArrayList<>();
+        final ArrayList<JTextArea> allInputField = new ArrayList<>();
+        final Action submit = new AbstractAction("SUBMIT") {
+            private static final long serialVersionUID = 1L;
+
+            public void actionPerformed(final ActionEvent e) {
+                final ArrayList<String> input = new ArrayList<>();
+                for (final JComboBox<Object> j : allDrops) {
+                    input.add(getInput(j));
+                }
+                for (final JTextArea j : allInputField) {
+                    input.add(getInput(j));
+                }
+                inputSwitch(input, c);
+                inputf.dispose();
+            }
+        };
+        int counter = 0;
+        for (final String s : parsedDesc) {
+            switch (s) {
+            case "Error Name":
+                final JComboBox<Object> jcbe = createDropdown(counter, LoggerFilter.getErrors());
+                allDrops.add(jcbe);
+                inputf.add(jcbe);
+                inputf.add(createLabel(counter, c.getParamDesc()));
+                break;
+            case "Print Style":
+                final JComboBox<Object> jcbp = createDropdown(counter, LoggerFilter.TYPE_KEYS);
+                allDrops.add(jcbp);
+                inputf.add(jcbp);
+                inputf.add(createLabel(counter, c.getParamDesc()));
+                break;
+            case "Subsystem Name":
+                final JComboBox<Object> jcbs = createDropdown(counter, LoggerFilter.SUBSYSTEM_KEYS);
+                allDrops.add(jcbs);
+                inputf.add(jcbs);
+                inputf.add(createLabel(counter, c.getParamDesc()));
+                break;
+            case "String":
+                final JTextArea jtas = createtField(counter);
+                final JScrollPane jsps = new JScrollPane(jtas, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
+                        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                jsps.setBounds(225, 50 + (counter * 70), 150, 20);
+                jtas.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), submit);
+                allInputField.add(jtas);
+                inputf.add(jsps);
+                inputf.add(createLabel(counter, c.getParamDesc()));
+                break;
+            case "int":
+                final JTextArea jtai = createtField(counter);
+                final JScrollPane jspi = new JScrollPane(jtai, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
+                        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                jspi.setBounds(275, 50 + (counter * 70), 50, 20);
+                jtai.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), submit);
+                allInputField.add(jtai);
+                inputf.add(jspi);
+                inputf.add(createLabel(counter, c.getParamDesc()));
+                break;
+            case "N/A":
+                inputf.add(createLabel(counter, c.getParamDesc()));
+                break;
+            default:
+                printToFrame("Error with input panel generation");
+            }
+            counter++;
+        }
+        inputf.add(sub);
+        inputf.add(p);
+        inputf.setVisible(true);
+        sub.addActionListener(new ActionListener() {
+            ArrayList<String> input = new ArrayList<>();
+
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                for (final JComboBox<Object> j : allDrops) {
+                    input.add(getInput(j));
+                }
+                for (final JTextArea j : allInputField) {
+                    input.add(getInput(j));
+                }
+                inputSwitch(input, c);
+                inputf.dispose();
+            }
+        });
+
+    }
+
+    /**
+     * Creates a dropdown meant for the programatic input panel and returns it.
+     * 
+     * @param orderNum -> Where (vertically) this inputbox should go.
+     * @param options  -> The options for the dropdown.
+     * @return The dropdown (JComboBox<Object>) needed for the inputpanel.
+     */
+    public static JComboBox<Object> createDropdown(final int orderNum, final String[] options) {
+        final JComboBox<Object> jcb = new JComboBox<>(options);
+        jcb.setBounds(100, 50 + (orderNum * 70), 400, 20);
+        return jcb;
+    }
+
+    /**
+     * Creates a text area meant for the programatic input panel and returns it.
+     * 
+     * @param orderNum -> Where (vertically) this inputbox should go.
+     * @return The text area (JTextArea) needed for the inputpanel.
+     */
+    public static JTextArea createtField(final int orderNum) {
+        final JTextArea jta = new JTextArea();
+        jta.setSize(5, 5);
+        return jta;
+    }
+
+    /**
+     * Creates a descriptor JLabel for the programatic inputboxes and returns it.
+     * 
+     * @param orderNum -> Where (vertically) this label should go.
+     * @param desc     -> The description, gotten from a String paramter within the
+     *                 "Commands" enum that should be applied to the JLabel.
+     * @return The JLabel appropriate for a certain inputbox.
+     */
+    public static JLabel createLabel(final int orderNum, final String desc) {
+        final String[] labelToAdd = desc.split("\\,");
+        final JLabel addLabel = new JLabel(labelToAdd[orderNum], SwingConstants.CENTER);
+        addLabel.setBounds(0, 30 + (orderNum * 70), 600, 20);
+        return addLabel;
+    }
+
+    /**
+     * Gets the input from a JComboBox<Object> (dropdown menu) and returns it as a
+     * String.
+     * 
+     * @param dropDown -> The JComboBox<Object> to read.
+     * @return The content from the JComboBox<Object>.
+     */
+    public static String getInput(final JComboBox<Object> dropDown) {
+        final String input = dropDown.getSelectedItem().toString();
+        input.trim();
+        return input;
+    }
+
+    /**
+     * Gets the input from a JTextArea and returns it as a String.
+     * 
+     * @param textArea -> The textarea to read.
+     * @return The content from the JTextArea.
+     */
+    public static String getInput(final JTextArea textArea) {
+        if (!textArea.getText().equals("")) {
+            final Scanner myScanner = new Scanner(textArea.getText());
+            final String reply = myScanner.nextLine();
+            reply.trim();
+            myScanner.close();
+            return reply;
+        } else {
+            return "";
+        }
+    }
+
+    /**
+     * Input from programatically generated input boxes as well as the type of
+     * command is passed into here, and commands are sent out to LoggerFIlter
+     * accordingly.
+     * 
+     * @param input -> The inputarray to parse through.
+     * @param c     -> The type of command.
+     */
+    public static void inputSwitch(final ArrayList<String> input, final LoggerFilter.Commands c) {
+        switch (c) {
+        case preverr:
+            LoggerFilter.prevErrors(input.get(0), input.get(1));
+            break;
+        case showseq:
+            LoggerFilter.showSeq();
+            break;
+        case logsinrange:
+            LoggerFilter.logsInRange(input.get(0), input.get(1));
+            break;
+        case logsbytype:
+            LoggerFilter.logsByType(input.get(0));
+            break;
+        case logsbysubsystem:
+            LoggerFilter.logsBySubsystem(input.get(0));
+            break;
+        case logsbykeyword:
+            LoggerFilter.logsByKeyword(input.get(0));
+            break;
+        }
+        printToFrame("Command Complete.");
+        printToFrame("--------------------------------------------------");
+    }
+
+    /**
+     * An inner class that allows for the generation of unique JButtons with an id
+     * parameter.
+     */
+    public static class NamedJButton extends JButton {
+        private static final long serialVersionUID = 1L;
+        private final String id;
+
+        public NamedJButton(final String id, final String name) {
+            super(name);
+            this.id = id;
+        }
+
+        public String getId() {
+            return id;
         }
     }
 }

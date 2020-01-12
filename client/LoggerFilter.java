@@ -13,14 +13,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
-import client.extras.LogList;
-
 /**
  * A client that can be run at the end of matches to parse through .dsevents
  * files and output a ".txt" file that only contains important information about
- * robot malfunctions. Helpful for post-match diagnostics.
+ * robot malfunctions. It can also parse further through the use of commands to
+ * find specific errors. Helpful for post-match diagnostics.
  * 
- * @version 2.1.1
+ * @version 3.0.0
  * @author Team 2976!
  */
 public class LoggerFilter {
@@ -45,38 +44,74 @@ public class LoggerFilter {
      * Lower bound to use when parsing for errors.
      */
     private static final String ALERT_KEY_LOWER_BOUND = "E_LOG";
-
+    /**
+     * Heads of PrintStyles.
+     */
     public static final String[] MESSAGE_HEADS = { "###", "<<< Warning:", "!!! Error:", "<P><P><P> Sensor Reading:" };
+    /**
+     * Ends of PrintStyles.
+     */
     public static final String[] MESSAGE_ENDS = { "###", ">>>", "!!!", "<P><P><P>" };
-
+    /**
+     * Types of PrintStyles (Correlates with MESSAGE_HEADS and MESSAGE_ENDS).
+     */
     public static final String[] TYPE_KEYS = { "Message", "Warning", "Error", "Sensor Data" };
+    /**
+     * Subsystem name keywords. READ THROUGH "config.txt". Do not input manually.
+     */
     public static String[] SUBSYSTEM_KEYS;
-
+    /**
+     * An ArrayList<String> to store errors in order, with only one occurence of
+     * each.
+     */
     public static ArrayList<String> KEYS_IN_ORDER = new ArrayList<>();
-
+    /**
+     * All text from the .dsevents file.
+     */
     private static String allText;
-
+    /**
+     * A LogList of all logs, unedited and unparsed.
+     */
     private static LogList allLogs = new LogList();
+    /**
+     * An ArrayList<LogList> of LogLists that contains LogLists of a different
+     * PrintStyle in each index.
+     */
     private static ArrayList<LogList> typeLogs = new ArrayList<>();
+    /**
+     * An ArrayList<LogList> of LogLists that contains LogLists of a different
+     * subsystem in each index.
+     */
     private static ArrayList<LogList> subsystemLogs = new ArrayList<>();
+    /**
+     * A LogList that has temporary data written to it for compounding.
+     */
     private static LogList toParse = new LogList();
-
+    /**
+     * The boolean that controls the state of compounding.
+     */
     private static boolean compounding = false;
 
+    /**
+     * Executes the logger!
+     */
     public static void executeLogger() {
         readFile();
     }
 
-    public static void getFolderPath() {
+    /**
+     * Gets the config settings for the project. These are found in "config.txt".
+     */
+    public static void getConfig() {
         try {
             final Scanner sc = new Scanner(new File("config.txt"));
-            String[] allLines = new String[2];
+            final String[] allLines = new String[2];
             int counter = 0;
-            while(sc.hasNextLine()) {
+            while (sc.hasNextLine()) {
                 allLines[counter] = sc.nextLine();
                 counter++;
             }
-            if(!allLines[0].endsWith("\\")) {
+            if (!allLines[0].endsWith("\\")) {
                 allLines[0] = allLines[0].trim();
                 allLines[0] += "\\";
             }
@@ -84,10 +119,10 @@ public class LoggerFilter {
             folderPath = allLines[0].trim();
 
             allLines[1] = allLines[1].substring(allLines[1].indexOf("{") + 1, allLines[1].indexOf("}"));
-            String[] keywordNames = allLines[1].split(",");
+            final String[] keywordNames = allLines[1].split(",");
             SUBSYSTEM_KEYS = new String[keywordNames.length];
             for (int i = 0; i < keywordNames.length; i++) {
-                SUBSYSTEM_KEYS[i] = keywordNames[i].trim(); 
+                SUBSYSTEM_KEYS[i] = keywordNames[i].trim();
             }
 
             sc.close();
@@ -123,7 +158,7 @@ public class LoggerFilter {
      */
     private static void readFile() {
         try {
-            final FileReader fr = new FileReader("info\\exampleEvents.dsevents");
+            final FileReader fr = new FileReader(wholePath);
             final BufferedReader br = new BufferedReader(fr);
             allText = "";
             String contentLine = br.readLine();
@@ -239,7 +274,7 @@ public class LoggerFilter {
      * @return A String array that has the same elements of KEYS_IN_ORDER
      */
     public static String[] getErrors() {
-        String[] errorArr = new String[KEYS_IN_ORDER.size()];
+        final String[] errorArr = new String[KEYS_IN_ORDER.size()];
         for (int i = 0; i < KEYS_IN_ORDER.size(); i++) {
             errorArr[i] = KEYS_IN_ORDER.get(i);
         }
@@ -260,21 +295,25 @@ public class LoggerFilter {
         final FileWriter fw = new FileWriter(filePath, false);
         final PrintWriter printer = new PrintWriter(fw);
         printer.println("Robot Malfunction(s):");
-        for (String s : KEYS_IN_ORDER) {
+        for (final String s : KEYS_IN_ORDER) {
             printer.println("\"" + s + "\"\nStart: " + values.get(s).get(0) + "   End: " + values.get(s).get(1)
                     + "   Frequency: " + values.get(s).get(2) + "\n");
         }
         printer.close();
-        LoggerGUI.printToFrame(
-                "Base output printed succesfully to file at " + new File("output\\mainoutput\\" + fileName).getAbsolutePath());
+        LoggerGUI.printToFrame("Base output printed succesfully to file at "
+                + new File("output\\mainoutput\\" + fileName).getAbsolutePath());
     }
 
     /**
      * Allows you to view errors preceeding one of your choice. Amount of previous
-     * errors to view can be selected.
+     * errors to view can be selected. Cannot be compounded.
+     * 
+     * @param s_error   -> The error of interest.
+     * @param s_prevNum -> The amount of errors to view before the error of
+     *                  interest.
      */
-    public static void prevErrors(String error, String s_prevNum) {
-        if (allLogs.values.get(error) != null) {
+    public static void prevErrors(final String s_error, final String s_prevNum) {
+        if (allLogs.values.get(s_error) != null) {
             int prevNum;
             try {
                 prevNum = Integer.parseInt(s_prevNum);
@@ -282,12 +321,12 @@ public class LoggerFilter {
                 LoggerGUI.printToFrame("NaI inputted, defaulting to 5 previous errors");
                 prevNum = 5;
             }
-            LoggerGUI.printToFrame("Up to " + prevNum + " errors before/first occurence of \"" + error + "\"\n");
+            LoggerGUI.printToFrame("Up to " + prevNum + " errors before/first occurence of \"" + s_error + "\"\n");
             int counter = 0;
-            for (int i = 0; i <= allLogs.messages.indexOf(error); i++) {
-                if (allLogs.messages.indexOf(error) - i <= prevNum) {
+            for (int i = 0; i <= allLogs.messages.indexOf(s_error); i++) {
+                if (allLogs.messages.indexOf(s_error) - i <= prevNum) {
                     counter++;
-                    if (allLogs.messages.indexOf(error) - i != 0) {
+                    if (allLogs.messages.indexOf(s_error) - i != 0) {
                         LoggerGUI.printToFrame(
                                 counter + ": " + allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i));
                     } else {
@@ -302,7 +341,8 @@ public class LoggerFilter {
     }
 
     /**
-     * Allows you to view a .txt file with all errors logged sequentially.
+     * Allows you to view a .txt file with all errors logged sequentially. Cannot be
+     * compounded.
      */
     public static void showSeq() {
         try {
@@ -316,7 +356,7 @@ public class LoggerFilter {
             LoggerGUI.printToFrame(
                     "Succesfully printed to file at " + "output\\commandoutput\\" + fileName + " ALLEVENTS.txt");
             printer.close();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LoggerGUI.printToFrame("Failed to print all errors to file.");
             e.printStackTrace();
         }
@@ -324,10 +364,13 @@ public class LoggerFilter {
 
     /**
      * Displays a list of errors based on a start bound double and an end bound
-     * double.
+     * double. Can be compounded.
+     * 
+     * @param s_sb -> The start bound double.
+     * @param s_eb -> The end bound double.
      */
-    public static void logsInRange(String s_sb, String s_eb) {
-        LogList finalParsed = new LogList();
+    public static void logsInRange(final String s_sb, final String s_eb) {
+        final LogList finalParsed = new LogList();
 
         if (!compounding) {
             LoggerGUI.printToFrame("Parsing from all logs");
@@ -336,17 +379,17 @@ public class LoggerFilter {
 
         double sb;
         try {
-            String line = s_sb;
+            final String line = s_sb;
             sb = Double.parseDouble(line);
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             LoggerGUI.printToFrame("Not a valid double, defaulting to 0");
             sb = 0;
         }
         double eb;
         try {
-            String line = s_eb;
+            final String line = s_eb;
             eb = Double.parseDouble(line);
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             LoggerGUI.printToFrame("Not a valid double, defaulting to 1");
             eb = 1;
         }
@@ -362,11 +405,16 @@ public class LoggerFilter {
             }
             toParse = finalParsed;
             LoggerGUI.printToFrame("");
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             LoggerGUI.printToFrame("Error with number formatting.");
         }
     }
 
+    /**
+     * Displays all logs of a certain PrintStyle. Can be compounded.
+     * 
+     * @param s_type -> The PrintStyle to look for.
+     */
     public static void logsByType(String s_type) {
         LogList finalParsed = new LogList();
         try {
@@ -393,7 +441,7 @@ public class LoggerFilter {
                 }
             }
             toParse = finalParsed;
-        } catch (NullPointerException e) {
+        } catch (final NullPointerException e) {
             LoggerGUI.printToFrame("Invalid log type, defaulting to error");
             s_type = "Error";
             toParse = typeLogs.get(2);
@@ -404,8 +452,12 @@ public class LoggerFilter {
         }
     }
 
-    public static void logsBySubsystem(String s_type) 
-    {
+    /**
+     * Displays all logs of a certain subsystem. Can be compounded.
+     * 
+     * @param s_type
+     */
+    public static void logsBySubsystem(String s_type) {
         LogList finalParsed = new LogList();
 
         try {
@@ -415,14 +467,15 @@ public class LoggerFilter {
                     if (subsystemLogs.get(i) != null)
                         finalParsed = subsystemLogs.get(i);
                     else {
-                        LoggerGUI.printToFrame( s_type + " log is null, defaulting to all logs");
+                        LoggerGUI.printToFrame(s_type + " log is null, defaulting to all logs");
                         finalParsed = allLogs;
                     }
                 } else if (s_type.equalsIgnoreCase(SUBSYSTEM_KEYS[i])) {
                     for (int j = 0; j < subsystemLogs.get(i).messages.size(); j++) {
                         for (int k = 0; k < toParse.messages.size(); k++) {
                             if (toParse.messages.get(k).equalsIgnoreCase(subsystemLogs.get(i).messages.get(j))
-                                    && toParse.timeStamps.get(k).equalsIgnoreCase(subsystemLogs.get(i).timeStamps.get(j))) {
+                                    && toParse.timeStamps.get(k)
+                                            .equalsIgnoreCase(subsystemLogs.get(i).timeStamps.get(j))) {
                                 finalParsed.messages.add(toParse.messages.get(k));
                                 finalParsed.timeStamps.add(toParse.timeStamps.get(k));
                                 break;
@@ -432,64 +485,79 @@ public class LoggerFilter {
                 }
             }
             toParse = finalParsed;
-        } catch (NullPointerException e) {
+        } catch (final NullPointerException e) {
             LoggerGUI.printToFrame("Invalid subsystem type, defaulting to " + SUBSYSTEM_KEYS[0]);
             s_type = SUBSYSTEM_KEYS[0];
             toParse = subsystemLogs.get(0);
         }
-
         LoggerGUI.printToFrame("All messages of subsyste type: " + s_type);
         for (int i = 0; i < toParse.messages.size(); i++) {
             LoggerGUI.printToFrame(toParse.messages.get(i) + " @t = " + toParse.timeStamps.get(i));
         }
     }
 
-    public static void logsByKeyword(String s_key)
-    {
-        LogList finalParsed = new LogList();
+    /**
+     * Displays all logs that contain a certain word or phrase. Can be compounded.
+     * 
+     * @param s_key -> The word or phrase to look for.
+     */
+    public static void logsByKeyword(final String s_key) {
+        final LogList finalParsed = new LogList();
         LogList toParseTemp = allLogs;
-        if(compounding)
-        {
+        if (compounding) {
             toParseTemp = toParse;
         }
-        for(int i = 0; i < toParseTemp.messages.size(); i++)
-        {
-            if(toParseTemp.messages.get(i).toLowerCase().contains(s_key.toLowerCase()))
-            {
+        for (int i = 0; i < toParseTemp.messages.size(); i++) {
+            if (toParseTemp.messages.get(i).toLowerCase().contains(s_key.toLowerCase())) {
                 finalParsed.messages.add(toParseTemp.messages.get(i));
                 finalParsed.timeStamps.add(toParseTemp.timeStamps.get(i));
             }
         }
         LoggerGUI.printToFrame("All messages containing keyword: " + s_key);
         LoggerGUI.printToFrame("");
-        for (int i = 0; i < finalParsed.messages.size(); i++)
-        {
+        for (int i = 0; i < finalParsed.messages.size(); i++) {
             LoggerGUI.printToFrame(finalParsed.messages.get(i) + " @t = " + finalParsed.timeStamps.get(i));
         }
         LoggerGUI.printToFrame("");
         toParse = finalParsed;
     }
 
-    public static void setCompunding(boolean c) {
+    /**
+     * Sets compounding to a passed in boolean parameter.
+     * 
+     * @param c -> The boolean that determines the state of compounding.
+     */
+    public static void setCompunding(final boolean c) {
         compounding = c;
         LoggerGUI.printToFrame("Compounding set to " + c);
     }
 
-    public static void setFilePath(String path) {
-        if(path.trim().equals("")) {
+    /**
+     * Sets the variable "folderPath" to the String argument.
+     * 
+     * @param path -> The path to change folderPath to.
+     */
+    public static void setFilePath(final String path) {
+        if (path.trim().equals("")) {
             getMostRecentFile();
         } else {
             wholePath = path;
-        }   
+        }
     }
-    
+
+    /**
+     * Returns a String that represents the whole path of the current file being
+     * parsed.
+     * 
+     * @return -> The full path of the file being parsed.
+     */
     public static String getWholePath() {
         return wholePath;
     }
 
     /**
-     * An Enum that contains command names (these must be typed EXACTLY AS THEY ARE
-     * into the console when prompted) and descriptions.
+     * An Enum that contains command names, descriptions, number of parameters, and
+     * parameter descriptions/types (in that order).
      */
     public enum Commands {
 
@@ -498,9 +566,12 @@ public class LoggerFilter {
         showseq("Outputs a list of all errors in order into a .txt file.", 0, "[No parameters <N/A>]"),
         logsinrange("Allows you to view all errors within two timestamps. COMPOUNDABLE.", 2,
                 "[Start timestamp <int>], [End timestamp <int>]"),
-        logsbytype("Allows you to view errors of a certain PrintStyle. COMPOUNDABLE.", 1, "[PrintStyle to look for <Print Style>]"),
-        logsbysubsystem("Allows you to view errors of a certain subsystem. COMPOUNDABLE.", 1, "[Subsystem to look for <Subsystem Name>]"),
-        logsbykeyword("Allows you to view errors containing a specific word (not case sensitive). COMPOUNDABLE.", 1, "[Keyword to look for <String>]");
+        logsbytype("Allows you to view errors of a certain PrintStyle. COMPOUNDABLE.", 1,
+                "[PrintStyle to look for <Print Style>]"),
+        logsbysubsystem("Allows you to view errors of a certain subsystem. COMPOUNDABLE.", 1,
+                "[Subsystem to look for <Subsystem Name>]"),
+        logsbykeyword("Allows you to view errors containing a specific word (not case sensitive). COMPOUNDABLE.", 1,
+                "[Keyword to look for <String>]");
 
         String desc;
         int paramNum;
@@ -522,6 +593,28 @@ public class LoggerFilter {
 
         public String getParamDesc() {
             return paramDesc;
+        }
+    }
+
+    /**
+     * A class that can store messages and timestamps of a certain filter type.
+     */
+    public static class LogList {
+        public ArrayList<String> messages;
+        public ArrayList<String> timeStamps;
+        public HashMap<String, List<String>> values;
+
+        public LogList() {
+            messages = new ArrayList<>();
+            timeStamps = new ArrayList<>();
+            values = new HashMap<>();
+        }
+
+        public LogList(final ArrayList<String> messages, final ArrayList<String> timeStamps,
+                final HashMap<String, List<String>> values) {
+            this.messages = messages;
+            this.timeStamps = timeStamps;
+            this.values = values;
         }
     }
 }
