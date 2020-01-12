@@ -9,16 +9,14 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.*;
-
-import javax.swing.*;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-import javax.swing.plaf.metal.OceanTheme;
-
 import java.awt.event.*;
 import java.awt.*;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.plaf.metal.OceanTheme;
+import javax.swing.*;
 
 /**
- * GUI for LoggerFilter.java. Creates a java swing JFrame that contaisn
+ * GUI for LoggerFilter.java. Creates a java swing JFrame that contains
  * everything you will ever need for robot error parsing!
  */
 public class LoggerGUI {
@@ -143,6 +141,7 @@ public class LoggerGUI {
                         "Saved current console text to: " + new File(filePath + fileName).getAbsolutePath() + ".txt");
             }
         });
+
         dir.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -176,6 +175,7 @@ public class LoggerGUI {
                                 printToFrame("Set file to parse to: " + LoggerFilter.getWholePath());
                             } else {
                                 printToFrame("Set file to parse to: " + jta.getText().trim());
+                                gen.setEnabled(true);
                             }
                         }
                     });

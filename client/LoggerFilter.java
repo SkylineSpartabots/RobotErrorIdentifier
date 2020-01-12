@@ -19,7 +19,7 @@ import java.util.Scanner;
  * robot malfunctions. It can also parse further through the use of commands to
  * find specific errors. Helpful for post-match diagnostics.
  * 
- * @version 3.0.0
+ * @version 3.0.1
  * @author Team 2976!
  */
 public class LoggerFilter {
@@ -68,7 +68,7 @@ public class LoggerFilter {
     /**
      * All text from the .dsevents file.
      */
-    private static String allText;
+    private static String allText = "";
     /**
      * A LogList of all logs, unedited and unparsed.
      */
@@ -96,7 +96,22 @@ public class LoggerFilter {
      * Executes the logger!
      */
     public static void executeLogger() {
+        resetClassVars();
         readFile();
+    }
+
+    /**
+     * Resets all class variables to their instantiation states in case the output
+     * needs to be regenerated.
+     */
+    private static void resetClassVars() {
+        KEYS_IN_ORDER = new ArrayList<>();
+        allText = "";
+        allLogs = new LogList();
+        typeLogs = new ArrayList<>();
+        subsystemLogs = new ArrayList<>();
+        toParse = new LogList();
+        compounding = false;
     }
 
     /**
