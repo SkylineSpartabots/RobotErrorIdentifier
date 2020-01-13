@@ -4,7 +4,8 @@ and .dsevents are stored. This filepath can be located through the use of Driver
 Subsystem keywords should be typed out in the config file within the "{}". Example: {Drive, Hopper, Climb, Intake, Limelight}
 
 BASIC USAGE:
-Filtered files will appear in the "output" folder.
+Filtered files will appear in the "output" folder. They may be generated as a binary file with no extensions. If this is the case, simply
+add ".txt" to the end of the filename manually or open the file with notepad.
 They include: The name of the error, when it first appeared, when it last appeared, and how many times it appeared.
 They will share the same name as the .dsevents file that was parsed, with "ROBOT_ERROR_IDENTIFIER" concatenated onto the end of the filename.
 Further parsing can be done through the use of commands which you can acces within the GUI.
@@ -26,7 +27,20 @@ Warnings: <<< >>>
 Errors: !!! !!!
 Sensor Readings: ||| |||
 
-//things here about how to make telemetryutil
+For the logger to be able to detect messages, all prints to console must be formatted in the way shown below:
+Note: Timestamp should be two decimal places.
+
+    Messages: ### ###
+        Example: S_LOG ### <timestamp> "message" ### E_LOG
+    Warnings: <<< >>>
+        Example: S_LOG <<< Warning: <timestamp> "message" >>> E_LOG
+    Errors: !!! !!!
+        Example: S_LOG !!! Error: <timestamp> "message" !!! E_LOG
+    Sensor Readings: ||| |||
+        Example: S_LOG ||| Sensor Reading: <timestamp> "message" ||| E_LOG
+        Note: format sensor reading to a reasonable number to not overflow console.
+
+Note: These should all be printed to the system terminal (System.out.println(message);) and will automatically be sent to the .dsevents file.
 
 Examples of what the client can parse through:
 

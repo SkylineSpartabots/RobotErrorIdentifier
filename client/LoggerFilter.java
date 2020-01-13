@@ -116,9 +116,17 @@ public class LoggerFilter {
 
     /**
      * Gets the config settings for the project. These are found in "config.txt".
+     * Creates this file if it does not already exist.
      */
     public static void getConfig() {
         try {
+            if (!new File("config.txt").exists()) {
+                final FileWriter fw = new FileWriter("config.txt", false);
+                final PrintWriter printer = new PrintWriter(fw);
+                printer.println(".dsevents folder path: N/A");
+                printer.println("All subsystem keyword names (comma separated): {N/A}");
+                printer.close();
+            }
             final Scanner sc = new Scanner(new File("config.txt"));
             final String[] allLines = new String[2];
             int counter = 0;
@@ -141,7 +149,7 @@ public class LoggerFilter {
             }
 
             sc.close();
-        } catch (final FileNotFoundException e) {
+        } catch (final IOException e) {
             LoggerGUI.printToFrame("Failed to find file.");
             e.printStackTrace();
         }
@@ -149,21 +157,25 @@ public class LoggerFilter {
 
     /**
      * Uses the .lastModified(); method to get the name of the most recently created
-     * .dsevents file. Only does this if the class variable "fileName" is blank
-     * ("").
+     * .dsevents file within a directory.
      */
     public static void getMostRecentFile() {
-        final File directory = new File(folderPath);
-        final File[] allFiles = directory.listFiles();
-        long lastModTime = allFiles[0].lastModified();
-        File mostRecentFile = allFiles[0];
-        for (final File f : allFiles) {
-            if (f.lastModified() > lastModTime) {
-                lastModTime = f.lastModified();
-                mostRecentFile = f;
+        try {
+            final File directory = new File(folderPath);
+            final File[] allFiles = directory.listFiles();
+            long lastModTime = allFiles[0].lastModified();
+            File mostRecentFile = allFiles[0];
+            for (final File f : allFiles) {
+                if (f.lastModified() > lastModTime) {
+                    lastModTime = f.lastModified();
+                    mostRecentFile = f;
+                }
+                fileName = mostRecentFile.getName();
+                wholePath = folderPath + fileName;
             }
-            fileName = mostRecentFile.getName();
-            wholePath = folderPath + fileName;
+        } catch (Exception e) {
+            LoggerGUI.printToFrame(
+                    "PATH NOT FOUND. PLEASE EDIT \"config.txt\" FOUND IN THE SAME FOLDER AS \"RobotErrorIdentifier.exe\"");
         }
     }
 

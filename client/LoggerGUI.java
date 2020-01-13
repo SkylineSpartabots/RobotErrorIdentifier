@@ -57,12 +57,11 @@ public class LoggerGUI {
         setupFrame();
         f.setVisible(true);
         printToFrame("Robot Error Identifier (and other fun cheerios) made with love by Team 2976, The Spartabots!");
-        printToFrame("Status: Ready");
         if (LoggerFilter.fileName.equals("")) {
             LoggerFilter.getMostRecentFile();
         }
-        printToFrame("File to scan: " + LoggerFilter.getWholePath());
         setupListeners();
+        printToFrame("File to scan: " + LoggerFilter.getWholePath());
     }
 
     /**
@@ -302,7 +301,7 @@ public class LoggerGUI {
         homeButton.setToolTipText("Takes you back to the home screen.");
         homeButton.setEnabled(true);
         final JButton compoundButton = new JButton("COMPOUNDING: OFF");
-        compoundButton.setBounds(215, 150 + (75 * (numOfCmnds / 5)), 150, 50);
+        compoundButton.setBounds(215, 150 + (75 * (numOfCmnds / 5)), 200, 50);
         compoundButton.setToolTipText("Enables and disables compounding.");
         compoundButton.setEnabled(true);
         tempJ.add(homeButton);
