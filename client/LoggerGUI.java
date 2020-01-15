@@ -391,6 +391,12 @@ public class LoggerGUI {
                 inputf.add(jcbs);
                 inputf.add(createLabel(counter, c.getParamDesc()));
                 break;
+            case "Actuator Name":
+                final JComboBox<Object> jcbc = createDropdown(counter, LoggerFilter.getActuators());
+                allDrops.add(jcbc);
+                inputf.add(jcbc);
+                inputf.add(createLabel(counter, c.getParamDesc()));
+                break;
             case "String":
                 final JTextArea jtas = createtField(counter);
                 final JScrollPane jsps = new JScrollPane(jtas, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
@@ -537,6 +543,9 @@ public class LoggerGUI {
             LoggerFilter.logsBySubsystem(input.get(0));
             break;
         case logsbykeyword:
+            LoggerFilter.logsByKeyword(input.get(0));
+            break;
+        case logsbyactuator:
             LoggerFilter.logsByKeyword(input.get(0));
             break;
         }

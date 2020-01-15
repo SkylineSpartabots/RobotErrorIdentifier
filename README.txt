@@ -42,6 +42,19 @@ Note: Timestamp should be two decimal places.
 
 Note: These should all be printed to the system terminal (System.out.println(message);) and will automatically be sent to the .dsevents file.
 
+If you want to tag errors by subsystem, please add the subsystem name (case sensitive) as you declared in the "config.txt" file.
+Example: S_LOG !!! Error: <timestamp> "SUBSYSTEM_NAME_HERE: message" !!! E_LOG
+
+Actuators are components (Talons, solenoids, etc.). If you want to view errors coming from a specific actuator, surround the name of the actuator
+with "@".
+Example: S_LOG !!! Error: <timestamp> "@ACTUATOR_NAME_HERE@ message" !!! E_LOG
+
+These filter types can be combined.
+Example: S_LOG !!! Error: <timestamp> "SUBSYSTEM_NAME_HERE: @ACTUATOR_NAME_HERE@ message" !!! E_LOG
+Example (Filled): S_LOG !!! Error: <29.76> Drive: @Right Front Master@ Motor burnt out !!! E_LOG
+
+These special characters should be tagged onto your messages in your "printing to .dsevents" class. (We call it TelemetryUtil).
+
 Examples of what the client can parse through:
 
 Input:

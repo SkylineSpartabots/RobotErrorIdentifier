@@ -19,7 +19,7 @@ import java.util.Scanner;
  * robot malfunctions. It can also parse further through the use of commands to
  * find specific errors. Helpful for post-match diagnostics.
  * 
- * @version 3.0.1
+ * @version 3.1.2
  * @author Team 2976!
  */
 public class LoggerFilter {
@@ -60,6 +60,10 @@ public class LoggerFilter {
      * Subsystem name keywords. READ THROUGH "config.txt". Do not input manually.
      */
     public static String[] SUBSYSTEM_KEYS;
+    /**
+     * Actuator name keywords.
+     */
+    public static ArrayList<String> ACTUATOR_NAMES = new ArrayList<String>();
     /**
      * An ArrayList<String> to store errors in order, with only one occurence of
      * each.
@@ -281,7 +285,7 @@ public class LoggerFilter {
                     "")).trim());
         }
         final HashMap<String, List<String>> values = new HashMap<>();
-        for (final String s : errorArray) {
+        for (String s : errorArray) {
             if (values.containsKey(s)) {
                 values.get(s).set(2, "" + ((Integer.parseInt(values.get(s).get(2))) + 1));
             } else {
@@ -289,6 +293,11 @@ public class LoggerFilter {
                         timeStamps.get(errorArray.lastIndexOf(s)), "1"));
                 if (allLogs.messages.equals(errorArray)) {
                     KEYS_IN_ORDER.add(s);
+                    s = s.replaceFirst("@", "<S>");
+                    s = s.replaceFirst("@", "<E>");
+                    if(s.contains("<S>") && s.contains("<E>")) {
+                        ACTUATOR_NAMES.add(s.substring(s.indexOf("<S>") + 3, s.indexOf("<E>")));
+                    }
                 }
             }
         }
@@ -306,6 +315,14 @@ public class LoggerFilter {
             errorArr[i] = KEYS_IN_ORDER.get(i);
         }
         return errorArr;
+    }
+
+    public static String[] getActuators() {
+        String[] dropdownOptionsforActuators = new String[ACTUATOR_NAMES.size()];
+        for (int i = 0; i < dropdownOptionsforActuators.length; i++) {
+            dropdownOptionsforActuators[i] = ACTUATOR_NAMES.get(i);
+        }
+        return dropdownOptionsforActuators;
     }
 
     /**
@@ -474,9 +491,11 @@ public class LoggerFilter {
             toParse = typeLogs.get(2);
         }
         LoggerGUI.printToFrame("All messages of type: " + s_type);
+        LoggerGUI.printToFrame("");
         for (int i = 0; i < toParse.messages.size(); i++) {
             LoggerGUI.printToFrame(toParse.messages.get(i) + " @t = " + toParse.timeStamps.get(i));
         }
+        LoggerGUI.printToFrame("");
     }
 
     /**
@@ -517,10 +536,12 @@ public class LoggerFilter {
             s_type = SUBSYSTEM_KEYS[0];
             toParse = subsystemLogs.get(0);
         }
-        LoggerGUI.printToFrame("All messages of subsyste type: " + s_type);
+        LoggerGUI.printToFrame("All messages of subsystem type: " + s_type);
+        LoggerGUI.printToFrame("");
         for (int i = 0; i < toParse.messages.size(); i++) {
             LoggerGUI.printToFrame(toParse.messages.get(i) + " @t = " + toParse.timeStamps.get(i));
         }
+        LoggerGUI.printToFrame("");
     }
 
     /**
@@ -598,7 +619,8 @@ public class LoggerFilter {
         logsbysubsystem("Allows you to view errors of a certain subsystem. COMPOUNDABLE.", 1,
                 "[Subsystem to look for <Subsystem Name>]"),
         logsbykeyword("Allows you to view errors containing a specific word (not case sensitive). COMPOUNDABLE.", 1,
-                "[Keyword to look for <String>]");
+                "[Keyword to look for <String>]"),
+        logsbyactuator("Allows you to view errors regarding specific actuators. COMPOUNDABLE.", 1, "[Actuator to look for <Actuator Name>]");
 
         String desc;
         int paramNum;

@@ -1,2 +1,2 @@
-.dsevents folder path: N/A
-All subsystem keyword names (comma separated): {N/A}
+.dsevents folder path: C:\Users\shrav\Documents\GitHub\RobotErrorIdentifier\testing
+All subsystem keyword names (comma separated): {Drive, Climb, Shooter}
