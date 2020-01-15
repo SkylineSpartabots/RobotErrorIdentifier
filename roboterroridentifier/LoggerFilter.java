@@ -1,4 +1,4 @@
-package client;
+package roboterroridentifier;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,7 +19,7 @@ import java.util.Scanner;
  * robot malfunctions. It can also parse further through the use of commands to
  * find specific errors. Helpful for post-match diagnostics.
  * 
- * @version 3.1.2
+ * @version 4.0.0
  * @author Team 2976!
  */
 public class LoggerFilter {
@@ -177,7 +177,7 @@ public class LoggerFilter {
                 fileName = mostRecentFile.getName();
                 wholePath = folderPath + fileName;
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LoggerGUI.printToFrame(
                     "PATH NOT FOUND. PLEASE EDIT \"config.txt\" FOUND IN THE SAME FOLDER AS \"RobotErrorIdentifier.exe\"");
         }
@@ -270,7 +270,7 @@ public class LoggerFilter {
      * 
      * @param errorArray         -> ArrayList<String> of errors with timestamps
      *                           included.
-     * @param allLogs.timeStamps -> Arraylist<String> that timestamps will be moved
+     * @param allLogs.timeStamps -> ArrayList<String> that timestamps will be moved
      *                           to by the end of the method.
      * @return A Hashmap with the error as a key (String), and a List<String> of
      *         initial timestamps, final timestamps, and frequencies for each error.
@@ -295,7 +295,7 @@ public class LoggerFilter {
                     KEYS_IN_ORDER.add(s);
                     s = s.replaceFirst("@", "<S>");
                     s = s.replaceFirst("@", "<E>");
-                    if(s.contains("<S>") && s.contains("<E>")) {
+                    if (s.contains("<S>") && s.contains("<E>")) {
                         ACTUATOR_NAMES.add(s.substring(s.indexOf("<S>") + 3, s.indexOf("<E>")));
                     }
                 }
@@ -318,7 +318,7 @@ public class LoggerFilter {
     }
 
     public static String[] getActuators() {
-        String[] dropdownOptionsforActuators = new String[ACTUATOR_NAMES.size()];
+        final String[] dropdownOptionsforActuators = new String[ACTUATOR_NAMES.size()];
         for (int i = 0; i < dropdownOptionsforActuators.length; i++) {
             dropdownOptionsforActuators[i] = ACTUATOR_NAMES.get(i);
         }
@@ -344,7 +344,7 @@ public class LoggerFilter {
                     + "   Frequency: " + values.get(s).get(2) + "\n");
         }
         printer.close();
-        LoggerGUI.printToFrame("Base output printed succesfully to file at "
+        LoggerGUI.printToFrame("Base output printed successfully to file at "
                 + new File("output\\mainoutput\\" + fileName).getAbsolutePath());
     }
 
@@ -365,7 +365,7 @@ public class LoggerFilter {
                 LoggerGUI.printToFrame("NaI inputted, defaulting to 5 previous errors");
                 prevNum = 5;
             }
-            LoggerGUI.printToFrame("Up to " + prevNum + " errors before/first occurence of \"" + s_error + "\"\n");
+            LoggerGUI.printToFrame("Up to " + prevNum + " errors before/first occurrence of \"" + s_error + "\"\n");
             int counter = 0;
             for (int i = 0; i <= allLogs.messages.indexOf(s_error); i++) {
                 if (allLogs.messages.indexOf(s_error) - i <= prevNum) {
@@ -398,7 +398,7 @@ public class LoggerFilter {
                 printer.println(allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i));
             }
             LoggerGUI.printToFrame(
-                    "Succesfully printed to file at " + "output\\commandoutput\\" + fileName + " ALLEVENTS.txt");
+                    "Successfully printed to file at " + "output\\commandoutput\\" + fileName + " ALLEVENTS.txt");
             printer.close();
         } catch (final Exception e) {
             LoggerGUI.printToFrame("Failed to print all errors to file.");
@@ -575,7 +575,7 @@ public class LoggerFilter {
      * 
      * @param c -> The boolean that determines the state of compounding.
      */
-    public static void setCompunding(final boolean c) {
+    public static void setCompounding(final boolean c) {
         compounding = c;
         LoggerGUI.printToFrame("Compounding set to " + c);
     }
@@ -609,7 +609,7 @@ public class LoggerFilter {
      */
     public enum Commands {
 
-        preverr("Allows you to view errors preceeding one of your choice.", 2,
+        preverr("Allows you to view errors preceding one of your choice.", 2,
                 "[Error to parse for <Error Name>], [Numbers of previous errors to display <int>]"),
         showseq("Outputs a list of all errors in order into a .txt file.", 0, "[No parameters <N/A>]"),
         logsinrange("Allows you to view all errors within two timestamps. COMPOUNDABLE.", 2,

@@ -1,4 +1,4 @@
-package client;
+package roboterroridentifier;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -49,7 +49,10 @@ public class LoggerGUI {
      */
     private static ArrayList<JButton> buttons = new ArrayList<>();
 
-    public static void main(final String[] args) {
+    /**
+     * Executes the GUI!
+     */
+    public static void executeGUI() {
         makeDirs();
         LoggerFilter.getConfig();
         setLookAndFeel();
@@ -263,7 +266,7 @@ public class LoggerGUI {
 
     /**
      * If the "COMMANDS" button is pressed, this method generates an
-     * infinitely-expanding programatically generated sequences of command buttons
+     * infinitely-expanding programmatically generated sequences of command buttons
      * that are based off of the "Commands" enum in LoggerFilter.
      */
     public static void makeButtons() {
@@ -322,10 +325,10 @@ public class LoggerGUI {
                 @Override
                 public void actionPerformed(final ActionEvent e) {
                     if (compoundButton.getText().equals("COMPOUNDING: OFF")) {
-                        LoggerFilter.setCompunding(true);
+                        LoggerFilter.setCompounding(true);
                         compoundButton.setText("COMPOUNDING: ON");
                     } else if (compoundButton.getText().equals("COMPOUNDING: ON")) {
-                        LoggerFilter.setCompunding(false);
+                        LoggerFilter.setCompounding(false);
                         compoundButton.setText("COMPOUNDING: OFF");
                     }
                 }
@@ -335,7 +338,7 @@ public class LoggerGUI {
 
     /**
      * If a command button is pressed, this method is called. It will parse through
-     * certain variables stored wihin Strings in the "Commands" enum and generates
+     * certain variables stored within Strings in the "Commands" enum and generates
      * input boxes accordingly. If the "submit" button is pressed, then the input is
      * passed into the "inputSwitch" method.
      * 
@@ -447,7 +450,7 @@ public class LoggerGUI {
     }
 
     /**
-     * Creates a dropdown meant for the programatic input panel and returns it.
+     * Creates a dropdown meant for the programmatic input panel and returns it.
      * 
      * @param orderNum -> Where (vertically) this inputbox should go.
      * @param options  -> The options for the dropdown.
@@ -460,7 +463,7 @@ public class LoggerGUI {
     }
 
     /**
-     * Creates a text area meant for the programatic input panel and returns it.
+     * Creates a text area meant for the programmatic input panel and returns it.
      * 
      * @param orderNum -> Where (vertically) this inputbox should go.
      * @return The text area (JTextArea) needed for the inputpanel.
@@ -472,10 +475,10 @@ public class LoggerGUI {
     }
 
     /**
-     * Creates a descriptor JLabel for the programatic inputboxes and returns it.
+     * Creates a descriptor JLabel for the programmatic inputboxes and returns it.
      * 
      * @param orderNum -> Where (vertically) this label should go.
-     * @param desc     -> The description, gotten from a String paramter within the
+     * @param desc     -> The description, gotten from a String parameter within the
      *                 "Commands" enum that should be applied to the JLabel.
      * @return The JLabel appropriate for a certain inputbox.
      */
@@ -518,8 +521,8 @@ public class LoggerGUI {
     }
 
     /**
-     * Input from programatically generated input boxes as well as the type of
-     * command is passed into here, and commands are sent out to LoggerFIlter
+     * Input from programmatically generated input boxes as well as the type of
+     * command is passed into here, and commands are sent out to LoggerFilter
      * accordingly.
      * 
      * @param input -> The inputarray to parse through.
