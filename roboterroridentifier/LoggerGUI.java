@@ -60,6 +60,7 @@ public class LoggerGUI {
         setupFrame();
         f.setVisible(true);
         printToFrame("Robot Error Identifier (and other fun cheerios) made with love by Team 2976, The Spartabots!");
+        printToFrame("Hotkeys: CTRL + {Q, C, G, D, S} for the buttons below.");
         if (LoggerFilter.fileName.equals("")) {
             LoggerFilter.getMostRecentFile();
         }
@@ -91,6 +92,29 @@ public class LoggerGUI {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
                 | UnsupportedLookAndFeelException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * A method that takes in a text area and adds a keybound commands to it that
+     * trigger buttons with CTRL + a key defined in the NamedJButton class.
+     * 
+     * @param ta         -> Text area to add actions bound to keymaps to.
+     * @param allButtons -> ArrayList<NamedJButton> of all NamedJButtons that should
+     *                   have hotkeys assigned to them.
+     */
+    private static void adaptiveListener(final JTextArea ta, final ArrayList<NamedJButton> allButtons) {
+        for (int i = 0; i < allButtons.size(); i++) {
+            final NamedJButton jb = allButtons.get(i);
+            final Action a = new AbstractAction() {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    jb.doClick();
+                }
+            };
+            ta.getInputMap().put(KeyStroke.getKeyStroke(allButtons.get(i).getHotkey()), a);
         }
     }
 
@@ -153,7 +177,7 @@ public class LoggerGUI {
                 tempJ.setTitle("Directory Panel");
                 tempJ.setLayout(new BorderLayout());
                 tempJ.setResizable(false);
-                final NamedJButton chg = new NamedJButton("Submit Button", "CHANGE");
+                final JButton chg = new JButton("CHANGE");
                 chg.setBounds(75, 150, 150, 50);
                 final JLabel jlb = new JLabel("File to parse (full filepath):", SwingConstants.CENTER);
                 jlb.setBounds(0, 0, 300, 50);
@@ -200,6 +224,7 @@ public class LoggerGUI {
      * Sets up the main frame and all of its buttons.
      */
     private static void setupFrame() {
+        final ArrayList<NamedJButton> mainButtons = new ArrayList<>();
         f.setSize(new Dimension(1280, 720));
         f.setLocationRelativeTo(null);
         f.setResizable(false);
@@ -210,26 +235,39 @@ public class LoggerGUI {
         titleText = new JLabel();
         titleText.setBounds(25, 10, 50, 50);
         titleText.setText("Output:");
-        qui = new NamedJButton("Quit Button", "QUIT");
+        qui = new NamedJButton("Quit Button", "QUIT", "control Q");
         qui.setBounds(25, 600, 150, 50);
         qui.setToolTipText("Quits the program.");
-        cmd = new NamedJButton("Command Button", "COMMANDS");
+
+        cmd = new NamedJButton("Command Button", "COMMANDS", "control C");
         cmd.setBounds(285, 600, 150, 50);
         cmd.setEnabled(false);
         cmd.setToolTipText("Opens a list of commands for filtering.");
-        gen = new NamedJButton("Generate Button", "GENERATE");
+
+        gen = new NamedJButton("Generate Button", "GENERATE", "control G");
         gen.setBounds(565, 600, 150, 50);
         gen.setToolTipText("Parses file and generates basic output. Must be pressed first before COMMANDS or SAVE.");
-        dir = new NamedJButton("Directory Button", "DIRECTORY");
+
+        dir = new NamedJButton("Directory Button", "DIRECTORY", "control D");
         dir.setBounds(835, 600, 150, 50);
         dir.setToolTipText("Allows you to pick the file you want to parse.");
-        txt = new NamedJButton("Save Button", "SAVE");
+
+        txt = new NamedJButton("Save Button", "SAVE", "control S");
         txt.setBounds(1105, 600, 150, 50);
         txt.setEnabled(false);
         txt.setToolTipText("Saves current console view into a .txt file.");
+
         ta = new JTextArea(35, 100);
         scrollingta = new JScrollPane(ta);
         final JPanel p = new JPanel();
+
+        mainButtons.add(qui);
+        mainButtons.add(cmd);
+        mainButtons.add(gen);
+        mainButtons.add(dir);
+        mainButtons.add(txt);
+
+        adaptiveListener(ta, mainButtons);
 
         p.add(scrollingta);
         f.add(qui);
@@ -294,7 +332,7 @@ public class LoggerGUI {
                 buttons.get(j).addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(final ActionEvent e) {
-                        openInput(arrayOfCmds[finalJ]);
+                        openInput(arrayOfCmds[finalJ], "ENTER");
                     }
                 });
             }
@@ -345,14 +383,14 @@ public class LoggerGUI {
      * @param c -> Element of the "Commands" enum that relates to the button
      *          pressed.
      */
-    public static void openInput(final LoggerFilter.Commands c) {
+    public static void openInput(final LoggerFilter.Commands c, final String hotkeyCounter) {
         inputf = new JFrame();
         inputf.setSize(new Dimension(600, 400));
         inputf.setLocationRelativeTo(null);
         inputf.setResizable(false);
         inputf.setTitle("Input Panel");
         inputf.setLayout(new BorderLayout());
-        final NamedJButton sub = new NamedJButton("Submit Button", "SUBMIT");
+        final NamedJButton sub = new NamedJButton("Submit Button", "SUBMIT", hotkeyCounter);
         sub.setBounds(225, 300, 150, 50);
         final ArrayList<String> parsedDesc = parseDesc(c.getParamDesc());
         final JPanel p = new JPanel(new FlowLayout());
@@ -563,14 +601,20 @@ public class LoggerGUI {
     public static class NamedJButton extends JButton {
         private static final long serialVersionUID = 1L;
         private final String id;
+        private final String hotkey;
 
-        public NamedJButton(final String id, final String name) {
+        public NamedJButton(final String id, final String name, final String hotkey) {
             super(name);
             this.id = id;
+            this.hotkey = hotkey;
         }
 
         public String getId() {
             return id;
+        }
+
+        public String getHotkey() {
+            return hotkey;
         }
     }
 }

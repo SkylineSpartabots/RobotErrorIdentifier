@@ -620,7 +620,8 @@ public class LoggerFilter {
                 "[Subsystem to look for <Subsystem Name>]"),
         logsbykeyword("Allows you to view errors containing a specific word (not case sensitive). COMPOUNDABLE.", 1,
                 "[Keyword to look for <String>]"),
-        logsbyactuator("Allows you to view errors regarding specific actuators. COMPOUNDABLE.", 1, "[Actuator to look for <Actuator Name>]");
+        logsbyactuator("Allows you to view errors regarding specific actuators. COMPOUNDABLE.", 1,
+                "[Actuator to look for <Actuator Name>]");
 
         String desc;
         int paramNum;

@@ -8,8 +8,8 @@ Filtered files will appear in the "output" folder. They may be generated as a bi
 add ".txt" to the end of the filename manually or open the file with notepad.
 They include: The name of the error, when it first appeared, when it last appeared, and how many times it appeared.
 They will share the same name as the .dsevents file that was parsed, with "ROBOT_ERROR_IDENTIFIER" concatenated onto the end of the filename.
-Further parsing can be done through the use of commands which you can acces within the GUI.
-To see what each command does, hover over the buttons in the command paneland a tooltip will show up describing the command.
+Further parsing can be done through the use of commands which you can access within the GUI.
+To see what each command does, hover over the buttons in the command panel and a tooltip will show up describing the command.
 Files outputted through the use of Commands can be found in "output\commandoutputs".
 
 ADVANCED:
@@ -20,6 +20,13 @@ Set COMPOUNDING to true by clicking the button on the control panel
 Execute your second compoundable command and it will only return values that fall within the parameters you set for both commands.
 Ex: Logs within t = 5.00 and t = 7.00 that are also Errors.
 Because these results should be nice and small, they are printed to the viewing window.
+
+HOTKEYS: CTRL + {Q, C, G, D, S}
+Q: Quit
+C: Open command panel
+G: generate initial/main output
+D: Open directory input to select file to parse
+S: Save console into a text file
 
 How to make our logger happy:
 Messages: ### ###
