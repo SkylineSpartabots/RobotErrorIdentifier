@@ -19,7 +19,7 @@ import java.util.Scanner;
  * robot malfunctions. It can also parse further through the use of commands to
  * find specific errors. Helpful for post-match diagnostics.
  * 
- * @version 4.0.0
+ * @version 4.2.0
  * @author Team 2976!
  */
 public class LoggerFilter {
@@ -95,6 +95,10 @@ public class LoggerFilter {
      * The boolean that controls the state of compounding.
      */
     private static boolean compounding = false;
+    /**
+     * How many lines the console can handle. READ THROUGH "config.txt". Do not edit manually.
+     */
+    public static int overflowLineMax;
 
     /**
      * Executes the logger!
@@ -132,7 +136,7 @@ public class LoggerFilter {
                 printer.close();
             }
             final Scanner sc = new Scanner(new File("config.txt"));
-            final String[] allLines = new String[2];
+            final String[] allLines = new String[3];
             int counter = 0;
             while (sc.hasNextLine()) {
                 allLines[counter] = sc.nextLine();
@@ -151,10 +155,14 @@ public class LoggerFilter {
             for (int i = 0; i < keywordNames.length; i++) {
                 SUBSYSTEM_KEYS[i] = keywordNames[i].trim();
             }
-
+            try{
+                allLines[2] = allLines[2].replace("Console Overflow Limit:", "").trim();
+                overflowLineMax = Integer.parseInt(allLines[2]);
+            } catch (NumberFormatException e) {
+                overflowLineMax = 100;
+            }
             sc.close();
         } catch (final IOException e) {
-            LoggerGUI.printToFrame("Failed to find file.");
             e.printStackTrace();
         }
     }
@@ -372,13 +380,14 @@ public class LoggerFilter {
                     counter++;
                     if (allLogs.messages.indexOf(s_error) - i != 0) {
                         LoggerGUI.printToFrame(
-                                counter + ": " + allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i));
+                                counter + ": " + allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i), true);
                     } else {
                         LoggerGUI.printToFrame("\nError of Interest: " + allLogs.messages.get(i) + " @t = "
                                 + allLogs.timeStamps.get(i));
                     }
                 }
             }
+            LoggerGUI.outputAccordingly();
         } else {
             LoggerGUI.printToFrame("Error does not exist, check spelling.");
         }
@@ -442,11 +451,12 @@ public class LoggerFilter {
             for (int i = 0; i < toParse.timeStamps.size(); i++) {
                 if ((Double.parseDouble(toParse.timeStamps.get(i))) >= sb
                         && (Double.parseDouble(toParse.timeStamps.get(i)) <= eb)) {
-                    LoggerGUI.printToFrame(toParse.messages.get(i) + " @t = " + toParse.timeStamps.get(i));
+                    LoggerGUI.printToFrame(toParse.messages.get(i) + " @t = " + toParse.timeStamps.get(i), true);
                     finalParsed.messages.add(toParse.messages.get(i));
                     finalParsed.timeStamps.add(toParse.timeStamps.get(i));
                 }
             }
+            LoggerGUI.outputAccordingly();
             toParse = finalParsed;
             LoggerGUI.printToFrame("");
         } catch (final NumberFormatException e) {
@@ -493,8 +503,9 @@ public class LoggerFilter {
         LoggerGUI.printToFrame("All messages of type: " + s_type);
         LoggerGUI.printToFrame("");
         for (int i = 0; i < toParse.messages.size(); i++) {
-            LoggerGUI.printToFrame(toParse.messages.get(i) + " @t = " + toParse.timeStamps.get(i));
+            LoggerGUI.printToFrame(toParse.messages.get(i) + " @t = " + toParse.timeStamps.get(i), true);
         }
+        LoggerGUI.outputAccordingly();
         LoggerGUI.printToFrame("");
     }
 
@@ -539,8 +550,9 @@ public class LoggerFilter {
         LoggerGUI.printToFrame("All messages of subsystem type: " + s_type);
         LoggerGUI.printToFrame("");
         for (int i = 0; i < toParse.messages.size(); i++) {
-            LoggerGUI.printToFrame(toParse.messages.get(i) + " @t = " + toParse.timeStamps.get(i));
+            LoggerGUI.printToFrame(toParse.messages.get(i) + " @t = " + toParse.timeStamps.get(i), true);
         }
+        LoggerGUI.outputAccordingly();
         LoggerGUI.printToFrame("");
     }
 
@@ -564,8 +576,9 @@ public class LoggerFilter {
         LoggerGUI.printToFrame("All messages containing keyword: " + s_key);
         LoggerGUI.printToFrame("");
         for (int i = 0; i < finalParsed.messages.size(); i++) {
-            LoggerGUI.printToFrame(finalParsed.messages.get(i) + " @t = " + finalParsed.timeStamps.get(i));
+            LoggerGUI.printToFrame(finalParsed.messages.get(i) + " @t = " + finalParsed.timeStamps.get(i), true);
         }
+        LoggerGUI.outputAccordingly();
         LoggerGUI.printToFrame("");
         toParse = finalParsed;
     }

@@ -50,6 +50,13 @@ public class LoggerGUI {
     private static ArrayList<JButton> buttons = new ArrayList<>();
 
     /**
+     * Colors to be used in the GUI.
+     */
+    public static Color spartaGreen = new Color(51, 90, 64);
+    public static Color lightGreen = new Color(255,255,255);
+    public static Color textAreaGreen = new Color(162,180,168);
+
+    /**
      * Executes the GUI!
      */
     public static void executeGUI() {
@@ -58,6 +65,8 @@ public class LoggerGUI {
         setLookAndFeel();
         f = new JFrame();
         setupFrame();
+        Color c = Color.black;
+        f.setBackground(c);
         f.setVisible(true);
         printToFrame("Robot Error Identifier (and other fun cheerios) made with love by Team 2976, The Spartabots!");
         printToFrame("Hotkeys: CTRL + {Q, C, G, D, S} for the buttons below.");
@@ -210,6 +219,9 @@ public class LoggerGUI {
         });
     }
 
+    public static ArrayList<String> messages = new ArrayList<>();
+    public static int numOfLinesAllowed;
+
     /**
      * Strings passed into this command are printed into the GUI output screen.
      * Great for debugging and for user-viewable output.
@@ -218,6 +230,54 @@ public class LoggerGUI {
      */
     public static void printToFrame(final String s) {
         ta.append(s + "\n");
+    }
+
+    /**
+     * Strings passed into this command are sent into an ArrayList<String> of messages.
+     * outputAccordingly() should be called outside of the iterative for loop in which this overloaded
+     * version of printToFrame() is called.
+     * 
+     * @param s -> The string to print to either the GUI screen or an external file.
+     * @param isAdaptive -> Should this be checked for line length?
+     */
+    public static void printToFrame(final String s, final boolean isAdaptive) {
+        messages.add(s);
+    }
+
+    /**
+     * Reads in all the messages in the ArrayList<String> messages and sees how many lines there are in it.
+     * If there are more lines than Console Overflow Limit (found in "config.txt") allows for, the output will go to
+     * an external file with a timestamp.
+     */
+    public static void outputAccordingly() {
+        numOfLinesAllowed = LoggerFilter.overflowLineMax;
+        final String filePath = "output\\commandoutput\\";
+        final Calendar c = Calendar.getInstance();
+        final String fileName = "LARGE_OUTPUT_" + c.get(Calendar.HOUR_OF_DAY) + "_" + c.get(Calendar.MINUTE)
+                        + "_" + c.get(Calendar.SECOND); 
+        if (messages.size() != 0) {
+            final int i = messages.size();
+            
+            if (i <= numOfLinesAllowed) {
+                for (int j = 0; j < messages.size(); j++) {
+                    ta.append(messages.get(j) + "\n");
+                }
+            } else {
+                printToFrame("Output too large to display in console window. Outputted lines to " + filePath + fileName);
+                FileWriter fw = null;
+                try {
+                    fw = new FileWriter(filePath + fileName, false);
+                } catch (final IOException e) {
+                    System.out.println("Failed to find large output file.");
+                }
+                final PrintWriter printer = new PrintWriter(fw);
+                for (int j = 0; j < messages.size(); j++) {
+                    printer.println(messages.get(j));
+                }
+                printer.close();
+            }
+            messages.clear();
+        }
     }
 
     /**
@@ -232,34 +292,54 @@ public class LoggerGUI {
         f.setLayout(new BorderLayout());
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
+        
+
         titleText = new JLabel();
         titleText.setBounds(25, 10, 50, 50);
         titleText.setText("Output:");
+        titleText.setFont(new Font(Font.DIALOG, Font.BOLD, titleText.getFont().getSize()));
+        
         qui = new NamedJButton("Quit Button", "QUIT", "control Q");
         qui.setBounds(25, 600, 150, 50);
         qui.setToolTipText("Quits the program.");
+        qui.setBackground(spartaGreen);
+        qui.setForeground(lightGreen);
+        qui.setFont(new Font(Font.DIALOG, Font.PLAIN, qui.getFont().getSize()));
 
         cmd = new NamedJButton("Command Button", "COMMANDS", "control C");
         cmd.setBounds(285, 600, 150, 50);
         cmd.setEnabled(false);
         cmd.setToolTipText("Opens a list of commands for filtering.");
+        cmd.setBackground(spartaGreen);
+        cmd.setForeground(lightGreen);
+        cmd.setFont(new Font(Font.DIALOG, Font.PLAIN, qui.getFont().getSize()));
 
         gen = new NamedJButton("Generate Button", "GENERATE", "control G");
         gen.setBounds(565, 600, 150, 50);
         gen.setToolTipText("Parses file and generates basic output. Must be pressed first before COMMANDS or SAVE.");
+        gen.setBackground(spartaGreen);
+        gen.setForeground(lightGreen);
+        gen.setFont(new Font(Font.DIALOG, Font.PLAIN, qui.getFont().getSize()));
 
         dir = new NamedJButton("Directory Button", "DIRECTORY", "control D");
         dir.setBounds(835, 600, 150, 50);
         dir.setToolTipText("Allows you to pick the file you want to parse.");
+        dir.setBackground(spartaGreen);
+        dir.setForeground(lightGreen);
+        dir.setFont(new Font(Font.DIALOG, Font.PLAIN, qui.getFont().getSize()));
 
         txt = new NamedJButton("Save Button", "SAVE", "control S");
         txt.setBounds(1105, 600, 150, 50);
         txt.setEnabled(false);
         txt.setToolTipText("Saves current console view into a .txt file.");
+        txt.setBackground(spartaGreen);
+        txt.setForeground(lightGreen);
+        txt.setFont(new Font(Font.DIALOG, Font.PLAIN, qui.getFont().getSize()));
 
         ta = new JTextArea(35, 100);
         scrollingta = new JScrollPane(ta);
         final JPanel p = new JPanel();
+        ta.setBackground(textAreaGreen);
 
         mainButtons.add(qui);
         mainButtons.add(cmd);
@@ -323,6 +403,9 @@ public class LoggerGUI {
             buttons.get(j).setToolTipText(
                     arrayOfCmds[j].getDesc() + " Takes in " + arrayOfCmds[j].getParamNum() + " parameters.");
             buttons.get(j).setEnabled(true);
+            buttons.get(j).setBackground(spartaGreen);
+            buttons.get(j).setForeground(lightGreen);
+            buttons.get(j).setFont(new Font(Font.DIALOG, Font.PLAIN, qui.getFont().getSize()));
             tempJ.add(buttons.get(j));
             titleText = new JLabel();
             titleText.setBounds(25, 10, 150, 50);
@@ -341,10 +424,16 @@ public class LoggerGUI {
         homeButton.setBounds(40, 150 + (75 * (numOfCmnds / 5)), 150, 50);
         homeButton.setToolTipText("Takes you back to the home screen.");
         homeButton.setEnabled(true);
+        homeButton.setBackground(spartaGreen);
+        homeButton.setForeground(lightGreen);
+        homeButton.setFont(new Font(Font.DIALOG, Font.PLAIN, qui.getFont().getSize()));
         final JButton compoundButton = new JButton("COMPOUNDING: OFF");
         compoundButton.setBounds(215, 150 + (75 * (numOfCmnds / 5)), 200, 50);
         compoundButton.setToolTipText("Enables and disables compounding.");
         compoundButton.setEnabled(true);
+        compoundButton.setBackground(spartaGreen);
+        compoundButton.setForeground(lightGreen);
+        compoundButton.setFont(new Font(Font.DIALOG, Font.PLAIN, qui.getFont().getSize()));
         tempJ.add(homeButton);
         tempJ.add(compoundButton);
         final JPanel jp = new JPanel();
@@ -392,6 +481,8 @@ public class LoggerGUI {
         inputf.setLayout(new BorderLayout());
         final NamedJButton sub = new NamedJButton("Submit Button", "SUBMIT", hotkeyCounter);
         sub.setBounds(225, 300, 150, 50);
+        sub.setBackground(spartaGreen);
+        sub.setForeground(lightGreen);
         final ArrayList<String> parsedDesc = parseDesc(c.getParamDesc());
         final JPanel p = new JPanel(new FlowLayout());
         final ArrayList<JComboBox<Object>> allDrops = new ArrayList<>();
@@ -416,24 +507,32 @@ public class LoggerGUI {
             switch (s) {
             case "Error Name":
                 final JComboBox<Object> jcbe = createDropdown(counter, LoggerFilter.getErrors());
+                jcbe.setBackground(spartaGreen);
+                jcbe.setForeground(lightGreen);
                 allDrops.add(jcbe);
                 inputf.add(jcbe);
                 inputf.add(createLabel(counter, c.getParamDesc()));
                 break;
             case "Print Style":
                 final JComboBox<Object> jcbp = createDropdown(counter, LoggerFilter.TYPE_KEYS);
+                jcbp.setBackground(spartaGreen);
+                jcbp.setForeground(lightGreen);
                 allDrops.add(jcbp);
                 inputf.add(jcbp);
                 inputf.add(createLabel(counter, c.getParamDesc()));
                 break;
             case "Subsystem Name":
                 final JComboBox<Object> jcbs = createDropdown(counter, LoggerFilter.SUBSYSTEM_KEYS);
+                jcbs.setBackground(spartaGreen);
+                jcbs.setForeground(lightGreen);
                 allDrops.add(jcbs);
                 inputf.add(jcbs);
                 inputf.add(createLabel(counter, c.getParamDesc()));
                 break;
             case "Actuator Name":
                 final JComboBox<Object> jcbc = createDropdown(counter, LoggerFilter.getActuators());
+                jcbc.setBackground(spartaGreen);
+                jcbc.setForeground(lightGreen);
                 allDrops.add(jcbc);
                 inputf.add(jcbc);
                 inputf.add(createLabel(counter, c.getParamDesc()));
@@ -442,6 +541,7 @@ public class LoggerGUI {
                 final JTextArea jtas = createtField(counter);
                 final JScrollPane jsps = new JScrollPane(jtas, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                         JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                jtas.setBackground(textAreaGreen);
                 jsps.setBounds(225, 50 + (counter * 70), 150, 20);
                 jtas.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), submit);
                 allInputField.add(jtas);
@@ -452,6 +552,7 @@ public class LoggerGUI {
                 final JTextArea jtai = createtField(counter);
                 final JScrollPane jspi = new JScrollPane(jtai, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                         JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                jtai.setBackground(textAreaGreen);
                 jspi.setBounds(275, 50 + (counter * 70), 50, 20);
                 jtai.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), submit);
                 allInputField.add(jtai);

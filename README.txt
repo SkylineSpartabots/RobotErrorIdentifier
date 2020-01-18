@@ -2,6 +2,8 @@ SETUP:
 Please set the "folderpath" config variable in the "config.txt" to the location where all of your .dslogs
 and .dsevents are stored. This filepath can be located through the use of Driver Station Log File Viewer (Which can be opened through Driver Station).
 Subsystem keywords should be typed out in the config file within the "{}". Example: {Drive, Hopper, Climb, Intake, Limelight}
+Also, please add a "Console Overflow Limit" number (MUST BE AN INTEGER) into the "config.txt" file. Example: Console Overflow Limit: 100
+If you don't know what you want, set it to a number greater than 100 or leave it blank.
 
 BASIC USAGE:
 Filtered files will appear in the "output" folder. They may be generated as a binary file with no extensions. If this is the case, simply
