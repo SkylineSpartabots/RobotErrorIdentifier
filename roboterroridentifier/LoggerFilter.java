@@ -19,7 +19,7 @@ import java.util.Scanner;
  * robot malfunctions. It can also parse further through the use of commands to
  * find specific errors. Helpful for post-match diagnostics.
  * 
- * @version 4.2.0
+ * @version 4.2.1
  * @author Team 2976!
  */
 public class LoggerFilter {
@@ -373,7 +373,7 @@ public class LoggerFilter {
                 LoggerGUI.printToFrame("NaI inputted, defaulting to 5 previous errors");
                 prevNum = 5;
             }
-            LoggerGUI.printToFrame("Up to " + prevNum + " errors before/first occurrence of \"" + s_error + "\"\n");
+            LoggerGUI.printToFrame("Up to " + prevNum + " errors before/first occurrence of \"" + s_error + "\"");
             int counter = 0;
             for (int i = 0; i <= allLogs.messages.indexOf(s_error); i++) {
                 if (allLogs.messages.indexOf(s_error) - i <= prevNum) {
@@ -383,7 +383,7 @@ public class LoggerFilter {
                                 counter + ": " + allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i), true);
                     } else {
                         LoggerGUI.printToFrame("\nError of Interest: " + allLogs.messages.get(i) + " @t = "
-                                + allLogs.timeStamps.get(i));
+                                + allLogs.timeStamps.get(i),true);
                     }
                 }
             }
@@ -447,7 +447,7 @@ public class LoggerFilter {
             eb = 1;
         }
         try {
-            LoggerGUI.printToFrame("Logs between timestamps " + sb + " and " + eb + "\n");
+            LoggerGUI.printToFrame("Logs between timestamps " + sb + " and " + eb);
             for (int i = 0; i < toParse.timeStamps.size(); i++) {
                 if ((Double.parseDouble(toParse.timeStamps.get(i))) >= sb
                         && (Double.parseDouble(toParse.timeStamps.get(i)) <= eb)) {
@@ -458,7 +458,6 @@ public class LoggerFilter {
             }
             LoggerGUI.outputAccordingly();
             toParse = finalParsed;
-            LoggerGUI.printToFrame("");
         } catch (final NumberFormatException e) {
             LoggerGUI.printToFrame("Error with number formatting.");
         }
@@ -501,12 +500,10 @@ public class LoggerFilter {
             toParse = typeLogs.get(2);
         }
         LoggerGUI.printToFrame("All messages of type: " + s_type);
-        LoggerGUI.printToFrame("");
         for (int i = 0; i < toParse.messages.size(); i++) {
             LoggerGUI.printToFrame(toParse.messages.get(i) + " @t = " + toParse.timeStamps.get(i), true);
         }
         LoggerGUI.outputAccordingly();
-        LoggerGUI.printToFrame("");
     }
 
     /**
@@ -548,12 +545,10 @@ public class LoggerFilter {
             toParse = subsystemLogs.get(0);
         }
         LoggerGUI.printToFrame("All messages of subsystem type: " + s_type);
-        LoggerGUI.printToFrame("");
         for (int i = 0; i < toParse.messages.size(); i++) {
             LoggerGUI.printToFrame(toParse.messages.get(i) + " @t = " + toParse.timeStamps.get(i), true);
         }
         LoggerGUI.outputAccordingly();
-        LoggerGUI.printToFrame("");
     }
 
     /**
@@ -574,12 +569,10 @@ public class LoggerFilter {
             }
         }
         LoggerGUI.printToFrame("All messages containing keyword: " + s_key);
-        LoggerGUI.printToFrame("");
         for (int i = 0; i < finalParsed.messages.size(); i++) {
             LoggerGUI.printToFrame(finalParsed.messages.get(i) + " @t = " + finalParsed.timeStamps.get(i), true);
         }
         LoggerGUI.outputAccordingly();
-        LoggerGUI.printToFrame("");
         toParse = finalParsed;
     }
 

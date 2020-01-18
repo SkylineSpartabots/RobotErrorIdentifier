@@ -250,6 +250,7 @@ public class LoggerGUI {
      * an external file with a timestamp.
      */
     public static void outputAccordingly() {
+        printToFrame("");
         numOfLinesAllowed = LoggerFilter.overflowLineMax;
         final String filePath = "output\\commandoutput\\";
         final Calendar c = Calendar.getInstance();
@@ -278,6 +279,7 @@ public class LoggerGUI {
             }
             messages.clear();
         }
+        printToFrame("");
     }
 
     /**

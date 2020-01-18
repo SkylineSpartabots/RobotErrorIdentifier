@@ -29,6 +29,8 @@ C: Open command panel
 G: generate initial/main output
 D: Open directory input to select file to parse
 S: Save console into a text file
+This java swing LookAndFeel uses TAB to navigate between JComponents and SPACE to perform a click action.
+Use TAB to switch between buttons and any other non-textarea fields. press SPACE to click the component.
 
 How to make our logger happy:
 Messages: ### ###
