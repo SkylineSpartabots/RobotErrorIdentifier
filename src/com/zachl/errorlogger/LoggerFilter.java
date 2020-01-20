@@ -1,5 +1,8 @@
 package com.zachl.errorlogger;
 
+import com.zachl.errorlogger.gui.GraphManager;
+import sun.rmi.runtime.Log;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,14 +14,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * A client that can be run at the end of matches to parse through .dsevents
  * files and output a ".txt" file that only contains important information about
  * robot malfunctions. Helpful for post-match diagnostics.
  * 
- * @version 1.5.2
+ * @version 2.1.0
  * @author Team 2976!
  */
 public class LoggerFilter {
@@ -26,13 +28,18 @@ public class LoggerFilter {
      * Location of all .dsevents files, filepath can be found through Driver Station
      * Log File Viewer.
      */
-    private static final String folderPath = "C:\\Users\\Public\\Documents\\FRC\\Log Files\\";
+    //private static final String folderPath = "C:\\Users\\Public\\Documents\\FRC\\Log Files\\";
+    private static final String folderPath = "info/";
     /**
      * Set to "" if you want to get the most recent file, set to a filename if you
      * want to read that specific file. Be sure to add ".dsevents" to the end of the
      * filename.
      */
-    protected static String fileName = "";
+    public static String fileName = "";
+    /**
+     * Whole path to file.
+     */
+    private static String wholePath = folderPath + fileName;
     /**
      * Upper bound to use when parsing for errors.
      */
@@ -41,19 +48,14 @@ public class LoggerFilter {
      * Lower bound to use when parsing for errors.
      */
     private static final String ALERT_KEY_LOWER_BOUND = "E_LOG";
-    /**
-     * HashMap to store errors, firt and last occurence timestamps, and frequency.
-     */
-    private static final String[] MESSAGE_HEADS = { "###", "<<< Warning:", "!!! Error:", "<P><P><P> Sensor Reading:" };
-    /**
-     *
-     */
-    private static final String[] MESSAGE_ENDS = { "###", ">>>", "!!!", "<P><P><P>" };
-    /**
-     * HashMap to store errors, first and last occurence timestamps, and frequency.
-     */
-    private static final String[] TYPE_KEYS = {"Message", "Warning", "Error", "Sensor Data"};
-    private static final String[] SUBSYSTEM_KEYS = {"Drive", "Hopper", "Climb", "Intake", "Limelight"};
+
+    public static final String[] MESSAGE_HEADS = { "###", "<<< Warning:", "!!! Error:", "<P><P><P> Sensor Reading:" };
+    public static final String[] MESSAGE_ENDS = { "###", ">>>", "!!!", "<P><P><P>" };
+
+    public static final String[] TYPE_KEYS = { "Message", "Warning", "Error", "Sensor Data" };
+    public static final String[] SUBSYSTEM_KEYS = { "Drive", "Hopper", "Climb", "Intake", "Limelight", "Encoder"};
+
+    public static ArrayList<String> KEYS_IN_ORDER = new ArrayList<>();
 
     private static String allText;
 
@@ -61,27 +63,10 @@ public class LoggerFilter {
     private static ArrayList<LogList> typeLogs = new ArrayList<>();
     private static ArrayList<LogList> subsystemLogs = new ArrayList<>();
     private static LogList toParse = new LogList();
-    
-    private static ArrayList<String> keysInOrder = new ArrayList<>();
-    private static boolean compounding = false;
-    
-    //private static ArrayList<String> allMessages = new ArrayList<>();
-    //private static ArrayList<ArrayList<String>> typeMessageLists = new ArrayList<>();
-    //private static ArrayList<ArrayList<String>> typeLogs.timeStampList = new ArrayList<>();
-    //private static ArrayList<String> timeStampArray = new ArrayList<>();
-    //private static HashMap<String, List<String>> values = new HashMap<>();
-    //private static ArrayList<HashMap<String, List<String>>> typeValues = new ArrayList<>();
 
-    /*public static void main(final String[] args)
-    {
-        if (fileName.equals(""))
-        {
-            getMostRecentFile();
-        }
-        for(int i = 0; i < MESSAGE_ENDS.length; i++)
-        {
-            typeLogs.add(new LogList());
-        }
+    private static boolean compounding = false;
+
+    /*public static void executeLogger() {
         readFile();
     }*/
 
@@ -100,7 +85,7 @@ public class LoggerFilter {
             subsystemLogs.add(new LogList());
         }
         readFile();
-        testCompound();
+        //testCompound();
     }
 
     /**
@@ -108,7 +93,7 @@ public class LoggerFilter {
      * .dsevents file. Only does this if the class variable "fileName" is blank
      * ("").
      */
-    private static void getMostRecentFile() {
+    public static void getMostRecentFile() {
         final File directory = new File(folderPath);
         final File[] allFiles = directory.listFiles();
         long lastModTime = allFiles[0].lastModified();
@@ -118,7 +103,9 @@ public class LoggerFilter {
                 lastModTime = f.lastModified();
                 mostRecentFile = f;
             }
-            fileName = mostRecentFile.getName();
+            fileName = "exampleEvents.dsevents";
+            //fileName = mostRecentFile.getName();
+            wholePath = folderPath + fileName;
         }
     }
 
@@ -128,7 +115,7 @@ public class LoggerFilter {
      */
     private static void readFile() {
         try {
-            final FileReader fr = new FileReader(/* folderPath + fileName */"info/exampleEvents.dsevents");
+            final FileReader fr = new FileReader(wholePath);
             final BufferedReader br = new BufferedReader(fr);
             allText = "";
             String contentLine = br.readLine();
@@ -157,12 +144,16 @@ public class LoggerFilter {
      * @param s -> The .dsevents file as a String.
      * @throws IOException
      */
-    private static void parseData(String s) throws IOException
-    {
+    private static void parseData(String s) throws IOException {
+        /*for (int i = 0; i < MESSAGE_ENDS.length; i++) {
+            typeLogs.add(new LogList());
+        }
+        for (int i = 0; i < SUBSYSTEM_KEYS.length; i++) {
+            subsystemLogs.add(new LogList());
+        }*/
         s = s.trim();
         while (s.contains(ALERT_KEY_UPPER_BOUND) && s.contains(ALERT_KEY_LOWER_BOUND)) {
             final int a = s.indexOf(ALERT_KEY_UPPER_BOUND);
-            // Removed "+ 5" after alert key lower bound and replaced it w string length
             final int b = s.indexOf(ALERT_KEY_LOWER_BOUND) + ALERT_KEY_LOWER_BOUND.length();
             String logLine = s.substring(a, b);
             logLine = logLine.trim();
@@ -181,22 +172,18 @@ public class LoggerFilter {
                     typeLogs.get(i).messages.add(logLine);
                 }
             }
-            for(int i = 0; i < SUBSYSTEM_KEYS.length; i++)
-            {
-                if(logLine.contains(SUBSYSTEM_KEYS[i]))
-                {
+            for (int i = 0; i < SUBSYSTEM_KEYS.length; i++) {
+                if (logLine.contains(SUBSYSTEM_KEYS[i])) {
                     subsystemLogs.get(i).messages.add(logLine);
                 }
             }
             allLogs.messages.add(logLine.trim());
         }
 
-        for (int j = 0; j < MESSAGE_HEADS.length; j++)
-        {
+        for (int j = 0; j < MESSAGE_HEADS.length; j++) {
             typeLogs.get(j).values = (hashify(typeLogs.get(j).messages, typeLogs.get(j).timeStamps));
         }
-        for(int i = 0; i < SUBSYSTEM_KEYS.length; i++)
-        {
+        for (int i = 0; i < SUBSYSTEM_KEYS.length; i++) {
             subsystemLogs.get(i).values = hashify(subsystemLogs.get(i).messages, subsystemLogs.get(i).timeStamps);
         }
 
@@ -209,10 +196,10 @@ public class LoggerFilter {
      * into a HashMap that contains initial timestamp, final timestamp, and
      * frequency.
      * 
-     * @param errorArray     -> ArrayList<String> of errors with timestamps
-     *                       included.
-     * @param //allLogs.timeStamps -> Arraylist<String> that timestamps will be moved to
-     *                       by the end of the method.
+     * @param errorArray         -> ArrayList<String> of errors with timestamps
+     *                           included.
+     * @param //allLogs.timeStamps -> Arraylist<String> that timestamps will be moved
+     *                           to by the end of the method.
      * @return A Hashmap with the error as a key (String), and a List<String> of
      *         initial timestamps, final timestamps, and frequencies for each error.
      */
@@ -232,12 +219,25 @@ public class LoggerFilter {
             } else {
                 values.put(s, Arrays.asList(timeStamps.get(errorArray.indexOf(s)),
                         timeStamps.get(errorArray.lastIndexOf(s)), "1"));
-                if(allLogs.messages.equals(errorArray)) {
-                    keysInOrder.add(s);
+                if (allLogs.messages.equals(errorArray)) {
+                    KEYS_IN_ORDER.add(s);
                 }
             }
         }
         return values;
+    }
+
+    /**
+     * Creates a String[] from KEYS_IN_ORDER.
+     * 
+     * @return A String array that has the same elements of KEYS_IN_ORDER
+     */
+    public static String[] getErrors() {
+        String[] errorArr = new String[KEYS_IN_ORDER.size()];
+        for (int i = 0; i < KEYS_IN_ORDER.size(); i++) {
+            errorArr[i] = KEYS_IN_ORDER.get(i);
+        }
+        return errorArr;
     }
 
     /**
@@ -254,157 +254,13 @@ public class LoggerFilter {
         final FileWriter fw = new FileWriter(filePath, false);
         final PrintWriter printer = new PrintWriter(fw);
         printer.println("Robot Malfunction(s):");
-        for (String s : keysInOrder) {
+        for (String s : KEYS_IN_ORDER) {
             printer.println("\"" + s + "\"\nStart: " + values.get(s).get(0) + "   End: " + values.get(s).get(1)
                     + "   Frequency: " + values.get(s).get(2) + "\n");
         }
         printer.close();
-        LoggerGUI.printToFrame("Printed succesfully to file at " + new File("output\\mainoutput\\" + fileName).getAbsolutePath());
-        // moreDebugging();
-    }
-
-    /**
-     * A method that allows for further debugging through the use of commands. (Not
-     * needed because of GUI) Called after the inital output file is created. Output
-     * will be printed to the console OR to "output\commandoutputs".
-     */
-    private static void moreDebugging() {
-        System.out.println("Type \"quit\" to exit");
-        System.out.println("Type \"help\" to see a list of commands");
-        System.out.println("----------");
-        final boolean exit = false;
-        final Scanner sc = new Scanner(System.in);
-        while (exit != true) {
-            System.out.print("Command: \n> ");
-            final String cmd = sc.nextLine();
-            if (cmd.equalsIgnoreCase("help")) {
-                System.out.println("List of Commands:");
-                for (final Commands c : Commands.values()) {
-                    System.out.print(c.toString() + ": " + c.getDesc() + "\n");
-                }
-            } else if (cmd.equalsIgnoreCase("quit")) {
-                System.out.println("Exited");
-                break;
-            } else {
-                try {
-                    final Commands c = Commands.valueOf(cmd);
-                    switch (c) {
-                    case preverr:
-                        prevErrors(sc);
-                        System.out.println("Command complete");
-                        break;
-                    case showseq:
-                        showSeq(sc);
-                        System.out.println("Command complete");
-                        break;
-                    case logsinrange:
-                        logsInRange(sc);
-                        System.out.println("Command complete");
-                    default:
-                    }
-                } catch (final Exception e) {
-                    System.out.println("Command does not exist");
-                }
-            }
-            System.out.println("----------");
-        }
-        sc.close();
-    }
-
-    /**
-     * Allows you to view errors preceeding one of your choice. Amount of previous
-     * errors to view can be selected.
-     * 
-     * @param sc -> The Scanner to be used to scan for user input.
-     */
-    public static void prevErrors(final Scanner sc) {
-        System.out.print("Error to get additional information for:\n> ");
-        final String error = sc.nextLine();
-        if (allLogs.values.get(error) != null) {
-            System.out.print("Amount of previous errors needed: \n> ");
-            int prevNum;
-            try {
-                prevNum = Integer.parseInt(sc.nextLine());
-            } catch (final NumberFormatException e) {
-                System.out.println("NaI inputted, defaulting to 5 previous errors");
-                prevNum = 5;
-            }
-            System.out.println("Up to " + prevNum + " errors before/first occurence of \"" + error + "\"\n");
-            int counter = 0;
-            for (int i = 0; i <= allLogs.messages.indexOf(error); i++) {
-                if (allLogs.messages.indexOf(error) - i <= prevNum) {
-                    counter++;
-                    if (allLogs.messages.indexOf(error) - i != 0) {
-                        System.out.println(counter + ": " + allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i));
-                    } else {
-                        System.out.println(
-                                "\nError of Interest: " + allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i));
-                    }
-                }
-            }
-        } else {
-            System.out.println("Error does not exist, check spelling.");
-        }
-    }
-
-    /**
-     * Allows you to view a .txt file with all errors logged sequentially.
-     * 
-     * @param sc -> The Scanner to be used to scan for user input.
-     */
-    public static void showSeq(final Scanner sc) {
-        try {
-            final String filePath = "output\\commandoutputs\\" + fileName + " ALLEVENTS";
-            final FileWriter fw = new FileWriter(filePath, false);
-            final PrintWriter printer = new PrintWriter(fw);
-            printer.println("All Errors:");
-            for (int i = 0; i < allLogs.messages.size(); i++) {
-                printer.println(allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i));
-            }
-            printer.close();
-        } catch (Exception e) {
-            System.out.println("Failed to print all errors to file.");
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Displays a list of errors based on a start bound double and an end bound
-     * double.
-     * 
-     * @param sc -> The Scanner to be used to scan for user input.
-     */
-    public static void logsInRange(final Scanner sc) {
-        System.out.print("First timestamp bound (inclusive): \n> ");
-        double sb;
-        try {
-            String line = sc.nextLine();
-            sb = Double.parseDouble(line);
-        } catch (NumberFormatException e) {
-            System.out.println("Not a valid double, defaulting to 0");
-            sb = 0;
-        }
-        System.out.print("Last timestamp bound (inclusive): \n> ");
-        double eb;
-        try {
-            String line = sc.nextLine();
-            eb = Double.parseDouble(line);
-        } catch (NumberFormatException e) {
-            System.out.println("Not a valid double, defaulting to 100");
-            eb = 100;
-        }
-        try {
-            System.out.println("Logs between timestamps " + sb + " and " + eb + "\n");
-            for (int i = 0; i < allLogs.timeStamps.size(); i++) {
-                if ((Double.parseDouble(allLogs.timeStamps.get(i))) >= sb
-                        && (Double.parseDouble(allLogs.timeStamps.get(i)) <= eb)) {
-                    System.out.println(allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i));
-                }
-            }
-            System.out.println();
-        } catch (NumberFormatException e) {
-            System.out.println("Error with number formatting.");
-        }
+        LoggerGUI.printToFrame(
+                "Base output printed succesfully to file at " + new File("output/mainoutput/" + fileName).getAbsolutePath());
     }
 
     /**
@@ -426,10 +282,11 @@ public class LoggerFilter {
                 if (allLogs.messages.indexOf(error) - i <= prevNum) {
                     counter++;
                     if (allLogs.messages.indexOf(error) - i != 0) {
-                        LoggerGUI.printToFrame(counter + ": " + allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i));
-                    } else {
                         LoggerGUI.printToFrame(
-                                "\nError of Interest: " + allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i));
+                                counter + ": " + allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i));
+                    } else {
+                        LoggerGUI.printToFrame("\nError of Interest: " + allLogs.messages.get(i) + " @t = "
+                                + allLogs.timeStamps.get(i));
                     }
                 }
             }
@@ -443,13 +300,15 @@ public class LoggerFilter {
      */
     public static void showSeq() {
         try {
-            final String filePath = "output\\commandoutputs\\" + fileName + " ALLEVENTS";
+            final String filePath = "output\\commandoutput\\" + fileName + " ALLEVENTS";
             final FileWriter fw = new FileWriter(filePath, false);
             final PrintWriter printer = new PrintWriter(fw);
             printer.println("All Errors:");
             for (int i = 0; i < allLogs.messages.size(); i++) {
                 printer.println(allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i));
             }
+            LoggerGUI.printToFrame(
+                    "Succesfully printed to file at " + "output\\commandoutput\\" + fileName + " ALLEVENTS.txt");
             printer.close();
         } catch (Exception e) {
             LoggerGUI.printToFrame("Failed to print all errors to file.");
@@ -461,12 +320,10 @@ public class LoggerFilter {
      * Displays a list of errors based on a start bound double and an end bound
      * double.
      */
-    public static void logsInRange(String s_sb, String s_eb)
-    {
+    public static void logsInRange(String s_sb, String s_eb) {
         LogList finalParsed = new LogList();
 
-        if(!compounding)
-        {
+        if (!compounding) {
             LoggerGUI.printToFrame("Parsing from all logs");
             toParse = allLogs;
         }
@@ -491,15 +348,12 @@ public class LoggerFilter {
             LoggerGUI.printToFrame("Logs between timestamps " + sb + " and " + eb + "\n");
             for (int i = 0; i < toParse.timeStamps.size(); i++) {
                 if ((Double.parseDouble(toParse.timeStamps.get(i))) >= sb
-                        && (Double.parseDouble(toParse.timeStamps.get(i)) <= eb))
-                {
+                        && (Double.parseDouble(toParse.timeStamps.get(i)) <= eb)) {
                     LoggerGUI.printToFrame(toParse.messages.get(i) + " @t = " + toParse.timeStamps.get(i));
                     finalParsed.messages.add(toParse.messages.get(i));
                     finalParsed.timeStamps.add(toParse.timeStamps.get(i));
                 }
             }
-
-            //finalParsed.values = hashify(finalParsed.messages, finalParsed.timeStamps);
             toParse = finalParsed;
             LoggerGUI.printToFrame("");
         } catch (NumberFormatException e) {
@@ -507,25 +361,70 @@ public class LoggerFilter {
         }
     }
 
-    public static void logsByType(String type)
+    public static void logsByType(String s_type) {
+        LogList finalParsed = new LogList();
+        try {
+            for (int i = 0; i < TYPE_KEYS.length; i++) {
+                if (!compounding && s_type.equalsIgnoreCase(TYPE_KEYS[i])) {
+                    LoggerGUI.printToFrame("Parsing from full type log");
+                    if (typeLogs.get(i) != null)
+                        finalParsed = typeLogs.get(i);
+                    else {
+                        LoggerGUI.printToFrame("Type log: " + s_type + " is null, defaulting to all logs");
+                        finalParsed = allLogs;
+                    }
+                } else if (s_type.equalsIgnoreCase(TYPE_KEYS[i])) {
+                    for (int j = 0; j < typeLogs.get(i).messages.size(); j++) {
+                        for (int k = 0; k < toParse.messages.size(); k++) {
+                            if (toParse.messages.get(k).equalsIgnoreCase(typeLogs.get(i).messages.get(j))
+                                    && toParse.timeStamps.get(k).equalsIgnoreCase(typeLogs.get(i).timeStamps.get(j))) {
+                                finalParsed.messages.add(toParse.messages.get(k));
+                                finalParsed.timeStamps.add(toParse.timeStamps.get(k));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            toParse = finalParsed;
+        } catch (NullPointerException e) {
+            LoggerGUI.printToFrame("Invalid log type, defaulting to error");
+            s_type = "Error";
+            toParse = typeLogs.get(2);
+        }
+        LoggerGUI.printToFrame("All messages of type: " + s_type);
+        for (int i = 0; i < toParse.messages.size(); i++) {
+            LoggerGUI.printToFrame(toParse.messages.get(i) + " @t = " + toParse.timeStamps.get(i));
+        }
+    }
+
+    public static void logsBySubsystem(String s_type)
     {
         LogList finalParsed = new LogList();
 
         try {
-            for (int i = 0; i < TYPE_KEYS.length; i++)
-            {
-                if (!compounding && type.equalsIgnoreCase(TYPE_KEYS[i]))
-                {
-                    LoggerGUI.printToFrame("Parsing from full type log");
-                    if(typeLogs.get(i) != null)
-                        finalParsed = typeLogs.get(i);
-                    else
-                        {
-                            LoggerGUI.printToFrame("Type log: " + type + " is null, defaulting to all logs");
-                            finalParsed = allLogs;
+            for (int i = 0; i < SUBSYSTEM_KEYS.length; i++) {
+                if (!compounding && s_type.equalsIgnoreCase(SUBSYSTEM_KEYS[i])) {
+                    LoggerGUI.printToFrame("Parsing from full subsystem log");
+                    if (subsystemLogs.get(i) != null)
+                        finalParsed = subsystemLogs.get(i);
+                    else {
+                        LoggerGUI.printToFrame( s_type + " log is null, defaulting to all logs");
+                        finalParsed = allLogs;
+                    }
+                } else if (s_type.equalsIgnoreCase(SUBSYSTEM_KEYS[i])) {
+                    for (int j = 0; j < subsystemLogs.get(i).messages.size(); j++) {
+                        for (int k = 0; k < toParse.messages.size(); k++) {
+                            if (toParse.messages.get(k).equalsIgnoreCase(subsystemLogs.get(i).messages.get(j))
+                                    && toParse.timeStamps.get(k).equalsIgnoreCase(subsystemLogs.get(i).timeStamps.get(j))) {
+                                finalParsed.messages.add(toParse.messages.get(k));
+                                finalParsed.timeStamps.add(toParse.timeStamps.get(k));
+                                break;
+                            }
                         }
+                    }
                 }
-                else if(type.equalsIgnoreCase(TYPE_KEYS[i]))
+                else if(s_type.equalsIgnoreCase(TYPE_KEYS[i]))
                     {
                         LoggerGUI.printToFrame("Parsing c o m p o u n d e d");
                         for(int j = 0; j < typeLogs.get(i).messages.size(); j++)
@@ -542,47 +441,138 @@ public class LoggerFilter {
                         }
                     }
             }
-
-            //finalParsed.values = hashify(finalParsed.messages, finalParsed.timeStamps);
             toParse = finalParsed;
-        }
-        catch(NullPointerException e) {
+        } catch (NullPointerException e) {
             LoggerGUI.printToFrame("Invalid log type, defaulting to error");
-            type = "Error";
-            toParse = typeLogs.get(2);
+            s_type = "Error";
+            toParse = subsystemLogs.get(2);
         }
 
-        LoggerGUI.printToFrame("All messages of type: " + type);
-        for (int i = 0; i < toParse.messages.size(); i++)
-        {
+        LoggerGUI.printToFrame("All messages of type: " + s_type);
+        for (int i = 0; i < toParse.messages.size(); i++) {
             LoggerGUI.printToFrame(toParse.messages.get(i) + " @t = " + toParse.timeStamps.get(i));
         }
     }
 
-    public static void testCompound()
+    public static void logsByKeyword(String key)
     {
-        logsByType("Warning");
-        compounding = true;
-        logsInRange("1.00", "12.00");
+        LogList finalParsed = new LogList();
+        LogList toParseTemp = allLogs;
+        if(compounding)
+        {
+            toParseTemp = toParse;
+        }
+        for(int i = 0; i < toParseTemp.messages.size(); i++)
+        {
+            if(toParseTemp.messages.get(i).contains(key))
+            {
+                finalParsed.messages.add(toParseTemp.messages.get(i));
+                finalParsed.timeStamps.add(toParseTemp.timeStamps.get(i));
+            }
+        }
+        LoggerGUI.printToFrame("All messages containing keyword: " + key);
+        for (int i = 0; i < toParseTemp.messages.size(); i++)
+        {
+            LoggerGUI.printToFrame(toParseTemp.messages.get(i) + " @t = " + toParseTemp.timeStamps.get(i));
+        }
+    }
+
+    public static void createGraph(String type, String start, String end)
+    {
+        String[] types = {"Line Graph (All Messages over Time)", "Bar Graph (Message Types by Count)",
+                "Pie Chart (Subsystem Messages by Count)", "Area Graph by Subsystem Messages over Time)"};
+
+        double[] bounds = new double[2];
+        try {
+            bounds = new double[]{Double.valueOf(start), Double.valueOf(end)};
+        }
+        catch(NumberFormatException e)
+        {
+            LoggerGUI.printToFrame("Invalid log range entered, defaulting to all logs.");
+            bounds[0] = 0;
+            bounds[1] = allLogs.timeStamps.size();
+        }
+        ArrayList<LogList> toGraphList = null;
+        switch(type)
+        {
+            case "Pie Chart (Subsystem Messages by Count)":
+                LoggerGUI.printToFrame("Creating pie chart with subsystem logs between timestamps: " + start + " and " + end);
+                toGraphList = subsystemLogs;
+                break;
+            case "Bar Graph (Message Types by Count)":
+                LoggerGUI.printToFrame("Creating bar graph with type logs between timestamps: " + start + " and " + end);
+                toGraphList = typeLogs;
+                break;
+            case "Line Graph (All Messages over Time)":
+                LoggerGUI.printToFrame("Creating line graph with all logs between timestamps: " + start + " and " + end);
+                ArrayList<LogList> tempLogs = new ArrayList<>();
+                tempLogs.add(allLogs);
+                toGraphList = tempLogs;
+                break;
+            case "Area Graph by Subsystem Messages over Time)":
+                LoggerGUI.printToFrame("Creating area graph with subsystem logs between timestamps: " + start + " and " + end);
+                toGraphList = subsystemLogs;
+                break;
+        }
+
+        GraphManager.GraphType[] gTypes = GraphManager.GraphType.values();
+        for(int i = 0; i < types.length; i++)
+        {
+            if(types[i].equalsIgnoreCase(type))
+            {
+                GraphManager.addGraph(gTypes[i], toGraphList, bounds);
+                return;
+            }
+        }
+    }
+
+    public static void clearCompound()
+    {
+        LoggerGUI.printToFrame("Compounding data reset to all logs");
+        toParse = allLogs;
+    }
+
+    public static void setCompounding(boolean c) {
+        compounding = c;
+        LoggerGUI.printToFrame("Compounding set to " + c);
+    }
+
+    public static void setFilePath(String path) {
+        if(path.trim().equals("")) {
+            getMostRecentFile();
+        } else {
+            wholePath = path;
+        }   
+    }
+    
+    public static String getWholePath() {
+        return wholePath;
     }
 
     /**
      * An Enum that contains command names (these must be typed EXACTLY AS THEY ARE
      * into the console when prompted) and descriptions.
      */
-    public enum Commands
-    {
-        preverr("Allows you to view errors preceeding one of your choice.", 2),
-        showseq("Outputs a list of all errors in order into a .txt file.", 0),
-        logsinrange("Allows you to view all errors within two timestamps.", 2),
-        logsbytype("Outputs a list of all logs of a given type", 1);
+    public enum Commands {
+
+        preverr("Allows you to view errors preceeding one of your choice.", 2,
+                "[Error to parse for <Error Name>], [Numbers of previous errors to display <int>]"),
+        showseq("Outputs a list of all errors in order into a .txt file.", 0, "[No parameters <N/A>]"),
+        logsinrange("Allows you to view all errors within two timestamps. COMPOUNDABLE.", 2,
+                "[Start timestamp <int>], [End timestamp <int>]"),
+        logsbytype("Allows you to view errors of a certain PrintStyle. COMPOUNDABLE.", 1, "[PrintStyle tolook for <Print Style>]"),
+        logsbysubsystem("Allows you to view errors of a certain Subsystem. COMPOUNDABLE.", 1, "[Subsystem tolook for <Subsystem>]"),
+        logsbykeyword("Allows you to view errors containing a given keyword or phrase. COMPOUNDABLE.", 1, "[Keyword to look for <Key Word>]"),
+        creategraph("Creates a graph from errors and subsystem data given a graph type.", 3, "[GraphType to look for <Graph Type>], [Start of range to parse through <int>], [End of range to parse through <int>]");
 
         String desc;
         int paramNum;
+        String paramDesc;
 
-        private Commands(final String desc, final int params) {
+        private Commands(final String desc, final int params, final String paramDesc) {
             this.desc = desc;
             this.paramNum = params;
+            this.paramDesc = paramDesc;
         }
 
         public int getParamNum() {
@@ -591,6 +581,10 @@ public class LoggerFilter {
 
         public String getDesc() {
             return desc;
+        }
+
+        public String getParamDesc() {
+            return paramDesc;
         }
     }
 }

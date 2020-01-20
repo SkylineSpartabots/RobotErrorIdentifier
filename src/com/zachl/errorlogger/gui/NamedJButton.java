@@ -1,4 +1,4 @@
-package gui;
+package com.zachl.errorlogger.gui;
 
 import javax.swing.*;
 
