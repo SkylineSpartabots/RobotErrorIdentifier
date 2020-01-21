@@ -19,7 +19,7 @@ import java.util.Scanner;
  * robot malfunctions. It can also parse further through the use of commands to
  * find specific errors. Helpful for post-match diagnostics.
  * 
- * @version 4.2.1
+ * @version 5.0.0
  * @author Team 2976!
  */
 public class LoggerFilter {
@@ -96,7 +96,8 @@ public class LoggerFilter {
      */
     private static boolean compounding = false;
     /**
-     * How many lines the console can handle. READ THROUGH "config.txt". Do not edit manually.
+     * How many lines the console can handle. READ THROUGH "config.txt". Do not edit
+     * manually.
      */
     public static int overflowLineMax;
 
@@ -155,10 +156,10 @@ public class LoggerFilter {
             for (int i = 0; i < keywordNames.length; i++) {
                 SUBSYSTEM_KEYS[i] = keywordNames[i].trim();
             }
-            try{
+            try {
                 allLines[2] = allLines[2].replace("Console Overflow Limit:", "").trim();
                 overflowLineMax = Integer.parseInt(allLines[2]);
-            } catch (NumberFormatException e) {
+            } catch (final NumberFormatException e) {
                 overflowLineMax = 100;
             }
             sc.close();
@@ -383,7 +384,7 @@ public class LoggerFilter {
                                 counter + ": " + allLogs.messages.get(i) + " @t = " + allLogs.timeStamps.get(i), true);
                     } else {
                         LoggerGUI.printToFrame("\nError of Interest: " + allLogs.messages.get(i) + " @t = "
-                                + allLogs.timeStamps.get(i),true);
+                                + allLogs.timeStamps.get(i), true);
                     }
                 }
             }
@@ -576,6 +577,54 @@ public class LoggerFilter {
         toParse = finalParsed;
     }
 
+    public static void createGraph(final String type, String start, String end) {
+        final String[] types = { "Line Graph (All Messages over Time)", "Bar Graph (Message Types by Count)",
+                "Pie Chart (Subsystem Messages by Count)", "Area Graph by Subsystem Messages over Time)" };
+
+        double[] bounds = new double[2];
+        try {
+            bounds = new double[] { Double.valueOf(start), Double.valueOf(end) };
+        } catch (final NumberFormatException e) {
+            LoggerGUI.printToFrame("Invalid log range entered, defaulting to all logs.");
+            bounds[0] = 0;
+            bounds[1] = allLogs.timeStamps.size();
+            start = "N/A";
+            end = "N/A";
+        }
+        ArrayList<LogList> toGraphList = null;
+        LoggerGUI.printToFrame("--------------------------------------------------");
+        switch (type) {
+        case "Pie Chart (Subsystem Messages by Count)":
+            LoggerGUI.printToFrame(
+                    "Creating pie chart with subsystem logs between timestamps: " + start + " and " + end);
+            toGraphList = subsystemLogs;
+            break;
+        case "Bar Graph (Message Types by Count)":
+            LoggerGUI.printToFrame("Creating bar graph with type logs between timestamps: " + start + " and " + end);
+            toGraphList = typeLogs;
+            break;
+        case "Line Graph (All Messages over Time)":
+            LoggerGUI.printToFrame("Creating line graph with all logs between timestamps: " + start + " and " + end);
+            final ArrayList<LogList> tempLogs = new ArrayList<>();
+            tempLogs.add(allLogs);
+            toGraphList = tempLogs;
+            break;
+        case "Area Graph by Subsystem Messages over Time)":
+            LoggerGUI.printToFrame(
+                    "Creating area graph with subsystem logs between timestamps: " + start + " and " + end);
+            toGraphList = subsystemLogs;
+            break;
+        }
+
+        final LoggerGUI.GraphManager.GraphType[] gTypes = LoggerGUI.GraphManager.GraphType.values();
+        for (int i = 0; i < types.length; i++) {
+            if (types[i].equalsIgnoreCase(type)) {
+                LoggerGUI.GraphManager.addGraph(gTypes[i], toGraphList, bounds);
+                return;
+            }
+        }
+    }
+
     /**
      * Sets compounding to a passed in boolean parameter.
      * 
@@ -627,7 +676,9 @@ public class LoggerFilter {
         logsbykeyword("Allows you to view errors containing a specific word (not case sensitive). COMPOUNDABLE.", 1,
                 "[Keyword to look for <String>]"),
         logsbyactuator("Allows you to view errors regarding specific actuators. COMPOUNDABLE.", 1,
-                "[Actuator to look for <Actuator Name>]");
+                "[Actuator to look for <Actuator Name>]"),
+        creategraph("Creates a graph from error types or subsystem data given a graph type.", 3,
+                "[GraphType to look for <Graph Type>], [Start of range to parse through <int>], [End of range to parse through <int>]");
 
         String desc;
         int paramNum;

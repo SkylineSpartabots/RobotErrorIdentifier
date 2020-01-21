@@ -14,6 +14,14 @@ import java.awt.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
 import javax.swing.*;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartFrame;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
+
+import roboterroridentifier.LoggerFilter.LogList;
 
 /**
  * GUI for LoggerFilter.java. Creates a java swing JFrame that contains
@@ -53,8 +61,8 @@ public class LoggerGUI {
      * Colors to be used in the GUI.
      */
     public static Color spartaGreen = new Color(51, 90, 64);
-    public static Color lightGreen = new Color(255,255,255);
-    public static Color textAreaGreen = new Color(162,180,168);
+    public static Color lightGreen = new Color(255, 255, 255);
+    public static Color textAreaGreen = new Color(162, 180, 168);
 
     /**
      * Executes the GUI!
@@ -65,7 +73,7 @@ public class LoggerGUI {
         setLookAndFeel();
         f = new JFrame();
         setupFrame();
-        Color c = Color.black;
+        final Color c = Color.black;
         f.setBackground(c);
         f.setVisible(true);
         printToFrame("Robot Error Identifier (and other fun cheerios) made with love by Team 2976, The Spartabots!");
@@ -194,6 +202,8 @@ public class LoggerGUI {
                 final JScrollPane jsp = new JScrollPane(jta, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                         JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
                 jsp.setBounds(50, 40, 200, 35);
+                chg.setBackground(spartaGreen);
+                chg.setForeground(lightGreen);
                 tempJ.add(chg);
                 tempJ.add(jsp);
                 tempJ.add(jlb);
@@ -233,11 +243,12 @@ public class LoggerGUI {
     }
 
     /**
-     * Strings passed into this command are sent into an ArrayList<String> of messages.
-     * outputAccordingly() should be called outside of the iterative for loop in which this overloaded
-     * version of printToFrame() is called.
+     * Strings passed into this command are sent into an ArrayList<String> of
+     * messages. outputAccordingly() should be called outside of the iterative for
+     * loop in which this overloaded version of printToFrame() is called.
      * 
-     * @param s -> The string to print to either the GUI screen or an external file.
+     * @param s          -> The string to print to either the GUI screen or an
+     *                   external file.
      * @param isAdaptive -> Should this be checked for line length?
      */
     public static void printToFrame(final String s, final boolean isAdaptive) {
@@ -245,26 +256,28 @@ public class LoggerGUI {
     }
 
     /**
-     * Reads in all the messages in the ArrayList<String> messages and sees how many lines there are in it.
-     * If there are more lines than Console Overflow Limit (found in "config.txt") allows for, the output will go to
-     * an external file with a timestamp.
+     * Reads in all the messages in the ArrayList<String> messages and sees how many
+     * lines there are in it. If there are more lines than Console Overflow Limit
+     * (found in "config.txt") allows for, the output will go to an external file
+     * with a timestamp.
      */
     public static void outputAccordingly() {
         printToFrame("");
         numOfLinesAllowed = LoggerFilter.overflowLineMax;
         final String filePath = "output\\commandoutput\\";
         final Calendar c = Calendar.getInstance();
-        final String fileName = "LARGE_OUTPUT_" + c.get(Calendar.HOUR_OF_DAY) + "_" + c.get(Calendar.MINUTE)
-                        + "_" + c.get(Calendar.SECOND); 
+        final String fileName = "LARGE_OUTPUT_" + c.get(Calendar.HOUR_OF_DAY) + "_" + c.get(Calendar.MINUTE) + "_"
+                + c.get(Calendar.SECOND);
         if (messages.size() != 0) {
             final int i = messages.size();
-            
+
             if (i <= numOfLinesAllowed) {
                 for (int j = 0; j < messages.size(); j++) {
                     ta.append(messages.get(j) + "\n");
                 }
             } else {
-                printToFrame("Output too large to display in console window. Outputted lines to " + filePath + fileName);
+                printToFrame(
+                        "Output too large to display in console window. Outputted lines to " + filePath + fileName);
                 FileWriter fw = null;
                 try {
                     fw = new FileWriter(filePath + fileName, false);
@@ -294,13 +307,11 @@ public class LoggerGUI {
         f.setLayout(new BorderLayout());
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        
-
         titleText = new JLabel();
         titleText.setBounds(25, 10, 50, 50);
         titleText.setText("Output:");
         titleText.setFont(new Font(Font.DIALOG, Font.BOLD, titleText.getFont().getSize()));
-        
+
         qui = new NamedJButton("Quit Button", "QUIT", "control Q");
         qui.setBounds(25, 600, 150, 50);
         qui.setToolTipText("Quits the program.");
@@ -471,8 +482,9 @@ public class LoggerGUI {
      * input boxes accordingly. If the "submit" button is pressed, then the input is
      * passed into the "inputSwitch" method.
      * 
-     * @param c -> Element of the "Commands" enum that relates to the button
-     *          pressed.
+     * @param c             -> Element of the "Commands" enum that relates to the
+     *                      button pressed.
+     * @param hotkeyCounter -> The hotkey to map the submit button to.
      */
     public static void openInput(final LoggerFilter.Commands c, final String hotkeyCounter) {
         inputf = new JFrame();
@@ -559,6 +571,16 @@ public class LoggerGUI {
                 jtai.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), submit);
                 allInputField.add(jtai);
                 inputf.add(jspi);
+                inputf.add(createLabel(counter, c.getParamDesc()));
+                break;
+            case "Graph Type":
+                final String[] types = { "Line Graph (All Messages over Time)", "Bar Graph (Message Types by Count)",
+                        "Pie Chart (Subsystem Messages by Count)", "Area Graph by Subsystem Messages over Time)" };
+                final JComboBox<Object> jcbg = createDropdown(counter, types);
+                jcbg.setBackground(spartaGreen);
+                jcbg.setForeground(lightGreen);
+                allDrops.add(jcbg);
+                inputf.add(jcbg);
                 inputf.add(createLabel(counter, c.getParamDesc()));
                 break;
             case "N/A":
@@ -692,6 +714,9 @@ public class LoggerGUI {
         case logsbyactuator:
             LoggerFilter.logsByKeyword(input.get(0));
             break;
+        case creategraph:
+            LoggerFilter.createGraph(input.get(0), input.get(1), input.get(2));
+            break;
         }
         printToFrame("Command Complete.");
         printToFrame("--------------------------------------------------");
@@ -718,6 +743,215 @@ public class LoggerGUI {
 
         public String getHotkey() {
             return hotkey;
+        }
+    }
+
+    /**
+     * An inner class that allows for graph generation and display.
+     */
+    public static class GraphManager {
+        public enum GraphType {
+            LINE(new Line()), BAR(new Bar()), PIE(new Pie()), AREA(new Area());
+
+            public GraphDraw getGraph() {
+                return graph;
+            }
+
+            private final GraphDraw graph;
+
+            GraphType(final GraphDraw graph) {
+                this.graph = graph;
+            }
+        }
+
+        public interface GraphDraw {
+            void draw(ArrayList<LogList> data, double[] bounds);
+        }
+
+        public static void addGraph(final GraphType type, final ArrayList<LogList> dataSet, final double[] bounds) {
+            type.getGraph().draw(dataSet, bounds);
+        }
+
+        public static int[] getInterval(final ArrayList<LogList> data) {
+            final int[] intervals = new int[2];
+            int maxSize = 0;
+            for (int i = 0; i < data.size(); i++) {
+                if (maxSize < data.get(i).timeStamps.size())
+                    maxSize = data.get(i).timeStamps.size();
+            }
+            try {
+                intervals[0] = maxSize / 4;
+                intervals[1] = maxSize / intervals[0];
+            } catch (Exception e) {
+                intervals[0] = 1;
+                intervals[1] = maxSize / intervals[0];
+            }
+            return intervals;
+        }
+
+        public static class Bar implements GraphDraw {
+            @Override
+            public void draw(final ArrayList<LogList> data, final double[] bounds) {
+                final DefaultCategoryDataset objDataset = new DefaultCategoryDataset();
+                final String[] labels = LoggerFilter.TYPE_KEYS;
+                final int[] sizesInRange = new int[LoggerFilter.TYPE_KEYS.length];
+
+                for (int i = 0; i < labels.length; i++) {
+                    for (int j = 0; j < data.get(i).timeStamps.size(); j++) {
+                        if (Double.valueOf(data.get(i).timeStamps.get(j)) > bounds[0]
+                                && Double.valueOf(data.get(i).timeStamps.get(j)) < bounds[1]) {
+                            sizesInRange[i]++;
+                        }
+                    }
+
+                    objDataset.setValue(sizesInRange[i], labels[i], labels[i]);
+                }
+
+                final JFreeChart objChart = ChartFactory.createBarChart("Type Message Bar Graph", // Chart title
+                        "Time", // Domain axis label
+                        "Number of Messages", // Range axis label
+                        objDataset, // Chart Data
+                        PlotOrientation.VERTICAL, // orientation
+                        true, // include legend?
+                        true, // include tooltips?
+                        false // include URLs?
+                );
+
+                final ChartFrame frame = new ChartFrame("SubsystemBar", objChart);
+                frame.pack();
+                frame.setVisible(true);
+            }
+        }
+
+        public static class Line implements GraphDraw {
+            @Override
+            public void draw(final ArrayList<LogList> data, final double[] bounds) {
+                final DefaultCategoryDataset objDataset = new DefaultCategoryDataset();
+                objDataset.addValue(0, "All Messages", "" + bounds[0]);
+
+                final ArrayList<LogList> dataInRange = new ArrayList<>();
+                dataInRange.add(new LogList());
+
+                for (int j = 0; j < data.get(0).timeStamps.size(); j++) {
+                    if (Double.valueOf(data.get(0).timeStamps.get(j)) > bounds[0]
+                            && Double.valueOf(data.get(0).timeStamps.get(j)) < bounds[1]) {
+                        dataInRange.get(0).timeStamps.add(data.get(0).timeStamps.get(j));
+                    }
+                }
+                final int[] errors = new int[getInterval(dataInRange)[1]];
+                int timestampIndex = 0;
+                int nullIndex = 0;
+                for (int i = 0; i < errors.length; i++) {
+                    for (int j = 0; j < getInterval(dataInRange)[0]; j++) {
+                        if (Double.valueOf(dataInRange.get(0).timeStamps.get(timestampIndex)) == nullIndex) {
+                            errors[i] += 1;
+                            timestampIndex++;
+                        }
+                        nullIndex++;
+                    }
+                }
+                for (int i = 0; i < errors.length; i++) {
+                    objDataset.addValue(errors[i], "All Messages", "" + (getInterval(data)[0]) * (i + 1));
+                }
+
+                final JFreeChart objChart = ChartFactory.createLineChart("All Messages Line Graph", // Chart title
+                        "Time", // Domain axis label
+                        "Number of Messages", // Range axis label
+                        objDataset, // Chart Data
+                        PlotOrientation.VERTICAL, // orientation
+                        true, // include legend?
+                        true, // include tooltips?
+                        false // include URLs?
+                );
+
+                final ChartFrame frame = new ChartFrame("AllMessagesLine", objChart);
+                frame.pack();
+                frame.setVisible(true);
+            }
+        }
+
+        public static class Area implements GraphDraw {
+            @Override
+            public void draw(final ArrayList<LogList> data, final double[] bounds) {
+                final DefaultCategoryDataset objDataset = new DefaultCategoryDataset();
+                final String[] labels = LoggerFilter.SUBSYSTEM_KEYS;
+                for (int i = 0; i < data.size(); i++) {
+                    Double maxStamp = 0d;
+                    for (int j = 0; j < data.get(i).timeStamps.size(); j++) {
+                        if (Double.valueOf(data.get(i).timeStamps.get(j)) > maxStamp) {
+                            maxStamp = Double.valueOf(data.get(i).timeStamps.get(j));
+                        }
+                    }
+                    int index = 0;
+                    int emptyIndex = (int) bounds[0];
+                    int total = 0;
+                    double nextStamp = bounds[0];
+
+                    while (index < maxStamp && emptyIndex < (int) bounds[1]) {
+                        if ((int) nextStamp == emptyIndex) {
+                            total++;
+                            objDataset.addValue(total, labels[i], "" + emptyIndex);
+                            index++;
+                            if (index < data.get(i).timeStamps.size())
+                                nextStamp = Double.valueOf(data.get(i).timeStamps.get(index));
+                            else
+                                break;
+                        } else {
+                            objDataset.addValue(total, labels[i], "" + emptyIndex);
+                        }
+
+                        emptyIndex++;
+                    }
+                }
+
+                final JFreeChart objChart = ChartFactory.createAreaChart("Subsystem Message Area Graph", // Chart title
+                        "Time", // Domain axis label
+                        "Number of Messages", // Range axis label
+                        objDataset, // Chart Data
+                        PlotOrientation.VERTICAL, // orientation
+                        true, // include legend?
+                        true, // include tooltips?
+                        false // include URLs?
+                );
+
+                final ChartFrame frame = new ChartFrame("SubsystemArea", objChart);
+                frame.pack();
+                frame.setVisible(true);
+            }
+        }
+
+        public static class Pie implements GraphDraw {
+            @Override
+            public void draw(final ArrayList<LogList> data, final double[] bounds) {
+                final DefaultPieDataset objDataset = new DefaultPieDataset();
+                final String[] labels = LoggerFilter.SUBSYSTEM_KEYS;
+
+                final int[] sizesInRange = new int[labels.length];
+
+                for (int i = 0; i < labels.length; i++) {
+                    for (int j = 0; j < data.get(i).timeStamps.size(); j++) {
+                        if (Double.valueOf(data.get(i).timeStamps.get(j)) > bounds[0]
+                                && Double.valueOf(data.get(i).timeStamps.get(j)) < bounds[1]) {
+                            sizesInRange[i]++;
+                        }
+                    }
+                }
+                for (int i = 0; i < data.size(); i++) {
+                    objDataset.setValue(labels[i], sizesInRange[i]);
+                }
+
+                final JFreeChart pieChart = ChartFactory.createPieChart("Subsystem Type Messages by Count", // Chart title
+                        objDataset, // Chart Data
+                        true, // include legend?
+                        true, // include tooltips?
+                        false // include URLs?
+                );
+
+                final ChartFrame frame = new ChartFrame("TypePie", pieChart);
+                frame.pack();
+                frame.setVisible(true);
+                LoggerGUI.printToFrame("Pie graph of message types constructed successfully");
+            }
         }
     }
 }
