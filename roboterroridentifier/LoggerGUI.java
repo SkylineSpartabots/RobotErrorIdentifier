@@ -299,6 +299,22 @@ public class LoggerGUI {
             messages.clear();
         }
         printToFrame("");
+        openOutput(filePath + fileName);
+    }
+
+    public static void openOutput(String filePath) {
+        File file = new File(filePath);
+        if(!Desktop.isDesktopSupported()){
+            System.out.println("Desktop is not supported");
+            return;
+        }
+        Desktop desktop = Desktop.getDesktop();
+        if(file.exists())
+            try {
+                desktop.open(file);
+            } catch (IOException e) {
+               printToFrame("Could not open file.");
+            }
     }
 
     /**
@@ -580,8 +596,9 @@ public class LoggerGUI {
                 inputf.add(createLabel(counter, c.getParamDesc()));
                 break;
             case "Graph Type":
-                final String[] types = { "Line Graph (All Messages over Time)", "Bar Graph (Message Types by Count)",
-                        "Pie Chart (Subsystem Messages by Count)", "Area Graph by Subsystem Messages over Time)" };
+                final String[] types = { "Line Graph (All Messages over Time)",
+                        "Multiline Graph (All Subsystem Messages over Time)", "Bar Graph (Message Types by Count)",
+                        "Pie Chart (Subsystem Messages by Count)" };
                 final JComboBox<Object> jcbg = createDropdown(counter, types);
                 jcbg.setBackground(spartaGreen);
                 jcbg.setForeground(lightGreen);
@@ -757,7 +774,7 @@ public class LoggerGUI {
      */
     public static class GraphManager {
         public enum GraphType {
-            LINE(new Line()), BAR(new Bar()), PIE(new Pie()), AREA(new Area());
+            LINE(new Line()), BAR(new Bar()), PIE(new Pie()), MULTILINE(new MultiLine());
 
             public GraphDraw getGraph() {
                 return graph;
@@ -778,8 +795,9 @@ public class LoggerGUI {
             type.getGraph().draw(dataSet, bounds);
         }
 
-        public static int maxSec(final ArrayList<LogList> data) {
-            return (int) (Double.parseDouble(data.get(0).timeStamps.get(data.get(0).timeStamps.size() - 1)));
+        public static int maxSec(final LogList lldata) {
+            return lldata.timeStamps.size() < 1 ? 0
+                    : (int) (Double.parseDouble(lldata.timeStamps.get(lldata.timeStamps.size() - 1)));
         }
 
         public static class Bar implements GraphDraw {
@@ -819,7 +837,7 @@ public class LoggerGUI {
         public static class Line implements GraphDraw {
             @Override
             public void draw(final ArrayList<LogList> data, final double[] bounds) {
-                final XYSeries objDataset = new XYSeries("(X, Y)");
+                final XYSeries objDataset = new XYSeries("All Messages Amount");
 
                 final ArrayList<LogList> dataInRange = new ArrayList<>();
                 dataInRange.add(new LogList());
@@ -831,7 +849,7 @@ public class LoggerGUI {
                         dataInRange.get(0).messages.add(data.get(0).messages.get(j));
                     }
                 }
-                int maxSec = maxSec(dataInRange);
+                int maxSec = maxSec(dataInRange.get(0));
                 int[] summedData = new int[maxSec + 1];
                 for (int i = 0; i < summedData.length; i++) {
                     int bottomBound = i;
@@ -867,62 +885,77 @@ public class LoggerGUI {
 
                 cPanel.setMouseZoomable(true);
 
-                final JFrame frame = new JFrame("Frame title");
+                final JFrame frame = new JFrame("All Messages Line Graph");
                 JScrollPane chartScroll = new JScrollPane(cPanel);
                 frame.getContentPane().add(chartScroll);
-                //final ChartFrame frame = new ChartFrame("AllMessagesLine", objChart);
                 frame.pack();
                 frame.setVisible(true);
             }
         }
 
-        public static class Area implements GraphDraw {
+        public static class MultiLine implements GraphDraw {
             @Override
             public void draw(final ArrayList<LogList> data, final double[] bounds) {
-                final DefaultCategoryDataset objDataset = new DefaultCategoryDataset();
-                final String[] labels = LoggerFilter.SUBSYSTEM_KEYS;
+                final ArrayList<LogList> dataInRange = new ArrayList<>();
                 for (int i = 0; i < data.size(); i++) {
-                    Double maxStamp = 0d;
+                    dataInRange.add(new LogList());
+                }
+                for (int i = 0; i < data.size(); i++) {
+                    final XYSeries objDataset = new XYSeries(
+                            "Messages in " + LoggerFilter.SUBSYSTEM_KEYS[i] + " by Amount");
                     for (int j = 0; j < data.get(i).timeStamps.size(); j++) {
-                        if (Double.valueOf(data.get(i).timeStamps.get(j)) > maxStamp) {
-                            maxStamp = Double.valueOf(data.get(i).timeStamps.get(j));
+                        if (Double.valueOf(data.get(i).timeStamps.get(j)) > bounds[0]
+                                && Double.valueOf(data.get(i).timeStamps.get(j)) < bounds[1]) {
+                            dataInRange.get(i).timeStamps.add(data.get(i).timeStamps.get(j));
+                            dataInRange.get(i).messages.add(data.get(i).messages.get(j));
                         }
                     }
-                    int index = 0;
-                    int emptyIndex = (int) bounds[0];
-                    int total = 0;
-                    double nextStamp = bounds[0];
-
-                    while (index < maxStamp && emptyIndex < (int) bounds[1]) {
-                        if ((int) nextStamp == emptyIndex) {
-                            total++;
-                            objDataset.addValue(total, labels[i], "" + emptyIndex);
-                            index++;
-                            if (index < data.get(i).timeStamps.size())
-                                nextStamp = Double.valueOf(data.get(i).timeStamps.get(index));
-                            else
-                                break;
-                        } else {
-                            objDataset.addValue(total, labels[i], "" + emptyIndex);
+                    if (dataInRange.get(i).timeStamps.size() != 0) {
+                        int maxSec = maxSec(dataInRange.get(i));
+                        int[] summedData = new int[maxSec + 1];
+                        for (int j = 0; j < summedData.length; j++) {
+                            int bottomBound = j;
+                            int topBound = j + 1;
+                            for (int k = 0; k < dataInRange.get(i).timeStamps.size(); k++) {
+                                double ts = Double.parseDouble(dataInRange.get(i).timeStamps.get(k));
+                                if (ts > bottomBound && ts <= topBound) {
+                                    summedData[j]++;
+                                }
+                            }
                         }
+                        for (int j = 0; j < summedData.length; j++) {
+                            objDataset.add(j, summedData[j]);
+                        }
+                        XYSeriesCollection xydata = new XYSeriesCollection(objDataset);
+                        final JFreeChart objChart = ChartFactory.createXYStepChart(
+                                "Messages in " + LoggerFilter.SUBSYSTEM_KEYS[i] + " by Amount", // Chart title
+                                "Time", // Domain axis label
+                                "Number of Messages", // Range axis label
+                                xydata, // Chart Data
+                                PlotOrientation.VERTICAL, // orientation
+                                true, // include legend?
+                                true, // include tooltips?
+                                false // include URLs?
+                        );
+                        NumberAxis xAxis = new NumberAxis();
+                        xAxis.setTickUnit(new NumberTickUnit(objDataset.getMaxX() > 100 ? 5 : 1));
+                        NumberAxis yAxis = new NumberAxis();
+                        yAxis.setTickUnit(new NumberTickUnit(1));
+                        XYPlot plot = (XYPlot) objChart.getPlot();
+                        plot.setDomainAxis(xAxis);
+                        plot.setRangeAxis(yAxis);
+                        ChartPanel cPanel = new ChartPanel(objChart);
 
-                        emptyIndex++;
+                        cPanel.setMouseZoomable(true);
+
+                        final JFrame frame = new JFrame("Subsystem Messages Multiline Graph");
+                        JScrollPane chartScroll = new JScrollPane(cPanel);
+                        frame.getContentPane().add(chartScroll);
+                        frame.pack();
+                        frame.setVisible(true);
                     }
                 }
 
-                final JFreeChart objChart = ChartFactory.createAreaChart("Subsystem Message Area Graph", // Chart title
-                        "Time", // Domain axis label
-                        "Number of Messages", // Range axis label
-                        objDataset, // Chart Data
-                        PlotOrientation.VERTICAL, // orientation
-                        true, // include legend?
-                        true, // include tooltips?
-                        false // include URLs?
-                );
-
-                final ChartFrame frame = new ChartFrame("SubsystemArea", objChart);
-                frame.pack();
-                frame.setVisible(true);
             }
         }
 
@@ -946,8 +979,7 @@ public class LoggerGUI {
                     objDataset.setValue(labels[i], sizesInRange[i]);
                 }
 
-                final JFreeChart pieChart = ChartFactory.createPieChart("Subsystem Type Messages by Count", // Chart
-                                                                                                            // title
+                final JFreeChart pieChart = ChartFactory.createPieChart("Subsystem Type Messages by Count", // Chart title
                         objDataset, // Chart Data
                         true, // include legend?
                         true, // include tooltips?

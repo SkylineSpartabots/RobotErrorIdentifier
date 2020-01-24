@@ -19,7 +19,7 @@ import java.util.Scanner;
  * robot malfunctions. It can also parse further through the use of commands to
  * find specific errors. Helpful for post-match diagnostics.
  * 
- * @version 5.1.0
+ * @version 5.2.0
  * @author Team 2976!
  */
 public class LoggerFilter {
@@ -581,7 +581,7 @@ public class LoggerFilter {
 
     public static void createGraph(final String type, String start, String end) {
         final String[] types = { "Line Graph (All Messages over Time)", "Bar Graph (Message Types by Count)",
-                "Pie Chart (Subsystem Messages by Count)", "Area Graph by Subsystem Messages over Time)" };
+                "Pie Chart (Subsystem Messages by Count)", "Multiline Graph (All Subsystem Messages over Time)" };
 
         double[] bounds = new double[2];
         try {
@@ -611,9 +611,9 @@ public class LoggerFilter {
             tempLogs.add(allLogs);
             toGraphList = tempLogs;
             break;
-        case "Area Graph by Subsystem Messages over Time)":
+        case "Multiline Graph (All Subsystem Messages over Time)":
             LoggerGUI.printToFrame(
-                    "Creating area graph with subsystem logs between timestamps: " + start + " and " + end);
+                    "Creating multiline graph(s) with subsystem logs between timestamps: " + start + " and " + end);
             toGraphList = subsystemLogs;
             break;
         }
@@ -724,6 +724,10 @@ public class LoggerFilter {
             this.messages = messages;
             this.timeStamps = timeStamps;
             this.values = values;
+        }
+
+        public String toString() {
+            return messages.toString() + " " + timeStamps.toString();
         }
     }
 }
