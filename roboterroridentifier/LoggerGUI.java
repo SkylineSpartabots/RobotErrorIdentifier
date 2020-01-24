@@ -16,10 +16,16 @@ import javax.swing.plaf.metal.OceanTheme;
 import javax.swing.*;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartFrame;
+import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 import roboterroridentifier.LoggerFilter.LogList;
 
@@ -772,21 +778,8 @@ public class LoggerGUI {
             type.getGraph().draw(dataSet, bounds);
         }
 
-        public static int[] getInterval(final ArrayList<LogList> data) {
-            final int[] intervals = new int[2];
-            int maxSize = 0;
-            for (int i = 0; i < data.size(); i++) {
-                if (maxSize < data.get(i).timeStamps.size())
-                    maxSize = data.get(i).timeStamps.size();
-            }
-            try {
-                intervals[0] = maxSize / 4;
-                intervals[1] = maxSize / intervals[0];
-            } catch (Exception e) {
-                intervals[0] = 1;
-                intervals[1] = maxSize / intervals[0];
-            }
-            return intervals;
+        public static int maxSec(final ArrayList<LogList> data) {
+            return (int) (Double.parseDouble(data.get(0).timeStamps.get(data.get(0).timeStamps.size() - 1)));
         }
 
         public static class Bar implements GraphDraw {
@@ -826,8 +819,7 @@ public class LoggerGUI {
         public static class Line implements GraphDraw {
             @Override
             public void draw(final ArrayList<LogList> data, final double[] bounds) {
-                final DefaultCategoryDataset objDataset = new DefaultCategoryDataset();
-                objDataset.addValue(0, "All Messages", "" + bounds[0]);
+                final XYSeries objDataset = new XYSeries("(X, Y)");
 
                 final ArrayList<LogList> dataInRange = new ArrayList<>();
                 dataInRange.add(new LogList());
@@ -836,35 +828,49 @@ public class LoggerGUI {
                     if (Double.valueOf(data.get(0).timeStamps.get(j)) > bounds[0]
                             && Double.valueOf(data.get(0).timeStamps.get(j)) < bounds[1]) {
                         dataInRange.get(0).timeStamps.add(data.get(0).timeStamps.get(j));
+                        dataInRange.get(0).messages.add(data.get(0).messages.get(j));
                     }
                 }
-                final int[] errors = new int[getInterval(dataInRange)[1]];
-                int timestampIndex = 0;
-                int nullIndex = 0;
-                for (int i = 0; i < errors.length; i++) {
-                    for (int j = 0; j < getInterval(dataInRange)[0]; j++) {
-                        if (Double.valueOf(dataInRange.get(0).timeStamps.get(timestampIndex)) == nullIndex) {
-                            errors[i] += 1;
-                            timestampIndex++;
+                int maxSec = maxSec(dataInRange);
+                int[] summedData = new int[maxSec + 1];
+                for (int i = 0; i < summedData.length; i++) {
+                    int bottomBound = i;
+                    int topBound = i + 1;
+                    for (int j = 0; j < dataInRange.get(0).timeStamps.size(); j++) {
+                        double ts = Double.parseDouble(dataInRange.get(0).timeStamps.get(j));
+                        if (ts > bottomBound && ts <= topBound) {
+                            summedData[i]++;
                         }
-                        nullIndex++;
                     }
                 }
-                for (int i = 0; i < errors.length; i++) {
-                    objDataset.addValue(errors[i], "All Messages", "" + (getInterval(data)[0]) * (i + 1));
+                for (int i = 0; i < summedData.length; i++) {
+                    objDataset.add(i, summedData[i]);
                 }
-
-                final JFreeChart objChart = ChartFactory.createLineChart("All Messages Line Graph", // Chart title
+                XYSeriesCollection xydata = new XYSeriesCollection(objDataset);
+                final JFreeChart objChart = ChartFactory.createXYStepChart("All Messages Line Graph", // Chart title
                         "Time", // Domain axis label
                         "Number of Messages", // Range axis label
-                        objDataset, // Chart Data
+                        xydata, // Chart Data
                         PlotOrientation.VERTICAL, // orientation
                         true, // include legend?
                         true, // include tooltips?
                         false // include URLs?
                 );
+                NumberAxis xAxis = new NumberAxis();
+                xAxis.setTickUnit(new NumberTickUnit(objDataset.getMaxX() > 100 ? 5 : 1));
+                NumberAxis yAxis = new NumberAxis();
+                yAxis.setTickUnit(new NumberTickUnit(1));
+                XYPlot plot = (XYPlot) objChart.getPlot();
+                plot.setDomainAxis(xAxis);
+                plot.setRangeAxis(yAxis);
+                ChartPanel cPanel = new ChartPanel(objChart);
 
-                final ChartFrame frame = new ChartFrame("AllMessagesLine", objChart);
+                cPanel.setMouseZoomable(true);
+
+                final JFrame frame = new JFrame("Frame title");
+                JScrollPane chartScroll = new JScrollPane(cPanel);
+                frame.getContentPane().add(chartScroll);
+                //final ChartFrame frame = new ChartFrame("AllMessagesLine", objChart);
                 frame.pack();
                 frame.setVisible(true);
             }
@@ -940,7 +946,8 @@ public class LoggerGUI {
                     objDataset.setValue(labels[i], sizesInRange[i]);
                 }
 
-                final JFreeChart pieChart = ChartFactory.createPieChart("Subsystem Type Messages by Count", // Chart title
+                final JFreeChart pieChart = ChartFactory.createPieChart("Subsystem Type Messages by Count", // Chart
+                                                                                                            // title
                         objDataset, // Chart Data
                         true, // include legend?
                         true, // include tooltips?

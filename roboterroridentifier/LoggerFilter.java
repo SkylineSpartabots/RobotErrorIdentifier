@@ -19,7 +19,7 @@ import java.util.Scanner;
  * robot malfunctions. It can also parse further through the use of commands to
  * find specific errors. Helpful for post-match diagnostics.
  * 
- * @version 5.0.0
+ * @version 5.1.0
  * @author Team 2976!
  */
 public class LoggerFilter {
@@ -119,6 +119,7 @@ public class LoggerFilter {
         allLogs = new LogList();
         typeLogs = new ArrayList<>();
         subsystemLogs = new ArrayList<>();
+        ACTUATOR_NAMES = new ArrayList<>();
         toParse = new LogList();
         compounding = false;
     }
@@ -305,7 +306,8 @@ public class LoggerFilter {
                     s = s.replaceFirst("@", "<S>");
                     s = s.replaceFirst("@", "<E>");
                     if (s.contains("<S>") && s.contains("<E>")) {
-                        ACTUATOR_NAMES.add(s.substring(s.indexOf("<S>") + 3, s.indexOf("<E>")));
+                        if (!ACTUATOR_NAMES.contains(s.substring(s.indexOf("<S>") + 3, s.indexOf("<E>"))))
+                            ACTUATOR_NAMES.add(s.substring(s.indexOf("<S>") + 3, s.indexOf("<E>")));
                     }
                 }
             }
