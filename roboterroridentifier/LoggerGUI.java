@@ -62,12 +62,17 @@ public class LoggerGUI {
      * An array of command buttons. Can be expanded to fit more buttons.
      */
     private static ArrayList<JButton> buttons = new ArrayList<>();
-
     /**
-     * Colors to be used in the GUI.
+     * Color to be used in the GUI (R: 51, G: 90, B: 64).
      */
     public static Color spartaGreen = new Color(51, 90, 64);
-    public static Color lightGreen = new Color(255, 255, 255);
+    /**
+     * Color to be used in the GUI (R: 255, G: 255, B: 255).
+     */
+    public static Color plainWhite = new Color(255, 255, 255);
+    /**
+     * Color to be used in the GUI (R: 162, G: 180, B: 168).
+     */
     public static Color textAreaGreen = new Color(162, 180, 168);
 
     /**
@@ -83,7 +88,7 @@ public class LoggerGUI {
         f.setBackground(c);
         f.setVisible(true);
         printToFrame("Robot Error Identifier (and other fun cheerios) made with love by Team 2976, The Spartabots!");
-        printToFrame("Hotkeys: CTRL + {Q, C, G, D, S} for the buttons below.");
+        printToFrame("Hotkeys: CTRL + {Q, C, G, O, S} for the buttons below.");
         if (LoggerFilter.fileName.equals("")) {
             LoggerFilter.getMostRecentFile();
         }
@@ -195,24 +200,40 @@ public class LoggerGUI {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 final JFrame tempJ = new JFrame();
-                tempJ.setSize(new Dimension(300, 300));
+                tempJ.setSize(new Dimension(400, 500));
                 tempJ.setLocationRelativeTo(null);
-                tempJ.setTitle("Directory Panel");
+                tempJ.setTitle("Options Panel");
                 tempJ.setLayout(new BorderLayout());
                 tempJ.setResizable(false);
                 final JButton chg = new JButton("CHANGE");
-                chg.setBounds(75, 150, 150, 50);
+                chg.setBounds(125, 350, 150, 50);
                 final JLabel jlb = new JLabel("File to parse (full filepath):", SwingConstants.CENTER);
-                jlb.setBounds(0, 0, 300, 50);
-                final JTextArea jta = new JTextArea(1, 5);
-                final JScrollPane jsp = new JScrollPane(jta, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                jlb.setBounds(0, 0, 400, 50);
+                final JTextArea jtadir = new JTextArea(1, 5);
+                final JScrollPane jspdir = new JScrollPane(jtadir, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                         JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-                jsp.setBounds(50, 40, 200, 35);
+                jspdir.setBounds(20, 40, 350, 35);
+                final JLabel jlbsub = new JLabel("Subsystem List (comma separated):", SwingConstants.CENTER);
+                jlbsub.setBounds(0, 100, 400, 50);
+                final JTextArea jtasub = new JTextArea(1, 5);
+                final JScrollPane jspsub = new JScrollPane(jtasub, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                        JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+                jspsub.setBounds(20, 140, 350, 35);
+                final JLabel jlbovr = new JLabel("Console Overflow Limit (int):", SwingConstants.CENTER);
+                jlbovr.setBounds(0, 200, 400, 50);
+                final JTextArea jtaovr = new JTextArea(1, 5);
+                final JScrollPane jspovr = new JScrollPane(jtaovr, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                        JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+                jspovr.setBounds(150, 240, 100, 35);
                 chg.setBackground(spartaGreen);
-                chg.setForeground(lightGreen);
+                chg.setForeground(plainWhite);
                 tempJ.add(chg);
-                tempJ.add(jsp);
+                tempJ.add(jspdir);
                 tempJ.add(jlb);
+                tempJ.add(jspsub);
+                tempJ.add(jlbsub);
+                tempJ.add(jspovr);
+                tempJ.add(jlbovr);
                 final JPanel p = new JPanel();
                 tempJ.add(p);
                 tempJ.setVisible(true);
@@ -220,14 +241,18 @@ public class LoggerGUI {
                     chg.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(final ActionEvent e) {
-                            LoggerFilter.setFilePath(jta.getText().trim().replaceAll("\\\\", "\\\\\\\\"));
-                            if (jta.getText().trim().equals("")) {
+                            LoggerFilter.setFilePath(jtadir.getText().trim().replaceAll("\\\\", "\\\\\\\\"));
+                            if (jtadir.getText().trim().equals("")) {
                                 printToFrame("Got the most recent file.");
                                 printToFrame("Set file to parse to: " + LoggerFilter.getWholePath());
                             } else {
-                                printToFrame("Set file to parse to: " + jta.getText().trim());
+                                printToFrame("Set file to parse to: " + jtadir.getText().trim());
                                 gen.setEnabled(true);
                             }
+                            if (!jtasub.getText().trim().equals(""))
+                                LoggerFilter.setSubsystemKeywords(jtasub.getText().trim());
+                            if (!jtaovr.getText().trim().equals(""))
+                                LoggerFilter.setOverflowLimit(jtaovr.getText().trim());
                         }
                     });
                 }
@@ -302,18 +327,23 @@ public class LoggerGUI {
         openOutput(filePath + fileName);
     }
 
+    /**
+     * Opens up large output files when made.
+     * 
+     * @param filePath -> Path to file to open.
+     */
     public static void openOutput(String filePath) {
         File file = new File(filePath);
-        if(!Desktop.isDesktopSupported()){
+        if (!Desktop.isDesktopSupported()) {
             System.out.println("Desktop is not supported");
             return;
         }
         Desktop desktop = Desktop.getDesktop();
-        if(file.exists())
+        if (file.exists())
             try {
                 desktop.open(file);
             } catch (IOException e) {
-               printToFrame("Could not open file.");
+                printToFrame("Could not open file.");
             }
     }
 
@@ -324,7 +354,7 @@ public class LoggerGUI {
         final ArrayList<NamedJButton> mainButtons = new ArrayList<>();
         f.setSize(new Dimension(1280, 720));
         f.setLocationRelativeTo(null);
-        f.setResizable(false);
+        f.setResizable(true);
         f.setTitle("Robot Error Identifier");
         f.setLayout(new BorderLayout());
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -338,7 +368,7 @@ public class LoggerGUI {
         qui.setBounds(25, 600, 150, 50);
         qui.setToolTipText("Quits the program.");
         qui.setBackground(spartaGreen);
-        qui.setForeground(lightGreen);
+        qui.setForeground(plainWhite);
         qui.setFont(new Font(Font.DIALOG, Font.PLAIN, qui.getFont().getSize()));
 
         cmd = new NamedJButton("Command Button", "COMMANDS", "control C");
@@ -346,21 +376,21 @@ public class LoggerGUI {
         cmd.setEnabled(false);
         cmd.setToolTipText("Opens a list of commands for filtering.");
         cmd.setBackground(spartaGreen);
-        cmd.setForeground(lightGreen);
+        cmd.setForeground(plainWhite);
         cmd.setFont(new Font(Font.DIALOG, Font.PLAIN, qui.getFont().getSize()));
 
         gen = new NamedJButton("Generate Button", "GENERATE", "control G");
         gen.setBounds(565, 600, 150, 50);
         gen.setToolTipText("Parses file and generates basic output. Must be pressed first before COMMANDS or SAVE.");
         gen.setBackground(spartaGreen);
-        gen.setForeground(lightGreen);
+        gen.setForeground(plainWhite);
         gen.setFont(new Font(Font.DIALOG, Font.PLAIN, qui.getFont().getSize()));
 
-        dir = new NamedJButton("Directory Button", "DIRECTORY", "control D");
+        dir = new NamedJButton("Options Button", "OPTIONS", "control O");
         dir.setBounds(835, 600, 150, 50);
         dir.setToolTipText("Allows you to pick the file you want to parse.");
         dir.setBackground(spartaGreen);
-        dir.setForeground(lightGreen);
+        dir.setForeground(plainWhite);
         dir.setFont(new Font(Font.DIALOG, Font.PLAIN, qui.getFont().getSize()));
 
         txt = new NamedJButton("Save Button", "SAVE", "control S");
@@ -368,7 +398,7 @@ public class LoggerGUI {
         txt.setEnabled(false);
         txt.setToolTipText("Saves current console view into a .txt file.");
         txt.setBackground(spartaGreen);
-        txt.setForeground(lightGreen);
+        txt.setForeground(plainWhite);
         txt.setFont(new Font(Font.DIALOG, Font.PLAIN, qui.getFont().getSize()));
 
         ta = new JTextArea(35, 100);
@@ -439,7 +469,7 @@ public class LoggerGUI {
                     arrayOfCmds[j].getDesc() + " Takes in " + arrayOfCmds[j].getParamNum() + " parameters.");
             buttons.get(j).setEnabled(true);
             buttons.get(j).setBackground(spartaGreen);
-            buttons.get(j).setForeground(lightGreen);
+            buttons.get(j).setForeground(plainWhite);
             buttons.get(j).setFont(new Font(Font.DIALOG, Font.PLAIN, qui.getFont().getSize()));
             tempJ.add(buttons.get(j));
             titleText = new JLabel();
@@ -460,14 +490,14 @@ public class LoggerGUI {
         homeButton.setToolTipText("Takes you back to the home screen.");
         homeButton.setEnabled(true);
         homeButton.setBackground(spartaGreen);
-        homeButton.setForeground(lightGreen);
+        homeButton.setForeground(plainWhite);
         homeButton.setFont(new Font(Font.DIALOG, Font.PLAIN, qui.getFont().getSize()));
         final JButton compoundButton = new JButton("COMPOUNDING: OFF");
         compoundButton.setBounds(215, 150 + (75 * (numOfCmnds / 5)), 200, 50);
         compoundButton.setToolTipText("Enables and disables compounding.");
         compoundButton.setEnabled(true);
         compoundButton.setBackground(spartaGreen);
-        compoundButton.setForeground(lightGreen);
+        compoundButton.setForeground(plainWhite);
         compoundButton.setFont(new Font(Font.DIALOG, Font.PLAIN, qui.getFont().getSize()));
         tempJ.add(homeButton);
         tempJ.add(compoundButton);
@@ -518,7 +548,7 @@ public class LoggerGUI {
         final NamedJButton sub = new NamedJButton("Submit Button", "SUBMIT", hotkeyCounter);
         sub.setBounds(225, 300, 150, 50);
         sub.setBackground(spartaGreen);
-        sub.setForeground(lightGreen);
+        sub.setForeground(plainWhite);
         final ArrayList<String> parsedDesc = parseDesc(c.getParamDesc());
         final JPanel p = new JPanel(new FlowLayout());
         final ArrayList<JComboBox<Object>> allDrops = new ArrayList<>();
@@ -544,7 +574,7 @@ public class LoggerGUI {
             case "Error Name":
                 final JComboBox<Object> jcbe = createDropdown(counter, LoggerFilter.getErrors());
                 jcbe.setBackground(spartaGreen);
-                jcbe.setForeground(lightGreen);
+                jcbe.setForeground(plainWhite);
                 allDrops.add(jcbe);
                 inputf.add(jcbe);
                 inputf.add(createLabel(counter, c.getParamDesc()));
@@ -552,7 +582,7 @@ public class LoggerGUI {
             case "Print Style":
                 final JComboBox<Object> jcbp = createDropdown(counter, LoggerFilter.TYPE_KEYS);
                 jcbp.setBackground(spartaGreen);
-                jcbp.setForeground(lightGreen);
+                jcbp.setForeground(plainWhite);
                 allDrops.add(jcbp);
                 inputf.add(jcbp);
                 inputf.add(createLabel(counter, c.getParamDesc()));
@@ -560,7 +590,7 @@ public class LoggerGUI {
             case "Subsystem Name":
                 final JComboBox<Object> jcbs = createDropdown(counter, LoggerFilter.SUBSYSTEM_KEYS);
                 jcbs.setBackground(spartaGreen);
-                jcbs.setForeground(lightGreen);
+                jcbs.setForeground(plainWhite);
                 allDrops.add(jcbs);
                 inputf.add(jcbs);
                 inputf.add(createLabel(counter, c.getParamDesc()));
@@ -568,7 +598,7 @@ public class LoggerGUI {
             case "Actuator Name":
                 final JComboBox<Object> jcbc = createDropdown(counter, LoggerFilter.getActuators());
                 jcbc.setBackground(spartaGreen);
-                jcbc.setForeground(lightGreen);
+                jcbc.setForeground(plainWhite);
                 allDrops.add(jcbc);
                 inputf.add(jcbc);
                 inputf.add(createLabel(counter, c.getParamDesc()));
@@ -601,7 +631,7 @@ public class LoggerGUI {
                         "Pie Chart (Subsystem Messages by Count)" };
                 final JComboBox<Object> jcbg = createDropdown(counter, types);
                 jcbg.setBackground(spartaGreen);
-                jcbg.setForeground(lightGreen);
+                jcbg.setForeground(plainWhite);
                 allDrops.add(jcbg);
                 inputf.add(jcbg);
                 inputf.add(createLabel(counter, c.getParamDesc()));
@@ -979,7 +1009,8 @@ public class LoggerGUI {
                     objDataset.setValue(labels[i], sizesInRange[i]);
                 }
 
-                final JFreeChart pieChart = ChartFactory.createPieChart("Subsystem Type Messages by Count", // Chart title
+                final JFreeChart pieChart = ChartFactory.createPieChart("Subsystem Type Messages by Count", // Chart
+                                                                                                            // title
                         objDataset, // Chart Data
                         true, // include legend?
                         true, // include tooltips?

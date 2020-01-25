@@ -19,7 +19,7 @@ import java.util.Scanner;
  * robot malfunctions. It can also parse further through the use of commands to
  * find specific errors. Helpful for post-match diagnostics.
  * 
- * @version 5.2.0
+ * @version 5.2.2
  * @author Team 2976!
  */
 public class LoggerFilter {
@@ -166,6 +166,38 @@ public class LoggerFilter {
             sc.close();
         } catch (final IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Sets "SUBSYSTEM_KEYS" to the information in the corresponding settings text
+     * box.
+     * 
+     * @param s -> String from the text box.
+     */
+    public static void setSubsystemKeywords(String s) {
+        final String[] keywordNames = s.split(",");
+        SUBSYSTEM_KEYS = new String[keywordNames.length];
+        for (int i = 0; i < keywordNames.length; i++) {
+            SUBSYSTEM_KEYS[i] = keywordNames[i].trim();
+        }
+        LoggerGUI.printToFrame("Subsystem keys: " + Arrays.toString(SUBSYSTEM_KEYS));
+    }
+
+    /**
+     * Sets "overflowLineMax" to the information in the corresponding settings text
+     * box.
+     * 
+     * @param s -> String from the text box.
+     */
+    public static void setOverflowLimit(String s) {
+        try {
+            overflowLineMax = Integer.parseInt(s);
+            LoggerGUI.printToFrame("Console Overflow Limit: " + overflowLineMax);
+            ;
+        } catch (final NumberFormatException e) {
+            LoggerGUI.printToFrame("NaI inputted into Console Overflow Limit: Defaulting to 100.");
+            overflowLineMax = 100;
         }
     }
 
