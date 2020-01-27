@@ -178,6 +178,7 @@ S_LOG ### <3.52> Message B ### E_LOG
 S_LOG <<< Warning: <3.54> Drive Warning B @Right Motor@ >>> E_LOG
 JUNK
 S_LOG !!! Error: <3.58> Limelight Error C !!! E_LOG
+S_LOG !!! Error: <3.59> !!! E_LOG
 JUNK
 S_LOG !!! Error: <3.62> Climb failure D !!! E_LOG
 JUNK

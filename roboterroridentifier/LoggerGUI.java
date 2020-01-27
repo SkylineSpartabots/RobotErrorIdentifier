@@ -14,6 +14,9 @@ import java.awt.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartFrame;
 import org.jfree.chart.ChartPanel;
@@ -332,17 +335,17 @@ public class LoggerGUI {
      * 
      * @param filePath -> Path to file to open.
      */
-    public static void openOutput(String filePath) {
-        File file = new File(filePath);
+    public static void openOutput(final String filePath) {
+        final File file = new File(filePath);
         if (!Desktop.isDesktopSupported()) {
             System.out.println("Desktop is not supported");
             return;
         }
-        Desktop desktop = Desktop.getDesktop();
+        final Desktop desktop = Desktop.getDesktop();
         if (file.exists())
             try {
                 desktop.open(file);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 printToFrame("Could not open file.");
             }
     }
@@ -770,6 +773,8 @@ public class LoggerGUI {
         case creategraph:
             LoggerFilter.createGraph(input.get(0), input.get(1), input.get(2));
             break;
+        case timemap:
+            LoggerFilter.openTimeMap();
         }
         printToFrame("Command Complete.");
         printToFrame("--------------------------------------------------");
@@ -879,13 +884,13 @@ public class LoggerGUI {
                         dataInRange.get(0).messages.add(data.get(0).messages.get(j));
                     }
                 }
-                int maxSec = maxSec(dataInRange.get(0));
-                int[] summedData = new int[maxSec + 1];
+                final int maxSec = maxSec(dataInRange.get(0));
+                final int[] summedData = new int[maxSec + 1];
                 for (int i = 0; i < summedData.length; i++) {
-                    int bottomBound = i;
-                    int topBound = i + 1;
+                    final int bottomBound = i;
+                    final int topBound = i + 1;
                     for (int j = 0; j < dataInRange.get(0).timeStamps.size(); j++) {
-                        double ts = Double.parseDouble(dataInRange.get(0).timeStamps.get(j));
+                        final double ts = Double.parseDouble(dataInRange.get(0).timeStamps.get(j));
                         if (ts > bottomBound && ts <= topBound) {
                             summedData[i]++;
                         }
@@ -894,7 +899,7 @@ public class LoggerGUI {
                 for (int i = 0; i < summedData.length; i++) {
                     objDataset.add(i, summedData[i]);
                 }
-                XYSeriesCollection xydata = new XYSeriesCollection(objDataset);
+                final XYSeriesCollection xydata = new XYSeriesCollection(objDataset);
                 final JFreeChart objChart = ChartFactory.createXYStepChart("All Messages Line Graph", // Chart title
                         "Time", // Domain axis label
                         "Number of Messages", // Range axis label
@@ -904,19 +909,19 @@ public class LoggerGUI {
                         true, // include tooltips?
                         false // include URLs?
                 );
-                NumberAxis xAxis = new NumberAxis();
+                final NumberAxis xAxis = new NumberAxis();
                 xAxis.setTickUnit(new NumberTickUnit(objDataset.getMaxX() > 100 ? 5 : 1));
-                NumberAxis yAxis = new NumberAxis();
+                final NumberAxis yAxis = new NumberAxis();
                 yAxis.setTickUnit(new NumberTickUnit(1));
-                XYPlot plot = (XYPlot) objChart.getPlot();
+                final XYPlot plot = (XYPlot) objChart.getPlot();
                 plot.setDomainAxis(xAxis);
                 plot.setRangeAxis(yAxis);
-                ChartPanel cPanel = new ChartPanel(objChart);
+                final ChartPanel cPanel = new ChartPanel(objChart);
 
                 cPanel.setMouseZoomable(true);
 
                 final JFrame frame = new JFrame("All Messages Line Graph");
-                JScrollPane chartScroll = new JScrollPane(cPanel);
+                final JScrollPane chartScroll = new JScrollPane(cPanel);
                 frame.getContentPane().add(chartScroll);
                 frame.pack();
                 frame.setVisible(true);
@@ -941,13 +946,13 @@ public class LoggerGUI {
                         }
                     }
                     if (dataInRange.get(i).timeStamps.size() != 0) {
-                        int maxSec = maxSec(dataInRange.get(i));
-                        int[] summedData = new int[maxSec + 1];
+                        final int maxSec = maxSec(dataInRange.get(i));
+                        final int[] summedData = new int[maxSec + 1];
                         for (int j = 0; j < summedData.length; j++) {
-                            int bottomBound = j;
-                            int topBound = j + 1;
+                            final int bottomBound = j;
+                            final int topBound = j + 1;
                             for (int k = 0; k < dataInRange.get(i).timeStamps.size(); k++) {
-                                double ts = Double.parseDouble(dataInRange.get(i).timeStamps.get(k));
+                                final double ts = Double.parseDouble(dataInRange.get(i).timeStamps.get(k));
                                 if (ts > bottomBound && ts <= topBound) {
                                     summedData[j]++;
                                 }
@@ -956,7 +961,7 @@ public class LoggerGUI {
                         for (int j = 0; j < summedData.length; j++) {
                             objDataset.add(j, summedData[j]);
                         }
-                        XYSeriesCollection xydata = new XYSeriesCollection(objDataset);
+                        final XYSeriesCollection xydata = new XYSeriesCollection(objDataset);
                         final JFreeChart objChart = ChartFactory.createXYStepChart(
                                 "Messages in " + LoggerFilter.SUBSYSTEM_KEYS[i] + " by Amount", // Chart title
                                 "Time", // Domain axis label
@@ -967,19 +972,19 @@ public class LoggerGUI {
                                 true, // include tooltips?
                                 false // include URLs?
                         );
-                        NumberAxis xAxis = new NumberAxis();
+                        final NumberAxis xAxis = new NumberAxis();
                         xAxis.setTickUnit(new NumberTickUnit(objDataset.getMaxX() > 100 ? 5 : 1));
-                        NumberAxis yAxis = new NumberAxis();
+                        final NumberAxis yAxis = new NumberAxis();
                         yAxis.setTickUnit(new NumberTickUnit(1));
-                        XYPlot plot = (XYPlot) objChart.getPlot();
+                        final XYPlot plot = (XYPlot) objChart.getPlot();
                         plot.setDomainAxis(xAxis);
                         plot.setRangeAxis(yAxis);
-                        ChartPanel cPanel = new ChartPanel(objChart);
+                        final ChartPanel cPanel = new ChartPanel(objChart);
 
                         cPanel.setMouseZoomable(true);
 
                         final JFrame frame = new JFrame("Subsystem Messages Multiline Graph");
-                        JScrollPane chartScroll = new JScrollPane(cPanel);
+                        final JScrollPane chartScroll = new JScrollPane(cPanel);
                         frame.getContentPane().add(chartScroll);
                         frame.pack();
                         frame.setVisible(true);
@@ -1021,6 +1026,148 @@ public class LoggerGUI {
                 frame.pack();
                 frame.setVisible(true);
                 LoggerGUI.printToFrame("Pie graph of message types constructed successfully");
+            }
+        }
+    }
+
+    public static class OverviewManager {
+        private static JFrame sliderFrame;
+        private static JPanel jp;
+        private static JSlider sliderBar;
+        private static JLabel jlb;
+        private static JTextArea jta;
+        private static JComboBox<Object> jcb;
+
+        private static int tValue;
+
+        private static LogList mData;
+
+        public static void createSliderWindow(final LogList data) {
+            mData = data;
+            sliderFrame = new JFrame("Slider Frame");
+            jp = new JPanel();
+            jp.setLayout(new FlowLayout());
+            sliderBar = new JSlider(0, LoggerGUI.GraphManager.maxSec(data), 0);
+            jlb = new JLabel();
+            final SliderListener s = new SliderListener(); 
+            sliderBar.addChangeListener(s);
+            String[] SUBSYSTEM_KEYS_EXTENDED = new String[LoggerFilter.SUBSYSTEM_KEYS.length + 1];
+            SUBSYSTEM_KEYS_EXTENDED[0] = "All";
+            for (int i = 1; i < SUBSYSTEM_KEYS_EXTENDED.length; i++) {
+                SUBSYSTEM_KEYS_EXTENDED[i] = LoggerFilter.SUBSYSTEM_KEYS[i - 1];
+            }
+            jcb = new JComboBox<>(SUBSYSTEM_KEYS_EXTENDED);
+            
+            sliderBar.setBounds(50, 25, 200, 50);
+            sliderBar.setPaintTrack(true);
+            sliderBar.setPaintTicks(true);
+            sliderBar.setPaintLabels(true);
+            sliderBar.setMajorTickSpacing(25);
+            sliderBar.setMinorTickSpacing(5);
+            sliderBar.setBackground(spartaGreen);
+            sliderBar.setForeground(plainWhite);
+
+            jlb.setBounds(275, 25, 100, 50);
+            jlb.setText("@t = " + sliderBar.getValue());
+
+            jcb.setBounds(50, 125, 300, 20);
+            jcb.setBackground(spartaGreen);
+            jcb.setForeground(plainWhite);
+
+            jta = new JTextArea();
+            JScrollPane tlviewer = new JScrollPane(jta, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                    JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+            tlviewer.setBounds(0, 150, 400, 400);
+
+            jcb.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent a) {
+                    jlb.setText("@t = " + sliderBar.getValue() + " - " + (sliderBar.getValue() + 1));
+                    updateErrors(sliderBar.getValue());
+                }
+                
+            });
+
+            sliderFrame.add(sliderBar);
+            sliderFrame.add(jlb);
+            sliderFrame.add(jcb);
+            sliderFrame.add(tlviewer);
+            sliderFrame.add(jp);
+            sliderFrame.setSize(400, 600);
+            sliderFrame.setResizable(false);
+            sliderFrame.setVisible(true);
+        }
+
+        public static int getTValue() {
+            return tValue;
+        }
+
+        public static void updateErrors(final int t) {
+            final LogList timedLog = new LogList();
+            final int bottomBound = t;
+            final int topBound = t + 1;
+            for (int j = 0; j < mData.timeStamps.size(); j++) {
+                final double ts = Double.parseDouble(mData.timeStamps.get(j));
+                if (ts > bottomBound && ts <= topBound) {
+                    timedLog.messages.add(mData.messages.get(j));
+                    timedLog.timeStamps.add(mData.timeStamps.get(j));
+                }
+            }
+            splitLogsbySubsystem(timedLog);
+        }
+
+        public static void splitLogsbySubsystem(final LogList allLogs) {
+            final ArrayList<LogList> subLogs = new ArrayList<>();
+            for (int i = 0; i < LoggerFilter.SUBSYSTEM_KEYS.length; i++) {
+                subLogs.add(new LogList());
+            }
+            for (int i = 0; i < allLogs.messages.size(); i++) {
+                for (int j = 0; j < LoggerFilter.SUBSYSTEM_KEYS.length; j++) {
+                    if (allLogs.messages.get(i).contains(LoggerFilter.SUBSYSTEM_KEYS[j])) {
+                        subLogs.get(j).messages.add(allLogs.messages.get(i));
+                        subLogs.get(j).timeStamps.add(allLogs.timeStamps.get(i));
+                    }
+                }
+            }
+            displayLogsOnFrame(subLogs);
+        }
+
+        public static void displayLogsOnFrame(ArrayList<LogList> subLogs) {
+            jta.setText("");
+            for (int i = 0; i < LoggerFilter.SUBSYSTEM_KEYS.length; i++) {
+                if (checkAllowedDisplay(i)) {
+                    jta.append("Logs in " + LoggerFilter.SUBSYSTEM_KEYS[i] + ":\n");
+                    for (int j = 0; j < subLogs.get(i).messages.size(); j++) {
+                        jta.append(subLogs.get(i).messages.get(j) + " @t = " + subLogs.get(i).timeStamps.get(j) + "\n");
+                    }
+                    jta.append("\n");
+                }
+            }
+        }
+
+        public static boolean checkAllowedDisplay(int n) {
+            boolean canDo = false;
+            if (jcb.getSelectedItem().toString().equals("All")) {
+                canDo = true;
+            } else {
+                if (jcb.getSelectedItem().toString().equals(LoggerFilter.SUBSYSTEM_KEYS[n])) {
+                    canDo = true;
+                } else {
+                    canDo = false;
+                }
+            }
+            return canDo;
+        }
+
+        public static void createOverview(final LogList data) {
+
+        }
+
+        public static class SliderListener implements ChangeListener {
+            @Override
+            public void stateChanged(final ChangeEvent e) {
+                jlb.setText("@t = " + sliderBar.getValue() + " - " + (sliderBar.getValue() + 1));
+                updateErrors(sliderBar.getValue());
             }
         }
     }

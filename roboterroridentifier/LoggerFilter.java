@@ -19,7 +19,7 @@ import java.util.Scanner;
  * robot malfunctions. It can also parse further through the use of commands to
  * find specific errors. Helpful for post-match diagnostics.
  * 
- * @version 5.2.2
+ * @version 5.3.0
  * @author Team 2976!
  */
 public class LoggerFilter {
@@ -660,6 +660,15 @@ public class LoggerFilter {
     }
 
     /**
+     * Opens the timemap
+     */
+    public static void openTimeMap() {
+
+        LoggerGUI.OverviewManager.createSliderWindow(allLogs);
+        LoggerGUI.OverviewManager.createOverview(allLogs);
+    }
+
+    /**
      * Sets compounding to a passed in boolean parameter.
      * 
      * @param c -> The boolean that determines the state of compounding.
@@ -712,7 +721,8 @@ public class LoggerFilter {
         logsbyactuator("Allows you to view errors regarding specific actuators. COMPOUNDABLE.", 1,
                 "[Actuator to look for <Actuator Name>]"),
         creategraph("Creates a graph from error types or subsystem data given a graph type.", 3,
-                "[GraphType to look for <Graph Type>], [Start of range to parse through <int>], [End of range to parse through <int>]");
+                "[GraphType to look for <Graph Type>], [Start of range to parse through <int>], [End of range to parse through <int>]"),
+        timemap("Unknown, will implement soon!", 0, "[No parameters <N/A>]");
 
         String desc;
         int paramNum;
