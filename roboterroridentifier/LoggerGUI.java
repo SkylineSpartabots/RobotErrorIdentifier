@@ -1,18 +1,17 @@
 package roboterroridentifier;
 
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.*;
+import java.util.List;
 import java.awt.event.*;
 import java.awt.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -29,6 +28,8 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+
+import java.awt.image.BufferedImage;
 
 import roboterroridentifier.LoggerFilter.LogList;
 
@@ -1030,6 +1031,9 @@ public class LoggerGUI {
         }
     }
 
+    /**
+     * A class to manage overviews.
+     */
     public static class OverviewManager {
         private static JFrame sliderFrame;
         private static JPanel jp;
@@ -1042,6 +1046,17 @@ public class LoggerGUI {
 
         private static LogList mData;
 
+        private static JFrame imageFrame = new JFrame();;
+        private static ImagePanel[] allImagePanels = { new ImagePanel("Top View", "images\\F_Top_View_SB.png"),
+                new ImagePanel("Angle View", "images\\F_Angle_View_SB.png"),
+                new ImagePanel("Isometric View", "images\\F_Iso_View_SB.png") };
+        private static String[] panelNames;
+        private static JComboBox<Object> viewChooser;
+        private static ArrayList<String> activeActuators = new ArrayList<>();
+        private static int xPos;
+        private static int yPos;
+        private static JLabel pointLabel = new JLabel("Last clicked point: X, Y");
+
         public static void createSliderWindow(final LogList data) {
             mData = data;
             sliderFrame = new JFrame("Slider Frame");
@@ -1049,7 +1064,7 @@ public class LoggerGUI {
             jp.setLayout(new FlowLayout());
             sliderBar = new JSlider(0, LoggerGUI.GraphManager.maxSec(data), 0);
             jlb = new JLabel();
-            final SliderListener s = new SliderListener(); 
+            final SliderListener s = new SliderListener();
             sliderBar.addChangeListener(s);
             String[] SUBSYSTEM_KEYS_EXTENDED = new String[LoggerFilter.SUBSYSTEM_KEYS.length + 1];
             SUBSYSTEM_KEYS_EXTENDED[0] = "All";
@@ -1057,7 +1072,7 @@ public class LoggerGUI {
                 SUBSYSTEM_KEYS_EXTENDED[i] = LoggerFilter.SUBSYSTEM_KEYS[i - 1];
             }
             jcb = new JComboBox<>(SUBSYSTEM_KEYS_EXTENDED);
-            
+
             sliderBar.setBounds(50, 25, 200, 50);
             sliderBar.setPaintTrack(true);
             sliderBar.setPaintTicks(true);
@@ -1084,14 +1099,15 @@ public class LoggerGUI {
                 public void actionPerformed(ActionEvent a) {
                     jlb.setText("@t = " + sliderBar.getValue() + " - " + (sliderBar.getValue() + 1));
                     updateErrors(sliderBar.getValue());
+                    updateGraphics();
                 }
-                
             });
-
+            pointLabel.setBounds(125, 75, 400, 50);
             sliderFrame.add(sliderBar);
             sliderFrame.add(jlb);
             sliderFrame.add(jcb);
             sliderFrame.add(tlviewer);
+            sliderFrame.add(pointLabel);
             sliderFrame.add(jp);
             sliderFrame.setSize(400, 600);
             sliderFrame.setResizable(false);
@@ -1103,6 +1119,7 @@ public class LoggerGUI {
         }
 
         public static void updateErrors(final int t) {
+            activeActuators.clear();
             final LogList timedLog = new LogList();
             final int bottomBound = t;
             final int topBound = t + 1;
@@ -1113,32 +1130,31 @@ public class LoggerGUI {
                     timedLog.timeStamps.add(mData.timeStamps.get(j));
                 }
             }
-            splitLogsbySubsystem(timedLog);
-        }
-
-        public static void splitLogsbySubsystem(final LogList allLogs) {
             final ArrayList<LogList> subLogs = new ArrayList<>();
             for (int i = 0; i < LoggerFilter.SUBSYSTEM_KEYS.length; i++) {
                 subLogs.add(new LogList());
             }
-            for (int i = 0; i < allLogs.messages.size(); i++) {
+            for (int i = 0; i < timedLog.messages.size(); i++) {
                 for (int j = 0; j < LoggerFilter.SUBSYSTEM_KEYS.length; j++) {
-                    if (allLogs.messages.get(i).contains(LoggerFilter.SUBSYSTEM_KEYS[j])) {
-                        subLogs.get(j).messages.add(allLogs.messages.get(i));
-                        subLogs.get(j).timeStamps.add(allLogs.timeStamps.get(i));
+                    if (timedLog.messages.get(i).contains(LoggerFilter.SUBSYSTEM_KEYS[j])) {
+                        subLogs.get(j).messages.add(timedLog.messages.get(i));
+                        subLogs.get(j).timeStamps.add(timedLog.timeStamps.get(i));
                     }
                 }
             }
-            displayLogsOnFrame(subLogs);
-        }
-
-        public static void displayLogsOnFrame(ArrayList<LogList> subLogs) {
             jta.setText("");
             for (int i = 0; i < LoggerFilter.SUBSYSTEM_KEYS.length; i++) {
                 if (checkAllowedDisplay(i)) {
                     jta.append("Logs in " + LoggerFilter.SUBSYSTEM_KEYS[i] + ":\n");
                     for (int j = 0; j < subLogs.get(i).messages.size(); j++) {
                         jta.append(subLogs.get(i).messages.get(j) + " @t = " + subLogs.get(i).timeStamps.get(j) + "\n");
+                        for (int k = 0; k < LoggerFilter.ACTUATOR_NAMES.size(); k++) {
+                            if (subLogs.get(i).messages.get(j).contains(LoggerFilter.ACTUATOR_NAMES.get(k))) {
+                                if (!activeActuators.contains(LoggerFilter.ACTUATOR_NAMES.get(k))) {
+                                    activeActuators.add(LoggerFilter.ACTUATOR_NAMES.get(k));
+                                }
+                            }
+                        }
                     }
                     jta.append("\n");
                 }
@@ -1160,7 +1176,43 @@ public class LoggerGUI {
         }
 
         public static void createOverview(final LogList data) {
+            panelNames = new String[allImagePanels.length];
+            for (int i = 0; i < panelNames.length; i++) {
+                panelNames[i] = allImagePanels[i].getName();
+            }
+            viewChooser = new JComboBox<Object>(panelNames);
+            viewChooser.setBounds(100, 0, 400, 20);
+            viewChooser.setBackground(spartaGreen);
+            viewChooser.setForeground(plainWhite);
+            imageFrame.add(viewChooser);
+            viewChooser.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    updateGraphics();
+                }
+            });
+            updateGraphics();
+        }
 
+        public static void updateGraphics() {
+            for (ImagePanel ip : allImagePanels) {
+                imageFrame.remove(ip);
+            }
+            for (int i = 0; i < allImagePanels.length; i++) {
+                if (viewChooser.getSelectedItem().toString().equals(allImagePanels[i].getName())) {
+                    imageFrame.add(allImagePanels[i]);
+                    imageFrame.setName(allImagePanels[i].getName());
+                    if (allImagePanels[i].getMouseListeners().length < 1) {
+                        allImagePanels[i].addMouseListener(new ImageClickListener());
+                    }
+
+                }
+            }
+            imageFrame.repaint();
+            imageFrame.pack();
+            imageFrame.setVisible(true);
+            imageFrame.setLocationRelativeTo(null);
+            sliderFrame.requestFocus();
         }
 
         public static class SliderListener implements ChangeListener {
@@ -1168,6 +1220,126 @@ public class LoggerGUI {
             public void stateChanged(final ChangeEvent e) {
                 jlb.setText("@t = " + sliderBar.getValue() + " - " + (sliderBar.getValue() + 1));
                 updateErrors(sliderBar.getValue());
+                updateGraphics();
+                sliderBar.requestFocusInWindow();
+            }
+        }
+
+        public static class ImageClickListener implements MouseListener {
+
+            @Override
+            public void mouseClicked(MouseEvent p) {
+                pointLabel.setText("Last clicked point: " + p.getX() + ", " + p.getY());
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent arg0) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent arg0) {
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent arg0) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent arg0) {
+
+            }
+        }
+
+        public static class ImagePanel extends JPanel {
+            private static final long serialVersionUID = 1L;
+            private BufferedImage mImage;
+            private String mName;
+            private HashMap<String, List<Integer>> aCoords = new HashMap<String, List<Integer>>();
+
+            public ImagePanel(String name, String filePath) {
+                super.setName(name);
+                mName = name;
+                try {
+                    mImage = ImageIO.read(new File(filePath));
+                } catch (IOException e) {
+                    printToFrame("Could not find image.");
+                }
+                manualDimension();
+            }
+
+            /**
+             * Case statement strings should reflect names of ImagePanels declared at the
+             * top of the class.
+             */
+            public void manualDimension() {
+                switch (mName) {
+                case "Top View":
+                    aCoords.put("Left Master", Arrays.asList(179, 294));
+                    aCoords.put("Left Slave", Arrays.asList(179, 352));
+                    aCoords.put("Right Master", Arrays.asList(459, 295));
+                    aCoords.put("Right Slave", Arrays.asList(456, 358));
+                    aCoords.put("Limelight", Arrays.asList(317, 96));
+                    aCoords.put("Intake Master", Arrays.asList(126, 648));
+                    aCoords.put("Intake Slave", Arrays.asList(515, 648));
+                    aCoords.put("Shooter Master", Arrays.asList(227, 100));
+                    aCoords.put("Shooter Slave", Arrays.asList(410, 100));
+                    break;
+                case "Angle View":
+                    aCoords.put("Left Master", Arrays.asList(189, 444));
+                    aCoords.put("Left Slave", Arrays.asList(189, 487));
+                    aCoords.put("Right Master", Arrays.asList(452, 445));
+                    aCoords.put("Right Slave", Arrays.asList(452, 485));
+                    aCoords.put("Intake Master", Arrays.asList(145, 588));
+                    aCoords.put("Intake Slave", Arrays.asList(503, 588));
+                    aCoords.put("Shooter Master", Arrays.asList(228, 135));
+                    aCoords.put("Shooter Slave", Arrays.asList(403, 135));
+                    aCoords.put("Top Piston", Arrays.asList(115, 281));
+                    aCoords.put("Side Left Piston", Arrays.asList(90, 461));
+                    aCoords.put("Side Right Piston", Arrays.asList(555, 461));
+                    break;
+                case "Isometric View":
+                    aCoords.put("Left Master", Arrays.asList(182, 344));
+                    aCoords.put("Left Slave", Arrays.asList(186, 386));
+                    aCoords.put("Right Master", Arrays.asList(336, 416));
+                    aCoords.put("Right Slave", Arrays.asList(338, 456));
+                    aCoords.put("Intake Master", Arrays.asList(294, 542));
+                    aCoords.put("Intake Slave", Arrays.asList(503, 636));
+                    aCoords.put("Shooter Master", Arrays.asList(355, 117));
+                    aCoords.put("Limelight", Arrays.asList(428, 114));
+                    break;
+                }
+            }
+
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(mImage.getWidth(), mImage.getHeight() + 100);
+            }
+
+            @Override
+            public void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.drawImage(mImage, 0, 20, this);
+                g2d.setStroke(new BasicStroke(10));
+                g2d.setColor(Color.RED);
+                for (int j = 0; j < activeActuators.size(); j++) {
+                    if (aCoords.containsKey(activeActuators.get(j))) {
+                        xPos = aCoords.get(activeActuators.get(j)).get(0);
+                        yPos = aCoords.get(activeActuators.get(j)).get(1);
+                        g2d.drawOval(xPos - 50, yPos - 50, 100, 100);
+                    }
+                }
+                g2d.dispose();
+            }
+
+            public String getName() {
+                return mName;
+            }
+
+            public HashMap<String, List<Integer>> getCoords() {
+                return aCoords;
             }
         }
     }

@@ -19,7 +19,7 @@ import java.util.Scanner;
  * robot malfunctions. It can also parse further through the use of commands to
  * find specific errors. Helpful for post-match diagnostics.
  * 
- * @version 5.3.0
+ * @version 6.0.0
  * @author Team 2976!
  */
 public class LoggerFilter {
