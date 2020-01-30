@@ -650,10 +650,10 @@ public class LoggerFilter {
             break;
         }
 
-        final LoggerGUI.GraphManager.GraphType[] gTypes = LoggerGUI.GraphManager.GraphType.values();
+        final GraphManager.GraphType[] gTypes = GraphManager.GraphType.values();
         for (int i = 0; i < types.length; i++) {
             if (types[i].equalsIgnoreCase(type)) {
-                LoggerGUI.GraphManager.addGraph(gTypes[i], toGraphList, bounds);
+                GraphManager.addGraph(gTypes[i], toGraphList, bounds);
                 return;
             }
         }
@@ -664,8 +664,8 @@ public class LoggerFilter {
      */
     public static void openTimeMap() {
 
-        LoggerGUI.OverviewManager.createSliderWindow(allLogs);
-        LoggerGUI.OverviewManager.createOverview(allLogs);
+        OverviewManager.createSliderWindow(allLogs);
+        OverviewManager.createOverview(allLogs);
     }
 
     /**
