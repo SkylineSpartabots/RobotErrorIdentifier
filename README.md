@@ -80,12 +80,6 @@ Example: S_LOG !!! Error: <timestamp> "SUBSYSTEM_NAME_HERE: message" !!! E_LOG
 #### By Actuator
 Actuators are components (Talons, solenoids, etc.). If you want to view errors coming from a specific actuator, surround the name of the actuator with "@".
 
-<<<<<<< HEAD:README.md
-=======
-#### By Actuator
-Actuators are components (Talons, solenoids, etc.). If you want to view errors coming from a specific actuator, surround the name of the actuator with "@".
-
->>>>>>> 3d63bec5ebf221ecebae8912514429f66a1c4362:README.txt
 Example: S_LOG !!! Error: <timestamp> "@ACTUATOR_NAME_HERE@ message" !!! E_LOG
 
 **These filter types can be combined.**

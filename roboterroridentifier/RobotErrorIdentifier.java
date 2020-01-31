@@ -8,7 +8,7 @@ package roboterroridentifier;
  * errors, and much more. Helpful for post-match diagnostics.
  * <If you can see this, thanks for checking out our code! :) >
  * 
- * @version 7.1.1
+ * @version 7.1.2
  * @author Team 2976!
  * @see Github: https://github.com/SkylineSpartabots/RobotErrorIdentifier
  */
