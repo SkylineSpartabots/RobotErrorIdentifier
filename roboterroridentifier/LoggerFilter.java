@@ -14,13 +14,7 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * A client that can be run at the end of matches to parse through .dsevents
- * files and output a ".txt" file that only contains important information about
- * robot malfunctions. It can also parse further through the use of commands to
- * find specific errors. Helpful for post-match diagnostics.
- * 
- * @version 6.0.0
- * @author Team 2976!
+ * Class that handles basic filtering and command execution.
  */
 public class LoggerFilter {
     /**
