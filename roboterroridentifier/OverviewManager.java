@@ -66,7 +66,7 @@ public class OverviewManager {
         jlb = new JLabel();
         final SliderListener s = new SliderListener();
         sliderBar.addChangeListener(s);
-        String[] SUBSYSTEM_KEYS_EXTENDED = new String[LoggerFilter.SUBSYSTEM_KEYS.length + 1];
+        final String[] SUBSYSTEM_KEYS_EXTENDED = new String[LoggerFilter.SUBSYSTEM_KEYS.length + 1];
         SUBSYSTEM_KEYS_EXTENDED[0] = "All";
         for (int i = 1; i < SUBSYSTEM_KEYS_EXTENDED.length; i++) {
             SUBSYSTEM_KEYS_EXTENDED[i] = LoggerFilter.SUBSYSTEM_KEYS[i - 1];
@@ -90,13 +90,13 @@ public class OverviewManager {
         jcb.setForeground(LoggerGUI.plainWhite);
 
         jta = new JTextArea();
-        JScrollPane tlviewer = new JScrollPane(jta, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+        final JScrollPane tlviewer = new JScrollPane(jta, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         tlviewer.setBounds(0, 150, 400, 400);
 
         jcb.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent a) {
+            public void actionPerformed(final ActionEvent a) {
                 jlb.setText("@t = " + sliderBar.getValue() + " - " + (sliderBar.getValue() + 1));
                 updateErrors(sliderBar.getValue());
                 updateGraphics();
@@ -161,7 +161,7 @@ public class OverviewManager {
         }
     }
 
-    public static boolean checkAllowedDisplay(int n) {
+    public static boolean checkAllowedDisplay(final int n) {
         boolean canDo = false;
         if (jcb.getSelectedItem().toString().equals("All")) {
             canDo = true;
@@ -187,7 +187,7 @@ public class OverviewManager {
         imageFrame.add(viewChooser);
         viewChooser.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 updateGraphics();
             }
         });
@@ -195,7 +195,7 @@ public class OverviewManager {
     }
 
     public static void updateGraphics() {
-        for (ImagePanel ip : allImagePanels) {
+        for (final ImagePanel ip : allImagePanels) {
             imageFrame.remove(ip);
         }
         for (int i = 0; i < allImagePanels.length; i++) {
@@ -228,27 +228,27 @@ public class OverviewManager {
     public static class ImageClickListener implements MouseListener {
 
         @Override
-        public void mouseClicked(MouseEvent p) {
+        public void mouseClicked(final MouseEvent p) {
             pointLabel.setText("Last clicked point: " + p.getX() + ", " + p.getY());
         }
 
         @Override
-        public void mouseEntered(MouseEvent arg0) {
+        public void mouseEntered(final MouseEvent arg0) {
 
         }
 
         @Override
-        public void mouseExited(MouseEvent arg0) {
+        public void mouseExited(final MouseEvent arg0) {
 
         }
 
         @Override
-        public void mousePressed(MouseEvent arg0) {
+        public void mousePressed(final MouseEvent arg0) {
 
         }
 
         @Override
-        public void mouseReleased(MouseEvent arg0) {
+        public void mouseReleased(final MouseEvent arg0) {
 
         }
     }
@@ -256,15 +256,15 @@ public class OverviewManager {
     public static class ImagePanel extends JPanel {
         private static final long serialVersionUID = 1L;
         private BufferedImage mImage;
-        private String mName;
-        private HashMap<String, List<Integer>> aCoords = new HashMap<String, List<Integer>>();
+        private final String mName;
+        private final HashMap<String, List<Integer>> aCoords = new HashMap<String, List<Integer>>();
 
-        public ImagePanel(String name, String filePath) {
+        public ImagePanel(final String name, final String filePath) {
             super.setName(name);
             mName = name;
             try {
                 mImage = ImageIO.read(new File(filePath));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 LoggerGUI.printToFrame("Could not find image.");
             }
             manualDimension();
@@ -280,8 +280,8 @@ public class OverviewManager {
         }
 
         @Override
-        public void paintComponent(Graphics g) {
-            Graphics2D g2d = (Graphics2D) g.create();
+        public void paintComponent(final Graphics g) {
+            final Graphics2D g2d = (Graphics2D) g.create();
             g2d.drawImage(mImage, 0, 20, this);
             g2d.setStroke(new BasicStroke(10));
             g2d.setColor(Color.RED);
@@ -311,7 +311,7 @@ public class OverviewManager {
         public String mName;
         public String mPath;
 
-        private ImageStorage(String name, String path) {
+        private ImageStorage(final String name, final String path) {
             mName = name;
             mPath = path;
         }

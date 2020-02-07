@@ -25,7 +25,7 @@ import roboterroridentifier.LoggerFilter.LogList;
  */
 public class GraphManager {
     public enum GraphType {
-        LINE(new Line()), BAR(new Bar()), PIE(new Pie()), MULTILINE(new MultiLine());
+        LINE(new Line()), BAR(new Bar()), PIE(new Pie()), MULTILINE(new MultiLine()), AREA(new Area());
 
         public GraphDraw getGraph() {
             return graph;
@@ -49,6 +49,37 @@ public class GraphManager {
     public static int maxSec(final LogList lldata) {
         return lldata.timeStamps.size() < 1 ? 0
                 : (int) (Double.parseDouble(lldata.timeStamps.get(lldata.timeStamps.size() - 1)));
+    }
+
+    public static int[] getInterval(final LogList data) {
+        final int[] intervals = new int[2];
+        final int maxSize = data.timeStamps.size();
+        intervals[0] = maxSize / 4;
+        try {
+            intervals[1] = maxSize / intervals[0];
+        } catch (final ArithmeticException e) {
+            intervals[1] = 0;
+        }
+        return intervals;
+    }
+
+    public static int[] getInterval(final ArrayList<LogList> data) {
+        final int[] intervals = new int[2];
+        double maxSize = 0;
+        for (int i = 0; i < data.size(); i++) {
+            for (int j = 0; j < data.get(i).timeStamps.size(); j++) {
+                if (Double.valueOf(data.get(i).timeStamps.get(j)) > maxSize) {
+                    maxSize = Double.valueOf(data.get(i).timeStamps.get(j));
+                }
+            }
+        }
+        intervals[0] = (int) maxSize / 4;
+        try {
+            intervals[1] = (int) maxSize / intervals[0];
+        } catch (final ArithmeticException e) {
+            intervals[1] = 0;
+        }
+        return intervals;
     }
 
     public static class Bar implements GraphDraw {
@@ -242,6 +273,70 @@ public class GraphManager {
             frame.pack();
             frame.setVisible(true);
             LoggerGUI.printToFrame("Pie graph of message types constructed successfully");
+        }
+    }
+
+    public static class Area implements GraphDraw {
+        @Override
+        public void draw(final ArrayList<LogList> data, final double[] bounds) {
+            final DefaultCategoryDataset objDataset = new DefaultCategoryDataset();
+            final String[] labels = LoggerFilter.SUBSYSTEM_KEYS;
+
+            final ArrayList<LogList> dataInRange = new ArrayList<>();
+            int maxIndex = 0;
+            for (int i = 0; i < data.size(); i++) {
+                if (data.get(i).timeStamps.size() > data.get(maxIndex).timeStamps.size()) {
+                    maxIndex = i;
+                }
+                dataInRange.add(new LogList());
+                for (int j = (int) bounds[0]; j < data.get(i).timeStamps.size(); j++) {
+                    if (Double.valueOf(data.get(i).timeStamps.get(j)) < bounds[1]) {
+                        dataInRange.get(i).timeStamps.add(data.get(i).timeStamps.get(j));
+                    }
+                }
+            }
+
+            final ArrayList<int[]> errors = new ArrayList<>(dataInRange.size());
+            for (int i = 0; i < dataInRange.size(); i++) {
+                errors.add(new int[getInterval(dataInRange)[1]]);
+            }
+            for (int i = 0; i < errors.size(); i++) {
+                int timestampIndex = 0;
+                int nullIndex = 0;
+                for (int j = 0; j < errors.get(i).length; j++) {
+                    for (int k = 0; k < getInterval(dataInRange)[0]; k++) {
+                        try {
+                            if (Double.valueOf(dataInRange.get(i).timeStamps.get(timestampIndex)) == nullIndex) {
+                                errors.get(i)[j] += 1;
+                                timestampIndex++;
+                            }
+                            nullIndex++;
+                        } catch (final IndexOutOfBoundsException e) {
+
+                        }
+                    }
+                }
+            }
+            for (int i = 0; i < errors.size(); i++) {
+                for (int j = 0; j < errors.get(i).length; j++) {
+                    objDataset.addValue(errors.get(i)[j], labels[i], "" + (getInterval(dataInRange)[0]) * (j + 1));
+                }
+            }
+
+            // System.out.println(errors.size());
+            final JFreeChart objChart = ChartFactory.createAreaChart("Subsystem Message Area Graph", // Chart title
+                    "Subsystem", // Domain axis label
+                    "Number of Messages", // Range axis label
+                    objDataset, // Chart Data
+                    PlotOrientation.VERTICAL, // orientation
+                    true, // include legend?
+                    true, // include tooltips?
+                    false // include URLs?
+            );
+
+            final ChartFrame frame = new ChartFrame("SubsystemArea", objChart);
+            frame.pack();
+            frame.setVisible(true);
         }
     }
 }

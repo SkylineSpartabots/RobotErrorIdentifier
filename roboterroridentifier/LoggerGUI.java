@@ -632,7 +632,7 @@ public class LoggerGUI {
             case "Graph Type":
                 final String[] types = { "Line Graph (All Messages over Time)",
                         "Multiline Graph (All Subsystem Messages over Time)", "Bar Graph (Message Types by Count)",
-                        "Pie Chart (Subsystem Messages by Count)" };
+                        "Pie Chart (Subsystem Messages by Count)", "Area Graph (All Subsystem messages compared)" };
                 final JComboBox<Object> jcbg = createDropdown(counter, types);
                 jcbg.setBackground(spartaGreen);
                 jcbg.setForeground(plainWhite);

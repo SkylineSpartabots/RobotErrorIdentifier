@@ -169,7 +169,7 @@ public class LoggerFilter {
      * 
      * @param s -> String from the text box.
      */
-    public static void setSubsystemKeywords(String s) {
+    public static void setSubsystemKeywords(final String s) {
         final String[] keywordNames = s.split(",");
         SUBSYSTEM_KEYS = new String[keywordNames.length];
         for (int i = 0; i < keywordNames.length; i++) {
@@ -184,7 +184,7 @@ public class LoggerFilter {
      * 
      * @param s -> String from the text box.
      */
-    public static void setOverflowLimit(String s) {
+    public static void setOverflowLimit(final String s) {
         try {
             overflowLineMax = Integer.parseInt(s);
             LoggerGUI.printToFrame("Console Overflow Limit: " + overflowLineMax);
@@ -607,7 +607,8 @@ public class LoggerFilter {
 
     public static void createGraph(final String type, String start, String end) {
         final String[] types = { "Line Graph (All Messages over Time)", "Bar Graph (Message Types by Count)",
-                "Pie Chart (Subsystem Messages by Count)", "Multiline Graph (All Subsystem Messages over Time)" };
+                "Pie Chart (Subsystem Messages by Count)", "Multiline Graph (All Subsystem Messages over Time)",
+                "Area Graph (All Subsystem messages compared)" };
 
         double[] bounds = new double[2];
         try {
@@ -642,6 +643,11 @@ public class LoggerFilter {
                     "Creating multiline graph(s) with subsystem logs between timestamps: " + start + " and " + end);
             toGraphList = subsystemLogs;
             break;
+        case "Area Graph (All Subsystem messages compared)":
+            LoggerGUI.printToFrame(
+                    "Creating comparative area graph with subsystem logs between timestamps: " + start + " and " + end);
+            toGraphList = subsystemLogs;
+            break;
         }
 
         final GraphManager.GraphType[] gTypes = GraphManager.GraphType.values();
@@ -657,7 +663,6 @@ public class LoggerFilter {
      * Opens the timemap
      */
     public static void openTimeMap() {
-
         OverviewManager.createSliderWindow(allLogs);
         OverviewManager.createOverview(allLogs);
     }
@@ -762,6 +767,7 @@ public class LoggerFilter {
             this.values = values;
         }
 
+        @Override
         public String toString() {
             return messages.toString() + " " + timeStamps.toString();
         }

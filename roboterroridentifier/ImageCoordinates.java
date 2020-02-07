@@ -8,7 +8,8 @@ import java.util.List;
  * Class that contains coordinates of all actuators for each angle of the robot.
  * You can find out what each coordiante should be by clicking on the actuator
  * and viewing the Last clicked point" coordinates after clicking on the center
- * of the actuator on the robot image.
+ * of the actuator on the robot image. All coordinates should be in the format
+ * Arrays.asList(X, Y).
  */
 public class ImageCoordinates {
     /**
@@ -20,7 +21,7 @@ public class ImageCoordinates {
      *                position of the actuator (X, Y) for the viewing angle.
      * @param aCoords -> The hashmap to populate.
      */
-    public static void setupCoordinates(String mName, HashMap<String, List<Integer>> aCoords) {
+    public static void setupCoordinates(final String mName, final HashMap<String, List<Integer>> aCoords) {
         switch (mName) {
         case "Top View":
             aCoords.put("Left Master", Arrays.asList(179, 294));
