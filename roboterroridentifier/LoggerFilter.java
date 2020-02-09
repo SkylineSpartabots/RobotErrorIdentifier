@@ -82,6 +82,14 @@ public class LoggerFilter {
      */
     private static ArrayList<LogList> subsystemLogs = new ArrayList<>();
     /**
+     * LoggerPro keyword.
+     */
+    private static String loggerproKeyword[] = { "~~~ LoggerPro:", "~~~" };
+    /**
+     * A LogList that holds data for loggerpro info.
+     */
+    private static LogList loggerProLogs = new LogList();
+    /**
      * A LogList that has temporary data written to it for compounding.
      */
     private static LogList toParse = new LogList();
@@ -285,6 +293,9 @@ public class LoggerFilter {
                     subsystemLogs.get(i).messages.add(logLine);
                 }
             }
+            if (logLine.contains(loggerproKeyword[0])) {
+                loggerProLogs.messages.add(logLine);
+            }
             allLogs.messages.add(logLine.trim());
         }
 
@@ -294,7 +305,7 @@ public class LoggerFilter {
         for (int i = 0; i < SUBSYSTEM_KEYS.length; i++) {
             subsystemLogs.get(i).values = hashify(subsystemLogs.get(i).messages, subsystemLogs.get(i).timeStamps);
         }
-
+        loggerProLogs.values = hashify(loggerProLogs.messages, loggerProLogs.timeStamps);
         allLogs.values = hashify(allLogs.messages, allLogs.timeStamps);
         writeToFile(allLogs.values);
     }
@@ -670,6 +681,39 @@ public class LoggerFilter {
     }
 
     /**
+     * Initializes the formatted LoggerPro file and parses the loggerProLogs
+     * LogList. Also prints it to an output file.
+     */
+    public static void parseLoggerPro(String tableName, String xu, String yu) {
+        ArrayList<Double> xs = new ArrayList<Double>();
+        ArrayList<Double> ys = new ArrayList<Double>();
+        FileWriter fw;
+        File loggerProTextFile = new File("output\\commandoutput\\loggerPro_ROBOT_ERROR_IDENTIFIER.txt");
+        try {
+            fw = new FileWriter(loggerProTextFile, false);
+            final PrintWriter printer = new PrintWriter(fw);
+            printer.println("Vernier Format 2");
+            printer.println("robotErrorIdentifier.cmbl");
+            printer.println(tableName);
+            printer.println("X-Axis\tY-Axis");
+            printer.println("x\ty");
+            printer.println(xu + "\t" + yu);
+            for (int i = 0; i < loggerProLogs.messages.size(); i++) {
+                xs.add(Double.parseDouble(loggerProLogs.messages.get(i).substring(
+                        loggerProLogs.messages.get(i).indexOf("X:") + 3, loggerProLogs.messages.get(i).indexOf(","))));
+                ys.add(Double.parseDouble(
+                        loggerProLogs.messages.get(i).substring(loggerProLogs.messages.get(i).indexOf("Y:") + 3,
+                                loggerProLogs.messages.get(i).lastIndexOf("~") - 3)));
+                printer.println(xs.get(i) + "\t" + ys.get(i));
+            }
+            printer.close();
+            LoggerGUI.openOutput(loggerProTextFile.getAbsolutePath());
+        } catch (IOException e) {
+            LoggerGUI.printToFrame("Could not print to LoggerPro file.");
+        }
+    }
+
+    /**
      * Sets compounding to a passed in boolean parameter.
      * 
      * @param c -> The boolean that determines the state of compounding.
@@ -723,7 +767,9 @@ public class LoggerFilter {
                 "[Actuator to look for <Actuator Name>]"),
         creategraph("Creates a graph from error types or subsystem data given a graph type.", 3,
                 "[GraphType to look for <Graph Type>], [Start of range to parse through <int>], [End of range to parse through <int>]"),
-        timemap("Unknown, will implement soon!", 0, "[No parameters <N/A>]");
+        timemap("Unknown, will implement soon!", 0, "[No parameters <N/A>]"),
+        loggerpro("Outputs a logger-pro readable file.", 0,
+                "[Data set name <String>], [x-axis units <String>], [y-axis units <String>]");
 
         String desc;
         int paramNum;

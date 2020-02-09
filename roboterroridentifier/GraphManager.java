@@ -82,6 +82,18 @@ public class GraphManager {
         return intervals;
     }
 
+    public static int axisSizeByInt(int intervalSize, ArrayList<LogList> data) {
+        double maxSize = 0;
+        for (int i = 0; i < data.size(); i++) {
+            for (int j = 0; j < data.get(i).timeStamps.size(); j++) {
+                if (Double.valueOf(data.get(i).timeStamps.get(j)) > maxSize) {
+                    maxSize = Double.valueOf(data.get(i).timeStamps.get(j));
+                }
+            }
+        }
+        return (int) (maxSize / intervalSize);
+    }
+
     public static class Bar implements GraphDraw {
         @Override
         public void draw(final ArrayList<LogList> data, final double[] bounds) {
@@ -281,7 +293,7 @@ public class GraphManager {
         public void draw(final ArrayList<LogList> data, final double[] bounds) {
             final DefaultCategoryDataset objDataset = new DefaultCategoryDataset();
             final String[] labels = LoggerFilter.SUBSYSTEM_KEYS;
-
+            final int secInterval = 5;
             final ArrayList<LogList> dataInRange = new ArrayList<>();
             int maxIndex = 0;
             for (int i = 0; i < data.size(); i++) {
@@ -295,35 +307,28 @@ public class GraphManager {
                     }
                 }
             }
-
             final ArrayList<int[]> errors = new ArrayList<>(dataInRange.size());
             for (int i = 0; i < dataInRange.size(); i++) {
-                errors.add(new int[getInterval(dataInRange)[1]]);
+                errors.add(new int[axisSizeByInt(secInterval, dataInRange)]);
             }
             for (int i = 0; i < errors.size(); i++) {
-                int timestampIndex = 0;
-                int nullIndex = 0;
                 for (int j = 0; j < errors.get(i).length; j++) {
-                    for (int k = 0; k < getInterval(dataInRange)[0]; k++) {
-                        try {
-                            if (Double.valueOf(dataInRange.get(i).timeStamps.get(timestampIndex)) == nullIndex) {
-                                errors.get(i)[j] += 1;
-                                timestampIndex++;
-                            }
-                            nullIndex++;
-                        } catch (final IndexOutOfBoundsException e) {
-
+                    final int bottomBound = j;
+                    final int topBound = j + 1;
+                    for (int k = 0; k < dataInRange.get(i).timeStamps.size(); k++) {
+                        final double ts = Double.parseDouble(dataInRange.get(i).timeStamps.get(k));
+                        if (ts > bottomBound && ts <= topBound) {
+                            errors.get(i)[j]++;
                         }
                     }
                 }
             }
             for (int i = 0; i < errors.size(); i++) {
                 for (int j = 0; j < errors.get(i).length; j++) {
-                    objDataset.addValue(errors.get(i)[j], labels[i], "" + (getInterval(dataInRange)[0]) * (j + 1));
+                    objDataset.addValue(errors.get(i)[j], labels[i], "" + (secInterval * (j + 1)));
                 }
             }
 
-            // System.out.println(errors.size());
             final JFreeChart objChart = ChartFactory.createAreaChart("Subsystem Message Area Graph", // Chart title
                     "Subsystem", // Domain axis label
                     "Number of Messages", // Range axis label

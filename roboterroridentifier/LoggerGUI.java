@@ -776,6 +776,8 @@ public class LoggerGUI {
             break;
         case timemap:
             LoggerFilter.openTimeMap();
+        case loggerpro:
+            LoggerFilter.parseLoggerPro(input.get(0), input.get(1), input.get(2));
         }
         printToFrame("Command Complete.");
         printToFrame("--------------------------------------------------");

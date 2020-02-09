@@ -12,6 +12,10 @@ JUNK
 S_LOG <<< Warning: <0.22> Drive Warning B @Right Master@ >>> E_LOG
 S_LOG ### <0.24> Message A ### E_LOG
 S_LOG <<< Warning: <0.26> Drive Warning B @Right Master@ >>> E_LOG
+S_LOG ~~~ LoggerPro: <0.28> X: 5, Y: 5 ~~~ E_LOG
+S_LOG ~~~ LoggerPro: <0.29> X: 6, Y: 6 ~~~ E_LOG
+S_LOG ~~~ LoggerPro: <0.30> X: 7.5435, Y: 2.46372467392564 ~~~ E_LOG
+S_LOG ~~~ LoggerPro: <0.31> X: -1.432, Y: -7.43298 ~~~ E_LOG
 JUNK
 JUNK
 S_LOG !!! Error: <0.32> Drive Error B !!! E_LOG
