@@ -33,6 +33,15 @@ Ex: Logs within t = 5.00 and t = 7.00 that are also Errors.
 
 Because these results should be nice and small, they are printed to the viewing window.
 
+### LOGGERPRO: Certain outputs can be tagged in "LoggerPro" format
+**How this works**
+Bounds:  
+Start: "~~~ LoggerPro:" 
+End: "~~~"
+Ex. S_LOG ~~~ LoggerPro: <29.76> X: 29.00, Y: 76.00 ~~~ E_LOG
+Formatting can be to any decimal place (within the bounds of doubles) but it is best to keep them to the hundredths or thousandths place.
+Be VERY exact with spacing (copy/paste example if needed).
+
 ## HOTKEYS: 
 #### CTRL + {Q, C, G, D, S}
 Q: Quit
