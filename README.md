@@ -33,7 +33,7 @@ Ex: Logs within t = 5.00 and t = 7.00 that are also Errors.
 
 Because these results should be nice and small, they are printed to the viewing window.
 
-### LOGGERPRO: Certain outputs can be tagged in "LoggerPro" format
+#### LOGGERPRO: Certain outputs can be tagged in "LoggerPro" format
 **How this works**
 Bounds:  
 Start: "~~~ LoggerPro:" 
