@@ -23,39 +23,30 @@ public class ImageCoordinates {
      */
     public static void setupCoordinates(final String mName, final HashMap<String, List<Integer>> aCoords) {
         switch (mName) {
-        case "Top View":
-            aCoords.put("Left Master", Arrays.asList(179, 294));
-            aCoords.put("Left Slave", Arrays.asList(179, 352));
-            aCoords.put("Right Master", Arrays.asList(459, 295));
-            aCoords.put("Right Slave", Arrays.asList(456, 358));
-            aCoords.put("Limelight Problem", Arrays.asList(317, 96));
-            aCoords.put("Intake Master", Arrays.asList(126, 648));
-            aCoords.put("Intake Slave", Arrays.asList(515, 648));
-            aCoords.put("Shooter Master", Arrays.asList(227, 100));
-            aCoords.put("Shooter Slave", Arrays.asList(410, 100));
+        case "Drivetrain":
+            aCoords.put("Left Master Falcon", Arrays.asList(148, 304));
+            aCoords.put("Right Master Falcon", Arrays.asList(353, 304));
+            aCoords.put("Left Slave Falcon", Arrays.asList(148, 343));
+            aCoords.put("Right Slave Falcon", Arrays.asList(353, 343));
             break;
-        case "Angle View":
-            aCoords.put("Left Master", Arrays.asList(189, 444));
-            aCoords.put("Left Slave", Arrays.asList(189, 487));
-            aCoords.put("Right Master", Arrays.asList(452, 445));
-            aCoords.put("Right Slave", Arrays.asList(452, 485));
-            aCoords.put("Intake Master", Arrays.asList(145, 588));
-            aCoords.put("Intake Slave", Arrays.asList(503, 588));
-            aCoords.put("Shooter Master", Arrays.asList(228, 135));
-            aCoords.put("Shooter Slave", Arrays.asList(403, 135));
-            aCoords.put("Top Piston", Arrays.asList(115, 281));
-            aCoords.put("Side Left Piston", Arrays.asList(90, 461));
-            aCoords.put("Side Right Piston", Arrays.asList(555, 461));
+        case "Hopper":
+            aCoords.put("Left Hopper Motor", Arrays.asList(45, 278));
+            aCoords.put("Right Hopper Motor", Arrays.asList(452, 278));
             break;
-        case "Isometric View":
-            aCoords.put("Left Master", Arrays.asList(182, 344));
-            aCoords.put("Left Slave", Arrays.asList(186, 386));
-            aCoords.put("Right Master", Arrays.asList(336, 416));
-            aCoords.put("Right Slave", Arrays.asList(338, 456));
-            aCoords.put("Intake Master", Arrays.asList(294, 542));
-            aCoords.put("Intake Slave", Arrays.asList(503, 636));
-            aCoords.put("Shooter Master", Arrays.asList(355, 117));
-            aCoords.put("Limelight Problem", Arrays.asList(428, 114));
+        case "Intake":
+            aCoords.put("Left Intake Motor", Arrays.asList(77, 207));
+            aCoords.put("Right Intake Motor", Arrays.asList(419, 189));
+            aCoords.put("Left Deploy Piston", Arrays.asList(35, 412));
+            aCoords.put("Right Deploy Piston", Arrays.asList(464, 412));
+            break;
+        case "Shooter/Climb":
+            aCoords.put("Left Winch Motor", Arrays.asList(128, 116));
+            aCoords.put("Right Winch Motor", Arrays.asList(431, 116));
+            aCoords.put("Index Motor", Arrays.asList(351, 268));
+            aCoords.put("Left Shooter Motor", Arrays.asList(210, 304));
+            aCoords.put("Right Shooter Motor", Arrays.asList(355, 304));
+            aCoords.put("Slide Motor", Arrays.asList(235, 472));
+            aCoords.put("Limelight", Arrays.asList(280,55));
             break;
         }
     }

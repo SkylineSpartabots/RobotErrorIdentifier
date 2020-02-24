@@ -131,15 +131,21 @@ public class OverviewManager {
             }
         }
         final ArrayList<LogList> subLogs = new ArrayList<>();
-        for (int i = 0; i < LoggerFilter.SUBSYSTEM_KEYS.length; i++) {
+        for (int i = 0; i < LoggerFilter.SUBSYSTEM_KEYS.length + 1; i++) {
             subLogs.add(new LogList());
         }
         for (int i = 0; i < timedLog.messages.size(); i++) {
+            boolean inAnything = false;
             for (int j = 0; j < LoggerFilter.SUBSYSTEM_KEYS.length; j++) {
                 if (timedLog.messages.get(i).contains(LoggerFilter.SUBSYSTEM_KEYS[j])) {
                     subLogs.get(j).messages.add(timedLog.messages.get(i));
                     subLogs.get(j).timeStamps.add(timedLog.timeStamps.get(i));
+                    inAnything = true;
                 }
+            }
+            if (!inAnything) {
+                subLogs.get(LoggerFilter.SUBSYSTEM_KEYS.length).messages.add(timedLog.messages.get(i));
+                subLogs.get(LoggerFilter.SUBSYSTEM_KEYS.length).timeStamps.add(timedLog.timeStamps.get(i));
             }
         }
         jta.setText("");
@@ -159,6 +165,18 @@ public class OverviewManager {
                 jta.append("\n");
             }
         }
+        jta.append("Logs in " + "Other" + ":\n");
+                for (int j = 0; j < subLogs.get(LoggerFilter.SUBSYSTEM_KEYS.length).messages.size(); j++) {
+                    jta.append(subLogs.get(LoggerFilter.SUBSYSTEM_KEYS.length).messages.get(j) + " @t = " + subLogs.get(LoggerFilter.SUBSYSTEM_KEYS.length).timeStamps.get(j) + "\n");
+                    for (int k = 0; k < LoggerFilter.ACTUATOR_NAMES.size(); k++) {
+                        if (subLogs.get(LoggerFilter.SUBSYSTEM_KEYS.length).messages.get(j).contains("@" + LoggerFilter.ACTUATOR_NAMES.get(k) + "@")) {
+                            if (!activeActuators.contains(LoggerFilter.ACTUATOR_NAMES.get(k))) {
+                                activeActuators.add(LoggerFilter.ACTUATOR_NAMES.get(k));
+                            }
+                        }
+                    }
+                }
+                jta.append("\n");
     }
 
     public static boolean checkAllowedDisplay(final int n) {
@@ -276,13 +294,13 @@ public class OverviewManager {
 
         @Override
         public Dimension getPreferredSize() {
-            return new Dimension(mImage.getWidth(), mImage.getHeight() + 100);
+            return new Dimension(500, 500 + 100);
         }
 
         @Override
         public void paintComponent(final Graphics g) {
             final Graphics2D g2d = (Graphics2D) g.create();
-            g2d.drawImage(mImage, 0, 20, this);
+            g2d.drawImage(mImage, 0, 20, 500, 600, this);
             g2d.setStroke(new BasicStroke(10));
             g2d.setColor(Color.RED);
             for (int j = 0; j < activeActuators.size(); j++) {
@@ -305,8 +323,9 @@ public class OverviewManager {
     }
 
     public enum ImageStorage {
-        TOP("Top View", "images\\F_Top_View_SB.png"), ANGLE("Angle View", "images\\F_Angle_View_SB.png"),
-        ISO("Isometric View", "images\\F_Iso_View_SB.png");
+        DRIVETRAIN("Drivetrain", "images\\2976 ROBOT_DRIVETRAIN.png"),
+        HOPPER("Hopper", "images\\2976 ROBOT_HOPPER.png"), INTAKE("Intake", "images\\2976 ROBOT_INTAKE.png"),
+        SHOOTER_CLIMB_FRONT("Shooter/Climb", "images\\2976 ROBOT_SHOOTER_CLIMB.png");
 
         public String mName;
         public String mPath;

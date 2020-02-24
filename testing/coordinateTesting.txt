@@ -1,0 +1,46 @@
+S_LOG <<< Warning: <0.01> Junk Message @INVALID_ACTUATOR@ >>> E_LOG
+S_LOG ### <0.5> Junk Message ### E_LOG
+RANDOM_JUNK
+RANDOM_JUNK
+RANDOM_JUNK
+RANDOM_JUNK
+S_LOG !!! Error: <1.5> Drive motor overheat @Left Master Falcon@ !!! E_LOG
+S_LOG !!! Error: <1.6> Drive motor overheat @Left Master Falcon@ !!! E_LOG
+S_LOG !!! Error: <1.7> Drive motor overheat @Left Master Falcon@ !!! E_LOG
+S_LOG !!! Error: <1.8> Drive motor overheat @Left Master Falcon@ !!! E_LOG
+S_LOG !!! Error: <2.8> Drive motor overheat @Left Master Falcon@ !!! E_LOG
+S_LOG !!! Error: <2.8> Drive motor overheat @Left Slave Falcon@ !!! E_LOG
+S_LOG !!! Error: <2.9> Drive motor overheat @Left Master Falcon@ !!! E_LOG
+S_LOG !!! Error: <2.9> Drive motor overheat @Left Slave Falcon@ !!! E_LOG
+S_LOG !!! Error: <3.8> Hopper Failure @Left Hopper Motor@ !!! E_LOG
+S_LOG !!! Error: <3.8> Hopper Failure @Right Hopper Motor@ !!! E_LOG
+S_LOG !!! Error: <3.9> Drive motor overheat @Right Master Falcon@ !!! E_LOG
+S_LOG !!! Error: <3.95> Drive motor overheat @Right Slave Falcon@ !!! E_LOG
+S_LOG !!! Error: <3.97> Could not deploy intake @Left Deploy Piston@ !!! E_LOG
+S_LOG !!! Error: <3.98> Could not deploy intake @Left Deploy Piston@ !!! E_LOG
+RANDOM_JUNK
+RANDOM_JUNK
+RANDOM_JUNK
+RANDOM_JUNK
+S_LOG <<< Warning: <4.01> Junk Message @INVALID_ACTUATOR@ >>> E_LOG
+S_LOG ### <4.5> Junk Message ### E_LOG
+RANDOM_JUNK
+RANDOM_JUNK
+RANDOM_JUNK
+RANDOM_JUNK
+S_LOG !!! Error: <5.8> Can't winch climb @Left Winch Motor@ !!! E_LOG
+S_LOG !!! Error: <5.85> Can't winch climb @Right Winch Motor@ !!! E_LOG
+S_LOG !!! Error: <5.9> Shooter index failed @Index Motor@ !!! E_LOG
+S_LOG !!! Error: <5.95> Climb slide deployment failed @Slide Motor@ !!! E_LOG
+S_LOG !!! Error: <6.8> Shooter motor overheat @Right Shooter Motor@ !!! E_LOG
+S_LOG !!! Error: <6.8> Shooter motor overheat @Left Shooter Motor@ !!! E_LOG
+S_LOG ### <6.9> No limelight target @Limelight@ ### E_LOG
+S_LOG ### <6.9> No limelight target @Limelight@ ### E_LOG
+S_LOG <<< Warning: <7.01> Junk Message @INVALID_ACTUATOR@ >>> E_LOG
+S_LOG ### <7.1> Junk Message ### E_LOG
+RANDOM_JUNK
+RANDOM_JUNK
+RANDOM_JUNK
+RANDOM_JUNK
+S_LOG !!! Error: <7.2> Limelight green light failed @Limelight@ !!! E_LOG
+S_LOG !!! Error: <7.6> Lmao bruh idk limelight @Limelight@ !!! E_LOG

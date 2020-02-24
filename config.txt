@@ -1,3 +1,3 @@
 .dsevents folder path: C:\Users\shrav\Documents\GitHub\RobotErrorIdentifier\testing
-All subsystem keyword names (comma separated): {Drive, Climb, Limelight}
+All subsystem keyword names (comma separated): {Drive, Hopper, Intake, Climb, Limelight}
 Console Overflow Limit: 100
