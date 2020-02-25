@@ -35,31 +35,33 @@ import roboterroridentifier.LoggerFilter.LogList;
  * A class to manage overviews.
  */
 public class OverviewManager {
-    private static JFrame sliderFrame;
-    private static JPanel jp;
-    private static JSlider sliderBar;
-    private static JLabel jlb;
-    private static JTextArea jta;
-    private static JComboBox<Object> jcb;
-    private static int tValue;
-    private static LogList mData;
-    private static JFrame imageFrame = new JFrame();;
+    private static JFrame sliderFrame = new JFrame("Slider Frame");
+    private static JPanel jp = new JPanel();
+    private static JSlider sliderBar = new JSlider();
+    private static JLabel jlb = new JLabel();
+    private static JTextArea jta = new JTextArea();
+    private static JComboBox<Object> jcb = null;
+    private static int tValue = 0;
+    private static LogList mData = new LogList();
+    private static JFrame imageFrame = new JFrame("Image Frame");
     private static ImagePanel[] allImagePanels = new ImagePanel[0];
-    private static String[] panelNames;
-    private static JComboBox<Object> viewChooser;
+    private static String[] panelNames = new String[0];
+    private static JComboBox<Object> viewChooser = null;
     private static ArrayList<String> activeActuators = new ArrayList<>();
-    private static int xPos;
-    private static int yPos;
+    private static int xPos = 0;
+    private static int yPos = 0;
     private static JLabel pointLabel = new JLabel("Last clicked point: X, Y");
 
     public static void createSliderWindow(final LogList data) {
+        sliderFrame.getContentPane().removeAll();
+        imageFrame.getContentPane().removeAll();
         mData = data;
+        allImagePanels = new ImagePanel[0];
         allImagePanels = Arrays.copyOf(allImagePanels, OverviewManager.ImageStorage.values().length);
         for (int i = 0; i < OverviewManager.ImageStorage.values().length; i++) {
             allImagePanels[i] = new ImagePanel(OverviewManager.ImageStorage.values()[i].getName(),
                     OverviewManager.ImageStorage.values()[i].getPath());
         }
-        sliderFrame = new JFrame("Slider Frame");
         jp = new JPanel();
         jp.setLayout(new FlowLayout());
         sliderBar = new JSlider(0, GraphManager.maxSec(data), 0);
@@ -83,7 +85,7 @@ public class OverviewManager {
         sliderBar.setForeground(LoggerGUI.plainWhite);
 
         jlb.setBounds(275, 25, 100, 50);
-        jlb.setText("@t = " + sliderBar.getValue());
+        jlb.setText("@t = " + "0 - 1");
 
         jcb.setBounds(50, 125, 300, 20);
         jcb.setBackground(LoggerGUI.spartaGreen);
@@ -103,15 +105,18 @@ public class OverviewManager {
             }
         });
         pointLabel.setBounds(125, 75, 400, 50);
+        
         sliderFrame.add(sliderBar);
         sliderFrame.add(jlb);
         sliderFrame.add(jcb);
         sliderFrame.add(tlviewer);
         sliderFrame.add(pointLabel);
         sliderFrame.add(jp);
+        sliderFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         sliderFrame.setSize(400, 600);
         sliderFrame.setResizable(false);
         sliderFrame.setVisible(true);
+        imageFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     public static int getTValue() {
@@ -166,17 +171,19 @@ public class OverviewManager {
             }
         }
         jta.append("Logs in " + "Other" + ":\n");
-                for (int j = 0; j < subLogs.get(LoggerFilter.SUBSYSTEM_KEYS.length).messages.size(); j++) {
-                    jta.append(subLogs.get(LoggerFilter.SUBSYSTEM_KEYS.length).messages.get(j) + " @t = " + subLogs.get(LoggerFilter.SUBSYSTEM_KEYS.length).timeStamps.get(j) + "\n");
-                    for (int k = 0; k < LoggerFilter.ACTUATOR_NAMES.size(); k++) {
-                        if (subLogs.get(LoggerFilter.SUBSYSTEM_KEYS.length).messages.get(j).contains("@" + LoggerFilter.ACTUATOR_NAMES.get(k) + "@")) {
-                            if (!activeActuators.contains(LoggerFilter.ACTUATOR_NAMES.get(k))) {
-                                activeActuators.add(LoggerFilter.ACTUATOR_NAMES.get(k));
-                            }
-                        }
+        for (int j = 0; j < subLogs.get(LoggerFilter.SUBSYSTEM_KEYS.length).messages.size(); j++) {
+            jta.append(subLogs.get(LoggerFilter.SUBSYSTEM_KEYS.length).messages.get(j) + " @t = "
+                    + subLogs.get(LoggerFilter.SUBSYSTEM_KEYS.length).timeStamps.get(j) + "\n");
+            for (int k = 0; k < LoggerFilter.ACTUATOR_NAMES.size(); k++) {
+                if (subLogs.get(LoggerFilter.SUBSYSTEM_KEYS.length).messages.get(j)
+                        .contains("@" + LoggerFilter.ACTUATOR_NAMES.get(k) + "@")) {
+                    if (!activeActuators.contains(LoggerFilter.ACTUATOR_NAMES.get(k))) {
+                        activeActuators.add(LoggerFilter.ACTUATOR_NAMES.get(k));
                     }
                 }
-                jta.append("\n");
+            }
+        }
+        jta.append("\n");
     }
 
     public static boolean checkAllowedDisplay(final int n) {
@@ -203,13 +210,16 @@ public class OverviewManager {
         viewChooser.setBackground(LoggerGUI.spartaGreen);
         viewChooser.setForeground(LoggerGUI.plainWhite);
         imageFrame.add(viewChooser);
-        viewChooser.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                updateGraphics();
-            }
-        });
+        if (viewChooser.getActionListeners().length < 1) {
+            viewChooser.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    updateGraphics();
+                }
+            });
+        }
         updateGraphics();
+        updateErrors(0);
     }
 
     public static void updateGraphics() {
